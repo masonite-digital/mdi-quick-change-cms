@@ -2,6 +2,11 @@ var $ = jQuery;
 $(window).load(function() {
     var $ = jQuery;
 
+    var cartNumber = window.sessionStorage.getItem('numberOfItemsInCart');
+
+    if (cartNumber != '0') {
+        $('#cartNumber .cn').append(cartNumber);
+    } 
 
     // User Login Authentication
     const loggedIn = $('#loggedIn');
