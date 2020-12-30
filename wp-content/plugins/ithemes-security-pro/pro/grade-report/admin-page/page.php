@@ -17,18 +17,11 @@ final class ITSEC_Grade_Report_Page {
 
 		$this->set_translation_strings();
 
-
 		require_once( ITSEC_Core::get_core_dir() . '/admin-pages/module-settings.php' );
 		require_once( ITSEC_Core::get_core_dir() . '/admin-pages/sidebar-widget.php' );
 		require_once( ITSEC_Core::get_core_dir() . '/lib/form.php' );
 
-
-		do_action( 'itsec-settings-page-init' );
-
-
-		if ( ! empty( $_POST ) && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
-			$this->handle_post();
-		}
+		do_action( 'itsec-grade-report-page-init' );
 	}
 
 	public function add_scripts() {
@@ -50,7 +43,6 @@ final class ITSEC_Grade_Report_Page {
 	public function add_styles() {
 		wp_enqueue_style( 'itsec-settings-page-style', plugins_url( 'css/style.css', ITSEC_Core::get_core_dir() . '/admin-pages/init.php' ), array(), ITSEC_Core::get_plugin_build() );
 		wp_enqueue_style( 'itsec-grade-report-page-style', plugins_url( 'css/style.css', __FILE__ ), array( 'itsec-settings-page-style' ), ITSEC_Core::get_plugin_build() );
-		wp_enqueue_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), ITSEC_Core::get_plugin_build() );
 		wp_enqueue_style( 'wp-jquery-ui-dialog' );
 	}
 
@@ -82,17 +74,7 @@ final class ITSEC_Grade_Report_Page {
 		}
 	}
 
-	private function handle_post() {
-		if ( ITSEC_Core::is_ajax_request() ) {
-			return;
-		}
-	}
-
 	public function handle_ajax_request() {
-		if ( WP_DEBUG ) {
-			ini_set( 'display_errors', 1 );
-		}
-
 		check_admin_referer( 'itsec-grade-report-nonce' );
 
 		if ( 'resolve_selected_issues' === $_POST['method'] ) {
@@ -157,7 +139,11 @@ final class ITSEC_Grade_Report_Page {
 	<div id="itsec-grade-report" class="wrap">
 		<h1>
 			<?php _e( 'iThemes Security', 'it-l10n-ithemes-security-pro' ); ?>
-			<a href="<?php echo esc_url( ITSEC_Core::get_settings_page_url() ); ?>" class="page-title-action"><?php _e( 'Manage Settings', 'it-l10n-ithemes-security-pro' ); ?></a>
+
+			<?php if ( ITSEC_Core::current_user_can_manage() ): ?>
+				<a href="<?php echo esc_url( ITSEC_Core::get_settings_page_url() ); ?>" class="page-title-action"><?php _e( 'Manage Settings', 'it-l10n-ithemes-security-pro' ); ?></a>
+			<?php endif; ?>
+
 			<a href="<?php echo esc_url( apply_filters( 'itsec_support_url', 'https://wordpress.org/support/plugin/better-wp-security' ) ); ?>" class="page-title-action"><?php _e( 'Support', 'it-l10n-ithemes-security-pro' ); ?></a>
 		</h1>
 
@@ -327,7 +313,7 @@ final class ITSEC_Grade_Report_Page {
 		$this->open_card( 'summary' );
 		$this->open_card_header();
 
-		if ( $report['issues'] ) {
+		if ( $report['fixable_issues'] ) {
 			$this->render_card_header_button( 'itsec-resolve-issues', esc_html__( 'Resolve Issues', 'it-l10n-ithemes-security-pro' ) );
 		} else {
 			$this->render_card_header_button( 'itsec-resolve-issues', esc_html__( 'View Grade Report Details', 'it-l10n-ithemes-security-pro' ) );
@@ -417,7 +403,7 @@ final class ITSEC_Grade_Report_Page {
 						</td>
 						<td class="itsec-criterion-explanation"><?php echo wp_kses( $criterion['details'], array( 'a' => array( 'href' => array() ) ) ); ?></td>
 						<td class="itsec-criterion-grade itsec-grade-<?php echo esc_attr( strtolower( substr( $criterion['grade'], 0, 1 ) ) ); ?>">
-							<?php echo esc_html( $criterion['grade'] ); ?>&nbsp;<span class="itsec-grade itsec-grade-<?php echo strtolower( substr( $criterion['grade'], 0, 1 ) ); ?>"></span>
+							<?php echo esc_html( $criterion['grade'] ); ?>&nbsp;<span class="dashicons-before itsec-grade itsec-grade-<?php echo strtolower( substr( $criterion['grade'], 0, 1 ) ); ?>"></span>
 						</td>
 					</tr>
 				<?php endforeach; ?>
@@ -446,7 +432,7 @@ final class ITSEC_Grade_Report_Page {
 			<?php foreach ( $section['criteria'] as $id => $criterion ) : ?>
 				<li id="itsec-section-list-<?php echo esc_attr( $section['id'] . '_' . str_replace( ':', '_', $id ) ); ?>">
 					<?php echo $criterion['name']; ?>
-					<span class="itsec-grade itsec-grade-<?php echo strtolower( substr( $criterion['grade'], 0, 1 ) ); ?>"></span>
+					<span class="dashicons-before itsec-grade itsec-grade-<?php echo strtolower( substr( $criterion['grade'], 0, 1 ) ); ?>"></span>
 				</li>
 			<?php endforeach; ?>
 		</ul>

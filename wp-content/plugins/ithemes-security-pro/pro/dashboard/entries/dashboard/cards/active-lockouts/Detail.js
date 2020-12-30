@@ -9,7 +9,7 @@ import { Button } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { LogModal } from 'packages/components/src';
+import { LogModal } from '@ithemes/security-components';
 import lockoutController from './lockout-controller';
 import { getConfigValue } from 'pro/dashboard/entries/dashboard/utils';
 
@@ -85,7 +85,7 @@ class Detail extends Component {
 		return (
 			<div className="itsec-card-active-lockouts__detail-container">
 				<time className="itsec-card-active-lockouts__start-time" dateTime={ master.start_gmt }>
-					{ sprintf( __( '%s ago', 'ithemes-security-pro' ), master.start_gmt_relative ) }
+					{ sprintf( __( '%s ago', 'it-l10n-ithemes-security-pro' ), master.start_gmt_relative ) }
 				</time>
 				<h3 className="itsec-card-active-lockouts__label">{ master.label }</h3>
 				<p className="itsec-card-active-lockouts__description">{ master.description }</p>
@@ -95,7 +95,7 @@ class Detail extends Component {
 						<hr />
 
 						<div className="itsec-card-active-lockouts__history">
-							<h4 className="itsec-card-active-lockouts__history-title">{ __( 'History', 'ithemes-security-pro' ) }</h4>
+							<h4 className="itsec-card-active-lockouts__history-title">{ __( 'History', 'it-l10n-ithemes-security-pro' ) }</h4>
 							<ul>
 								{ details.history.map( this.renderHistory ) }
 							</ul>
@@ -118,7 +118,7 @@ class Detail extends Component {
 
 		const time = (
 			<time dateTime={ history.time } title={ dateI18n( 'M d, Y g:s A', history.time ) }>
-				{ sprintf( __( '%s ago', 'ithemes-security-pro' ), history.time_relative ) }
+				{ sprintf( __( '%s ago', 'it-l10n-ithemes-security-pro' ), history.time_relative ) }
 			</time>
 		);
 

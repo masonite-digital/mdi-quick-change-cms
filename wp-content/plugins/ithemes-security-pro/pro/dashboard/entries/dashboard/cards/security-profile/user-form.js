@@ -11,11 +11,11 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { AsyncSelect } from 'packages/components/src';
+import { AsyncSelect } from '@ithemes/security-components';
 
 const loadUsers = ( search ) => new Promise( ( resolve, reject ) => {
 	apiFetch( {
-		path: addQueryArgs( '/wp/v2/users', { search, per_page: 100 } ),
+		path: addQueryArgs( '/wp/v2/users', { search, per_page: 100, itsec_global: true } ),
 	} )
 		.then( ( response ) => resolve( response.map( ( user ) => ( { value: user.id, label: user.name } ) ) ) )
 		.catch( reject );
@@ -25,7 +25,7 @@ function UserForm( { card, save, userInput, setState } ) {
 	return (
 		<section className="itsec-card-security-profile__select-user">
 			<label htmlFor={ `itsec-card-security-profile__select-user-dropdown--${ card.id }` }>
-				{ __( 'Select a User', 'ithemes-security-pro' ) }
+				{ __( 'Select a User', 'it-l10n-ithemes-security-pro' ) }
 			</label>
 			<form className="itsec-card-security-profile__select-form">
 				<AsyncSelect
@@ -45,12 +45,12 @@ function UserForm( { card, save, userInput, setState } ) {
 							user: userInput.value,
 						},
 					} ) }>
-						{ __( 'Select', 'ithemes-security-pro' ) }
+						{ __( 'Select', 'it-l10n-ithemes-security-pro' ) }
 					</Button>
 				</div>
 			</form>
 			<p className="description">
-				{ __( 'Select a user to monitor with this card.', 'ithemes-security-pro' ) }
+				{ __( 'Select a user to monitor with this card.', 'it-l10n-ithemes-security-pro' ) }
 			</p>
 		</section>
 	);

@@ -20,7 +20,7 @@ import { BREAKPOINTS } from '../../utils';
 const widthProvider = createHigherOrderComponent( ( WrappedComponent ) => {
 	return class WidthProvider extends Component {
 		static defaultProps = {
-			measureBeforeMount: false,
+			measureBeforeMount: true,
 		};
 
 		state = {
@@ -57,9 +57,8 @@ const widthProvider = createHigherOrderComponent( ( WrappedComponent ) => {
 
 			if ( node instanceof window.HTMLElement ) {
 				const width = node.offsetWidth;
-				this.setState( { width } );
-
-				this.props.onWidthBreakpoint( Responsive.utils.getBreakpointFromWidth( BREAKPOINTS, width ) );
+				const breakpoint = Responsive.utils.getBreakpointFromWidth( BREAKPOINTS, width );
+				this.setState( { width, breakpoint } );
 			}
 		};
 

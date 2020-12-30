@@ -73,6 +73,13 @@ if ( ! class_exists( 'ITSEC_Version_Management_Setup' ) ) {
 
 				ITSEC_Modules::set_settings( 'version-management', $settings );
 			}
+
+			if ( ( $old_version < 4122 ) && null === get_site_option( 'auto_update_core_major', null ) ) {
+				update_site_option(
+					'auto_update_core_major',
+					ITSEC_Modules::get_setting( 'version-management', 'wordpress_automatic_updates' ) ? 'enabled' : 'unset'
+				);
+			}
 		}
 	}
 }

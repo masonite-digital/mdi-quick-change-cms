@@ -17,7 +17,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { AsyncSelect } from 'packages/components/src';
+import { AsyncSelect } from '@ithemes/security-components';
 
 const loadUsers = memize( ( exclude = [] ) => ( search ) => new Promise( ( resolve, reject ) => {
 	apiFetch( {
@@ -57,7 +57,7 @@ function UserTab( { suggested, dashboard, share = { type: 'user', users: [] }, o
 		<Fragment>
 			{ suggestedFiltered.length > 0 && (
 				<fieldset className="itsec-share-dashboard__suggested-users">
-					<legend>{ __( 'Suggested Users', 'ithemes-security-pro' ) }</legend>
+					<legend>{ __( 'Suggested Users', 'it-l10n-ithemes-security-pro' ) }</legend>
 					<ul>
 						{ suggestedFiltered.map( ( user ) => (
 							<li key={ user.id }>
@@ -73,7 +73,7 @@ function UserTab( { suggested, dashboard, share = { type: 'user', users: [] }, o
 				</fieldset>
 			) }
 			<fieldset className="itsec-share-dashboard__add-users">
-				<legend>{ __( 'All Users', 'ithemes-security-pro' ) }</legend>
+				<legend>{ __( 'All Users', 'it-l10n-ithemes-security-pro' ) }</legend>
 				<ul>
 					{ share.users.filter( ( userId ) => ! suggested.some( ( suggestion ) => suggestion.id === userId ) ).map( ( userId ) => (
 						<AddedUser key={ userId } userId={ userId } />
@@ -81,7 +81,7 @@ function UserTab( { suggested, dashboard, share = { type: 'user', users: [] }, o
 				</ul>
 
 				<label className="itsec-share-dashboard__add-users-select" htmlFor="itsec-share-dashboard__add-users-select">
-					{ __( 'Select a User', 'ithemes-security-pro' ) }
+					{ __( 'Select a User', 'it-l10n-ithemes-security-pro' ) }
 				</label>
 
 				<div className="itsec-share-dashboard__add-users-fields">
@@ -96,7 +96,7 @@ function UserTab( { suggested, dashboard, share = { type: 'user', users: [] }, o
 
 					<div className="itsec-share-dashboard__add-users-trigger">
 						<Button isLarge onClick={ addUser } disabled={ ! selectedUser }>
-							{ __( 'Select', 'ithemes-security-pro' ) }
+							{ __( 'Select', 'it-l10n-ithemes-security-pro' ) }
 						</Button>
 					</div>
 				</div>

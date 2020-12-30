@@ -78,7 +78,7 @@ class ITSEC_Dashboard_Card_Version_Management extends ITSEC_Dashboard_Card {
 	public function get_links() {
 		return array(
 			array(
-				'rel'   => ITSEC_Dashboard_REST::LINK_REL . 'logs',
+				'rel'   => ITSEC_Lib_REST::LINK_REL . 'logs',
 				'href'  => network_admin_url( 'update-core.php' ),
 				'title' => __( 'Manage Updates', 'it-l10n-ithemes-security-pro' ),
 				'media' => 'text/html',

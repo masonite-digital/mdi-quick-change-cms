@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { applyFilters } from './hooks';
-import { makeUrlRelative, MYSTERY_MAN_AVATAR } from 'packages/utils/src';
+import { makeUrlRelative, MYSTERY_MAN_AVATAR } from '@ithemes/security-utils';
 
 export const BREAKPOINTS = Object.freeze( {
 	huge: 1440,
@@ -459,7 +459,7 @@ export const sortCardsToMatchApiLayout = memize( _sortCardsToMatchApiLayout );
  */
 export function getCardTitle( card, config ) {
 	if ( ! config ) {
-		return __( 'Unknown Card', 'ithemes-security-pro' );
+		return __( 'Unknown Card', 'it-l10n-ithemes-security-pro' );
 	}
 
 	let title = config.label;

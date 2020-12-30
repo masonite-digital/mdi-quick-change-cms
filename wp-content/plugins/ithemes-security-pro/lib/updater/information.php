@@ -39,7 +39,7 @@ class Ithemes_Updater_Information {
 
 		if ( is_wp_error( $changelog ) ) {
 			/* translators: 1. Error message, 2. Error code */
-			$changelog = sprintf( __( '<p>Unable to get changelog data at this time.</p><p>%1$s (%2$s)</p>', 'it-l10n-ithemes-security-pro' ), $response->get_error_message(), $response->get_error_code() );
+			$changelog = sprintf( __( '<p>Unable to get changelog data at this time.</p><p>%1$s (%2$s)</p>', 'it-l10n-ithemes-security-pro' ), $changelog->get_error_message(), $changelog->get_error_code() );
 		}
 
 
@@ -47,7 +47,7 @@ class Ithemes_Updater_Information {
 			'name'          => Ithemes_Updater_Functions::get_package_name( $package['package'] ),
 			'slug'          => dirname( $path ),
 			'version'       => $package['available'],
-			'author'        => '<a href="http://ithemes.com/">iThemes</a>',
+			'author'        => '<a href="https://ithemes.com/">iThemes</a>',
 			'download_link' => $package['package-url'],
 
 			'sections' => array(

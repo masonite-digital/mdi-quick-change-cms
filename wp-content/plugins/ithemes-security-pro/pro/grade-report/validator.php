@@ -1,5 +1,8 @@
 <?php
 
+use iThemesSecurity\User_Groups\Matcher;
+use iThemesSecurity\User_Groups;
+
 /**
  * Class ITSEC_Grading_System_Validator
  */
@@ -9,36 +12,9 @@ class ITSEC_Grading_System_Validator extends ITSEC_Validator {
 	}
 
 	protected function sanitize_settings() {
-		$this->sanitize_setting( array_map( 'strval', array_keys( $this->get_users() ) ), 'disabled_users', __( 'Disabled Users', 'it-l10n-ithemes-security-pro' ) );
-	}
-
-	protected function validate_settings() {
-		// Only validate settings if the data was successfully sanitized.
-		if ( ! $this->can_save() ) {
-			return;
-		}
-
-		if ( in_array( get_current_user_id(), $this->settings['disabled_users'], false ) ) {
-
-			$this->add_error( new WP_Error( "itsec-validator-{$this->get_id()}-cannot-disable-for-self", esc_html__( 'You cannot disable Grade Report for your user.', 'LIOn' ) ) );
-
-			if ( ITSEC_Core::is_interactive() ) {
-				$this->set_can_save( false );
-			}
-		}
-	}
-
-	public function get_users() {
-		require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-canonical-roles.php' );
-
-		$users  = ITSEC_Lib_Canonical_Roles::get_users_with_canonical_role( 'administrator' );
-		$mapped = array();
-
-		foreach ( $users as $user ) {
-			$mapped[ $user->ID ] = $user->user_login;
-		}
-
-		return $mapped;
+		$this->preserve_setting_if_exists( array( 'disabled_users' ) );
+		$this->vars_to_skip_validate_matching_fields[] = 'disabled_users';
+		$this->sanitize_setting( 'user-groups', 'group', esc_html__( 'User Group', 'it-l10n-ithemes-security-pro' ) );
 	}
 }
 

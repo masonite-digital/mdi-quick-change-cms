@@ -58,11 +58,21 @@ class ITSEC_Dashboard_Card_Security_Profile_List extends ITSEC_Dashboard_Card_Se
 		$user_query = new WP_User_Query( $user_query_args );
 
 		foreach ( $user_query->get_results() as $user ) {
-			$users[] = $this->build_user_data( $user );
+			$users[ $user->ID ] = $this->build_user_data( $user );
+		}
+
+		if ( is_multisite() ) {
+			foreach ( get_super_admins() as $username ) {
+				$user = get_user_by( 'login', $username );
+
+				if ( $user && ! isset( $users[ $user->ID ] ) ) {
+					$users[ $user->ID ] = $this->build_user_data( $user );
+				}
+			}
 		}
 
 		return array(
-			'users' => $users,
+			'users' => array_values( $users ),
 		);
 	}
 }

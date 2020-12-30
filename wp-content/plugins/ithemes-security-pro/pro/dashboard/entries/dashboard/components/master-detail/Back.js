@@ -11,6 +11,6 @@ export default function Back( { isSmall, select, selectedId } ) {
 			className="itsec-component-master-detail__back"
 			onClick={ () => select( 0 ) }
 			style={ ( ! selectedId || ! isSmall ) ? { display: 'none' } : { } }
-			label={ __( 'Back to List', 'ithemes-security-pro' ) } tooltip={ false } />
+			label={ __( 'Back to List', 'it-l10n-ithemes-security-pro' ) } tooltip={ false } />
 	);
 }

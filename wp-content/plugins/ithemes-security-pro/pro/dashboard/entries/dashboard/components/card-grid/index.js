@@ -3,7 +3,7 @@
  */
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { Responsive } from 'react-grid-layout';
+import { Responsive as Grid } from 'react-grid-layout';
 import { debounce } from 'lodash';
 
 /**
@@ -16,14 +16,12 @@ import { Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { withInterval } from 'packages/hocs/src';
+import { withInterval } from '@ithemes/security-hocs';
 import widthProvider from './width-provider';
 import Card from '../card';
 import EmptyState from '../card-grid/empty-state';
 import { GRID_COLUMNS, BREAKPOINTS, areGridLayoutsEqual, transformApiLayoutToGrid, transformGridLayoutToApi, sortCardsToMatchLayout } from '../../utils';
 import './style.scss';
-
-const Grid = widthProvider( Responsive );
 
 class CardGrid extends Component {
 	constructor( props ) {
@@ -40,6 +38,10 @@ class CardGrid extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
+		if ( ! this.state.breakpointInitialized && this.props.breakpoint && ! prevProps.breakpoint ) {
+			this.setState( { breakpoint: this.props.breakpoint, breakpointInitialized: true } );
+		}
+
 		if ( this.props.layout !== prevProps.layout && ( this.props.dashboardId !== prevProps.dashboardId || this.props.cards.length !== prevProps.cards.length ) ) {
 			const transformed = transformApiLayoutToGrid( this.props.dashboardId, this.props.cards, this.props.layout );
 
@@ -71,12 +73,6 @@ class CardGrid extends Component {
 		this.setState( { breakpoint: newBreakpoint } );
 	};
 
-	onWidthBreakpoint = ( newBreakpoint ) => {
-		if ( ! this.state.breakpointInitialized ) {
-			this.setState( { breakpoint: newBreakpoint, breakpointInitialized: true } );
-		}
-	};
-
 	onStartMove = () => {
 		this.setState( { isMoving: true } );
 	};
@@ -93,12 +89,12 @@ class CardGrid extends Component {
 		}
 
 		return (
-			<Grid breakpoints={ BREAKPOINTS } cols={ GRID_COLUMNS } rowHeight={ 200 } draggableHandle=".itsec-card-header, .itsec-card--unknown, .itsec-card__drag-handle" measureBeforeMount
-				layouts={ this.state.layout } onLayoutChange={ this.onLayoutChange } onBreakpointChange={ this.onBreakpointChange } onWidthBreakpoint={ this.onWidthBreakpoint }
+			<Grid breakpoints={ BREAKPOINTS } cols={ GRID_COLUMNS } rowHeight={ 200 } draggableHandle=".itsec-card-header, .itsec-card--unknown, .itsec-card__drag-handle" width={ this.props.width }
+				layouts={ this.state.layout } onLayoutChange={ this.onLayoutChange } onBreakpointChange={ this.onBreakpointChange }
 				margin={ [ 20, 20 ] } isDraggable={ ! usingTouch } isResizable={ ! usingTouch } className={ this.state.isMoving ? 'itsec-card-grid--moving' : '' }
 				onDragStart={ this.onStartMove } onDragStop={ this.onStopMove } onResizeStart={ this.onStartMove } onResizeStop={ this.onStopMove }>
 				{ sortCardsToMatchLayout( cards, this.state.layout, this.state.breakpoint ).map( ( card ) => (
-					<Card id={ card.id } dashboardId={ dashboardId } key={ card.id.toString() } />
+					<Card id={ card.id } dashboardId={ dashboardId } key={ card.id.toString() } gridWidth={ this.props.width } />
 				) ) }
 			</Grid>
 		);
@@ -114,6 +110,7 @@ export default compose( [
 		layoutLoaded: select( 'ithemes-security/dashboard' ).isLayoutLoaded( props.dashboardId ),
 	} ) ),
 	ifCondition( ( { cardsLoaded, layoutLoaded } ) => cardsLoaded && layoutLoaded ),
+	widthProvider,
 	pure,
 	withDispatch( ( dispatch, props ) => ( {
 		openEditCards: dispatch( 'ithemes-security/dashboard' ).openEditCards,

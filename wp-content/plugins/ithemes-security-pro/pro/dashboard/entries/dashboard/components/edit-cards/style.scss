@@ -59,6 +59,7 @@
                 height: 4em;
                 width: 4em;
                 justify-content: center;
+                box-shadow: none;
 
                 &:hover {
                     box-shadow: none !important;
@@ -69,8 +70,8 @@
                     margin-left: auto;
 
                     &:hover {
-                        background: $light-gray-200;
-                        color: darken( $main-blue, 50 );
+                        background: $light-gray-200 !important;
+                        color: darken( $main-blue, 50 ) !important;
                     }
                 }
 
@@ -80,7 +81,8 @@
                     margin-right: .5em;
 
                     &:hover {
-                        background: $light-gray-900;
+                        color: #ececec !important;
+                        background: $light-gray-900 !important;
                     }
                 }
             }

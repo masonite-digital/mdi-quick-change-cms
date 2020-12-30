@@ -99,14 +99,14 @@ class ITSEC_REST_Dashboard_Dashboards_Controller extends ITSEC_REST_Dashboard_Co
 		}
 
 		if ( 'edit' === $request['context'] && ! current_user_can( 'itsec_edit_dashboard', $id ) ) {
-			return new WP_Error( 'rest_forbidden_context', esc_html__( 'Sorry, you are not allowed to edit this dashboard.' ), array( 'status' => 403 ) );
+			return new WP_Error( 'rest_forbidden_context', esc_html__( 'Sorry, you are not allowed to edit this dashboard.', 'it-l10n-ithemes-security-pro' ), array( 'status' => 403 ) );
 		}
 
-		if ( current_user_can( 'itsec_view_dashboard', $id ) ) {
-			return true;
+		if ( ! current_user_can( 'itsec_view_dashboard', $id ) ) {
+			return new WP_Error( 'rest_cannot_view', esc_html__( 'Sorry, you do not have permission to view this dashboard.', 'it-l10n-ithemes-security-pro' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
-		return new WP_Error( 'rest_cannot_view', esc_html__( 'Sorry, you do not have permission to view this dashboard.', array( 'status' => rest_authorization_required_code() ) ) );
+		return true;
 	}
 
 	/**
@@ -360,7 +360,7 @@ class ITSEC_REST_Dashboard_Dashboards_Controller extends ITSEC_REST_Dashboard_Co
 
 		foreach ( $user_ids as $user_id ) {
 			$response->add_link(
-				ITSEC_Dashboard_REST::LINK_REL . 'shared-with',
+				ITSEC_Lib_REST::LINK_REL . 'shared-with',
 				rest_url( "wp/v2/users/{$user_id}" ),
 				array( 'embeddable' => true )
 			);

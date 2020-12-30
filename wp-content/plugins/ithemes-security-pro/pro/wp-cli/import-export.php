@@ -34,6 +34,14 @@ class ITSEC_Import_Export_Command extends WP_CLI_Command {
 			WP_CLI::error( $imported );
 		}
 
+		if ( ITSEC_Response::get_error_count() ) {
+			foreach ( ITSEC_Response::get_errors() as $error ) {
+				WP_CLI::error( $error, false );
+			}
+
+			WP_CLI::halt( 1 );
+		}
+
 		WP_CLI::success( __( 'Import complete', 'it-l10n-ithemes-security-pro' ) );
 	}
 

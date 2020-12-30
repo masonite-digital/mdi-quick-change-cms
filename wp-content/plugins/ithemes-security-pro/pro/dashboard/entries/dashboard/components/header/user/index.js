@@ -18,7 +18,7 @@ function User() {
 				alt=""
 			/>
 			<span className="itsec-header-user__greeting">
-				{ sprintf( __( 'Hello, %s', 'ithemes-security-pro' ), getConfigValue( [ 'user', 'name' ] ) ) }
+				{ sprintf( __( 'Hello, %s', 'it-l10n-ithemes-security-pro' ), getConfigValue( [ 'user', 'name' ] ) ) }
 			</span>
 		</div>
 	);

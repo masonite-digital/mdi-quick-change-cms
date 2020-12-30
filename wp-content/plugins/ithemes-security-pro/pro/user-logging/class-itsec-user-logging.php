@@ -1,8 +1,25 @@
 <?php
 
-final class ITSEC_User_Logging {
+use iThemesSecurity\Contracts\Runnable;
+use iThemesSecurity\User_Groups;
+
+final class ITSEC_User_Logging implements Runnable {
+
+	/** @var User_Groups\Matcher */
+	private $matcher;
+
+	/** @var int */
+	private $current_user_id;
+
+	/**
+	 * ITSEC_User_Logging constructor.
+	 *
+	 * @param User_Groups\Matcher $matcher
+	 */
+	public function __construct( User_Groups\Matcher $matcher ) { $this->matcher = $matcher; }
 
 	public function run() {
+		add_action( 'itsec_register_user_group_settings', [ $this, 'register_group_setting' ] );
 		add_action( 'wp_login', array( $this, 'wp_login' ), 11, 2 );
 		add_action( 'itsec_login_interstitial_logged_in', array( $this, 'interstitial_login' ) );
 		add_action( 'wp_logout', array( $this, 'wp_logout' ) );
@@ -13,6 +30,20 @@ final class ITSEC_User_Logging {
 		add_action( 'deactivated_plugin', array( $this, 'deactivated_plugin' ), 10, 2 );
 		add_action( 'deleted_plugin', array( $this, 'deleted_plugin' ), 10, 2 );
 		add_action( 'switch_theme', array( $this, 'switch_theme' ), 10, 3 );
+		add_action( 'set_current_user', function () {
+			if ( $user_id = get_current_user_id() ) {
+				$this->current_user_id = $user_id;
+			}
+		} );
+	}
+
+	public function register_group_setting( User_Groups\Settings_Registry $registry ) {
+		$registry->register( new User_Groups\Settings_Registration( 'user-logging', 'group', User_Groups\Settings_Registration::T_MULTIPLE, static function () {
+			return [
+				'title'       => __( 'Activity Monitoring', 'it-l10n-ithemes-security-pro' ),
+				'description' => __( 'Track and log individual user activity.', 'it-l10n-ithemes-security-pro' ),
+			];
+		} ) );
 	}
 
 	/**
@@ -23,9 +54,11 @@ final class ITSEC_User_Logging {
 	 * @return bool True if the user actions should be logged, false otherwise.
 	 */
 	public function should_log_for_current_user( $user = false ) {
-		require_once( ITSEC_Core::get_core_dir() . '/lib/class-itsec-lib-canonical-roles.php' );
+		if ( ! $user = ITSEC_Lib::get_user( $user ) ) {
+			return false;
+		}
 
-		return ITSEC_Lib_Canonical_Roles::is_user_at_least( ITSEC_Modules::get_setting( 'user-logging', 'role' ), $user );
+		return $this->matcher->matches( User_Groups\Match_Target::for_user( $user ), ITSEC_Modules::get_setting( 'user-logging', 'group' ) );
 	}
 
 	/**
@@ -88,10 +121,17 @@ final class ITSEC_User_Logging {
 	 * @return void
 	 */
 	public function wp_logout() {
-		if ( $this->should_log_for_current_user() ) {
-			$user_id = get_current_user_id();
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			$user_id = $this->current_user_id;
+		}
+
+		if ( $user_id && $this->should_log_for_current_user( $user_id ) ) {
 			ITSEC_Log::add_notice( 'user_logging', "user-logged-out::$user_id", compact( 'user_id' ) );
 		}
+
+		$this->current_user_id = 0;
 	}
 
 	/**

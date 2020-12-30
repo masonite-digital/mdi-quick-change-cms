@@ -20,11 +20,11 @@ export default function UserInfo( { user } ) {
 			<table>
 				<tbody>
 					<tr>
-						<th>{ __( 'Role', 'ithemes-security-pro' ) }</th>
+						<th>{ __( 'Role', 'it-l10n-ithemes-security-pro' ) }</th>
 						<td>{ user.role }</td>
 					</tr>
 					<tr>
-						<th>{ __( 'Password Strength', 'ithemes-security-pro' ) }</th>
+						<th>{ __( 'Password Strength', 'it-l10n-ithemes-security-pro' ) }</th>
 						<td>
 							<span className={ classnames(
 								'itsec-card-security-profile__password-strength',
@@ -36,7 +36,7 @@ export default function UserInfo( { user } ) {
 					</tr>
 					{ user.password_last_changed && (
 						<tr>
-							<th>{ __( 'Password Age', 'ithemes-security-pro' ) }</th>
+							<th>{ __( 'Password Age', 'it-l10n-ithemes-security-pro' ) }</th>
 							<td>
 								<span title={ dateI18n( 'M d, Y g:s A', user.password_last_changed.time ) }>
 									{ user.password_last_changed.diff }
@@ -45,12 +45,12 @@ export default function UserInfo( { user } ) {
 						</tr>
 					) }
 					<tr>
-						<th>{ __( 'Two-Factor', 'ithemes-security-pro' ) }</th>
+						<th>{ __( 'Two-Factor', 'it-l10n-ithemes-security-pro' ) }</th>
 						<td>{ getTwoFactor( user.two_factor )[ 1 ] }</td>
 					</tr>
 					{ user.last_active && (
 						<tr>
-							<th>{ __( 'Last Seen', 'ithemes-security-pro' ) }</th>
+							<th>{ __( 'Last Seen', 'it-l10n-ithemes-security-pro' ) }</th>
 							<td>
 								<span title={ dateI18n( 'M d, Y g:s A', user.last_active.time ) }>
 									{ user.last_active.diff }

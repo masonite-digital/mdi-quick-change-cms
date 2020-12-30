@@ -44,7 +44,7 @@ class LockoutController {
 				setTimeout( () => dispatch( 'core/notices' ).removeNotice( id, 'ithemes-security' ), 5000 );
 				dispatch( 'core/notices' ).createNotice(
 					'success',
-					__( 'Lockout Released', 'ithemes-security-pro' ),
+					__( 'Lockout Released', 'it-l10n-ithemes-security-pro' ),
 					{ id, context: 'ithemes-security' },
 				);
 
@@ -54,7 +54,7 @@ class LockoutController {
 
 				dispatch( 'core/notices' ).createNotice(
 					'error',
-					sprintf( __( 'Error when releasing lockout: %s', 'ithemes-security-pro' ), e.message ),
+					sprintf( __( 'Error when releasing lockout: %s', 'it-l10n-ithemes-security-pro' ), e.message ),
 					{ context: 'ithemes-security' },
 				);
 			} );

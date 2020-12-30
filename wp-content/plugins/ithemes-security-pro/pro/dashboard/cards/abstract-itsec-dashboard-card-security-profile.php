@@ -20,7 +20,7 @@ abstract class ITSEC_Dashboard_Card_Security_Profile extends ITSEC_Dashboard_Car
 			'id'                    => $user->ID,
 			'name'                  => ! empty( $user->display_name ) ? $user->display_name : $user->user_login,
 			'avatar'                => get_avatar_url( $user ),
-			'role'                  => $user->roles ? translate_user_role( wp_roles()->role_names[ $user->roles[0] ] ) : '',
+			'role'                  => $this->get_role( $user ),
 			'two_factor'            => $this->get_two_factor( $user ),
 			'last_active'           => ! $last_seen ? array() : array(
 				'time' => ITSEC_Lib::to_rest_date( (int) $last_seen ),
@@ -34,6 +34,29 @@ abstract class ITSEC_Dashboard_Card_Security_Profile extends ITSEC_Dashboard_Car
 				'diff' => sprintf( __( '%s old', 'it-l10n-ithemes-security-pro' ), human_time_diff( $password_last_changed ) ),
 			),
 		);
+	}
+
+	/**
+	 * Get the user's role to display.
+	 *
+	 * @param WP_User $user
+	 *
+	 * @return string
+	 */
+	private function get_role( $user ) {
+		if ( is_multisite() && is_super_admin( $user->ID ) ) {
+			return esc_html__( 'Super Admin', 'it-l10n-ithemes-security-pro' );
+		}
+
+		if ( is_multisite() && ! is_user_member_of_blog( $user->ID ) && $site_id = get_user_meta( $user->ID, 'primary_blog', true ) ) {
+			$user->for_site( $site_id );
+		}
+
+		return implode( ', ', array_map( static function ( $role ) {
+			$names = wp_roles()->get_names();
+
+			return isset( $names[ $role ] ) ? translate_user_role( $names[ $role ] ) : $role;
+		}, $user->roles ) );
 	}
 
 	/**

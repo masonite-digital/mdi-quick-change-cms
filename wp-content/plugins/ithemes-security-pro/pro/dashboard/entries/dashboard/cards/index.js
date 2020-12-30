@@ -3,6 +3,7 @@
  */
 import { LineGraph, PieChart } from './renderers';
 import * as activeLockouts from './active-lockouts';
+import * as bannedUsers from './banned-users-list';
 import * as databaseBackup from './database-backup';
 import * as malwareScan from './malware-scan';
 import * as securityProfile from './security-profile/pinned';
@@ -19,6 +20,7 @@ function register( slug, settings ) {
 
 [
 	activeLockouts,
+	bannedUsers,
 	databaseBackup,
 	malwareScan,
 	securityProfileList,

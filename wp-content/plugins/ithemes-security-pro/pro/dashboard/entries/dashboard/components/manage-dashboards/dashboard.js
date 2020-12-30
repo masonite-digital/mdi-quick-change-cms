@@ -24,29 +24,29 @@ function Dashboard( { dashboard, currentDashboard, isPrimary, isDeleting, curren
 			<header className="itsec-manage-dashboards__dashboard-header">
 				<h4>
 					{ currentDashboard === dashboard.id ? title : <Button isLink onClick={ () => [ select( dashboard.id ), close() ] }>{ title }</Button> }
-					{ isPrimary && <span className="itsec-manage-dashboards__primary">{ __( 'Primary', 'ithemes-security-pro' ) }</span> }
+					{ isPrimary && <span className="itsec-manage-dashboards__primary">{ __( 'Primary', 'it-l10n-ithemes-security-pro' ) }</span> }
 				</h4>
 				{ currentUserId !== dashboard.created_by && (
 					<span className="itsec-manage-dashboards__dashboard-meta itsec-manage-dashboards__dashboard-meta--author">
 						{ sprintf(
-							__( 'Shared by %s', 'ithemes-security-pro' ),
-							get( dashboard, [ '_embedded', 'author', 0, 'name' ], sprintf( __( 'User #%d', 'ithemes-security-pro' ), dashboard.created_by ) )
+							__( 'Shared by %s', 'it-l10n-ithemes-security-pro' ),
+							get( dashboard, [ '_embedded', 'author', 0, 'name' ], sprintf( __( 'User #%d', 'it-l10n-ithemes-security-pro' ), dashboard.created_by ) )
 						) }
 					</span>
 				) }
 				<span className="itsec-manage-dashboards__dashboard-meta itsec-manage-dashboards__dashboard-meta--date">
-					{ sprintf( __( 'Created on %s', 'ithemes-security-pro' ), dateI18n( 'M j, Y', dashboard.created_at ) ) }
+					{ sprintf( __( 'Created on %s', 'it-l10n-ithemes-security-pro' ), dateI18n( 'M j, Y', dashboard.created_at ) ) }
 				</span>
 			</header>
 			<div className="itsec-manage-dashboards__dashboard-actions">
 				{ ! isPrimary && (
 					<Button isLink onClick={ setPrimary } className="itsec-manage-dashboards__dashboard-action">
-						{ __( 'Make Primary', 'ithemes-security-pro' ) }
+						{ __( 'Make Primary', 'it-l10n-ithemes-security-pro' ) }
 					</Button>
 				) }
 				{ dashboard.id !== currentDashboard && ! isPrimary && currentUserId === dashboard.created_by && (
 					<Button isLink isDestructive onClick={ deleteDashboard } className="itsec-manage-dashboards__dashboard-action">
-						{ __( 'Delete', 'ithemes-security-pro' ) }
+						{ __( 'Delete', 'it-l10n-ithemes-security-pro' ) }
 					</Button>
 				) }
 			</div>

@@ -34,7 +34,7 @@ function getPeriodLabel( period ) {
 
 	switch ( period ) {
 		case '24-hours':
-			return __( '24 Hours', 'ithemes-security-pro' );
+			return __( '24 Hours', 'it-l10n-ithemes-security-pro' );
 		case '30-days':
 			start = dateI18n( 'M j', now.setDate( now.getDate() - 30 ) );
 			end = dateI18n( 'M j' );
@@ -49,15 +49,15 @@ function getPeriodLabel( period ) {
 			break;
 	}
 
-	return sprintf( __( '%s - %s', 'ithemes-security-pro' ), start, end );
+	return sprintf( __( '%s - %s', 'it-l10n-ithemes-security-pro' ), start, end );
 }
 
 const getDateOptions = memize( () => {
 	return [
-		{ value: '24-hours', label: __( '24 Hours', 'ithemes-security-pro' ) },
-		{ value: 'week', label: __( '7 Days', 'ithemes-security-pro' ) },
-		{ value: '30-days', label: __( '30 Days', 'ithemes-security-pro' ) },
-		{ value: 'custom', label: __( 'Custom', 'ithemes-security-pro' ) },
+		{ value: '24-hours', label: __( '24 Hours', 'it-l10n-ithemes-security-pro' ) },
+		{ value: 'week', label: __( '7 Days', 'it-l10n-ithemes-security-pro' ) },
+		{ value: '30-days', label: __( '30 Days', 'it-l10n-ithemes-security-pro' ) },
+		{ value: 'custom', label: __( 'Custom', 'it-l10n-ithemes-security-pro' ) },
 	];
 } );
 
@@ -87,25 +87,25 @@ function Date( { queryArgs, config, isOpen, periodOption, start, end, setState, 
 
 	return (
 		<div className="itsec-card-header-date">
-			<Button onClick={ () => setState( { isOpen: ! isOpen } ) } title={ periodLabel } aria-expanded={ isOpen } aria-label={ sprintf( __( '%s (click to change)', 'ithemes-security-pro' ), periodLabel ) }>
+			<Button onClick={ () => setState( { isOpen: ! isOpen } ) } title={ periodLabel } aria-expanded={ isOpen } aria-label={ sprintf( __( '%s (click to change)', 'it-l10n-ithemes-security-pro' ), periodLabel ) }>
 				<span className="itsec-card-header-date__period">{ periodLabel }</span>
 				<Dashicon icon="calendar" className="itsec-card-header-date__icon" />
 			</Button>
 			{ isOpen &&
-			<Modal title={ __( 'Change Date Period', 'ithemes-security-pro' ) } onRequestClose={ () => setState( { isOpen: false } ) }>
+			<Modal title={ __( 'Change Date Period', 'it-l10n-ithemes-security-pro' ) } onRequestClose={ () => setState( { isOpen: false } ) }>
 				<SelectControl options={ getDateOptions() } value={ periodOption } onChange={ ( newPeriod ) => ( setState( { periodOption: newPeriod } ) ) } />
 				{ periodOption === 'custom' &&
 					<Fragment>
 						<TextControl type="date" min={ MIN } max={ MAX }
 							value={ start } onChange={ ( newStart ) => setState( { start: newStart } ) }
-							label={ __( 'Start Date', 'ithemes-security-pro' ) } placeholder="YYYY-MM-DD" />
+							label={ __( 'Start Date', 'it-l10n-ithemes-security-pro' ) } placeholder="YYYY-MM-DD" />
 						<TextControl type="date" min={ MIN } max={ MAX }
 							value={ end } onChange={ ( newEnd ) => setState( { end: newEnd } ) }
-							label={ __( 'End Date', 'ithemes-security-pro' ) } placeholder="YYYY-MM-DD" />
+							label={ __( 'End Date', 'it-l10n-ithemes-security-pro' ) } placeholder="YYYY-MM-DD" />
 					</Fragment>
 				}
 				<Button isPrimary onClick={ onApply }>
-					{ __( 'Apply', 'ithemes-security-pro' ) }
+					{ __( 'Apply', 'it-l10n-ithemes-security-pro' ) }
 				</Button>
 			</Modal>
 			}

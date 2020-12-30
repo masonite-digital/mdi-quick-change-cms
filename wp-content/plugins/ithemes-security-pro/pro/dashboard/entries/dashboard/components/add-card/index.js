@@ -35,10 +35,10 @@ function AddCard( { cards, addCard, isAdding, selected, setState } ) {
 
 	return (
 		<form onSubmit={ onSubmit } className="itsec-add-card">
-			<SelectControl label={ __( 'Choose a Card', 'ithemes-security-pro' ) } value={ selected } onChange={ onChange }
+			<SelectControl label={ __( 'Choose a Card', 'it-l10n-ithemes-security-pro' ) } value={ selected } onChange={ onChange }
 				options={ buildCardOptions( cards ) } />
 			<Button isPrimary type="submit" isBusy={ isAdding } disabled={ isAdding }>
-				{ __( 'Add Card', 'ithemes-security-pro' ) }
+				{ __( 'Add Card', 'it-l10n-ithemes-security-pro' ) }
 			</Button>
 		</form>
 	);

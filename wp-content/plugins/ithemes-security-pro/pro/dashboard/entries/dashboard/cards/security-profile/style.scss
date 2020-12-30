@@ -8,6 +8,10 @@ $active-background: #E5EAEE;
     justify-content: space-between;
     height: 100%;
 
+    & .itsec-component-master-detail {
+        border-bottom-left-radius: 10px;
+    }
+
     & .itsec-card-header {
         flex-shrink: 0;
     }
@@ -196,4 +200,12 @@ $active-background: #E5EAEE;
             }
         }
     }
+}
+
+.itsec-component-master-detail__back.components-button.has-icon {
+    padding: 0;
+    height: auto;
+    width: auto;
+    min-width: 0;
+    margin-right: .5em;
 }

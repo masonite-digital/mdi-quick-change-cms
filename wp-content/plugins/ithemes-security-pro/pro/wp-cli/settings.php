@@ -140,6 +140,7 @@ class ITSEC_Settings_Command extends WP_CLI_Command {
 		$value = WP_CLI::get_value_from_arg_or_stdin( $args, 2 );
 		$value = WP_CLI::read_value( $value, $assoc_args );
 
+		ITSEC_Core::set_interactive();
 		$updated = ITSEC_Modules::set_setting( $module, $setting, $value );
 
 		if ( ! $updated ) {
@@ -151,7 +152,7 @@ class ITSEC_Settings_Command extends WP_CLI_Command {
 				WP_CLI::error( $error, false );
 			}
 
-			exit;
+			WP_CLI::halt( 1 );
 		}
 
 		foreach ( $updated['messages'] as $message ) {
@@ -179,10 +180,65 @@ class ITSEC_Settings_Command extends WP_CLI_Command {
 
 		$this->assert_valid_module( $module );
 
+		ITSEC_Core::set_interactive();
 		$defaults = ITSEC_Modules::get_defaults( $module );
 		ITSEC_Modules::set_settings( $module, $defaults );
 
 		WP_CLI::success( 'Settings reset.' );
+	}
+
+	/**
+	 * Launches the built in editor to edit a module's settings as JSON.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <module>
+	 * : The module's settings to reset.
+	 */
+	public function edit( $args ) {
+		list( $module ) = $args;
+		$this->assert_valid_module( $module );
+
+		$settings = ITSEC_Modules::get_settings( $module );
+		$as_json  = wp_json_encode( $settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+
+		$edited  = \WP_CLI\Utils\launch_editor_for_input( $as_json, "{$module} Settings - WP-CLI", 'json' );
+		$edited  = trim( $edited );
+		$decoded = json_decode( $edited, true );
+
+		if ( ! is_array( $decoded ) ) {
+			WP_CLI::error( 'JSON is not a valid array.' );
+		}
+
+		ITSEC_Core::set_interactive();
+		$updated = ITSEC_Modules::set_settings( $module, $decoded );
+
+		if ( ! $updated ) {
+			WP_CLI::error( __( 'Unexpected error.', 'it-l10n-ithemes-security-pro' ) );
+		}
+
+		if ( is_wp_error( $updated ) ) {
+			WP_CLI::error( $updated );
+		}
+
+		if ( ! empty( $updated['errors'] ) ) {
+			foreach ( $updated['errors'] as $error ) {
+				WP_CLI::error( $error, false );
+			}
+
+			WP_CLI::halt( 1 );
+		}
+
+		foreach ( $updated['messages'] as $message ) {
+			WP_CLI::log( $message );
+		}
+
+		if ( $updated['saved'] ) {
+			WP_CLI::success( __( 'Settings updated.', 'it-l10n-ithemes-security-pro' ) );
+		} else {
+			WP_CLI::error( __( 'Failed to update settings.', 'it-l10n-ithemes-security-pro' ) );
+		}
+
 	}
 
 	/**

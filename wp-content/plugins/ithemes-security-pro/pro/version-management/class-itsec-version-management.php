@@ -22,27 +22,27 @@ final class ITSEC_Version_Management {
 			}
 		}
 
-		if ( $this->settings['wordpress_automatic_updates'] ) {
+		if ( ! ITSEC_Lib::is_wp_version_at_least( '5.6' ) && $this->settings['wordpress_automatic_updates'] ) {
 			add_filter( 'auto_update_core', '__return_true', 20 );
 			add_filter( 'allow_dev_auto_core_updates', '__return_true', 20 );
 			add_filter( 'allow_minor_auto_core_updates', '__return_true', 20 );
 			add_filter( 'allow_major_auto_core_updates', '__return_true', 20 );
 		}
 
-		if ( 'all' === $this->settings['plugin_automatic_updates'] ) {
-			add_filter( 'auto_update_plugin', '__return_true', 20 );
-		} elseif ( 'custom' === $this->settings['plugin_automatic_updates'] ) {
-			add_filter( 'auto_update_plugin', array( $this, 'auto_update_plugin' ), 20, 2 );
+		add_filter( 'auto_update_plugin', array( $this, 'auto_update_plugin' ), 20, 2 );
+		add_filter( 'auto_update_theme', array( $this, 'auto_update_theme' ), 20, 2 );
+
+		if ( 'none' !== $this->settings['plugin_automatic_updates'] ) {
+			add_filter( 'plugins_auto_update_enabled', '__return_false' );
+		}
+
+		if ( 'none' !== $this->settings['theme_automatic_updates'] ) {
+			add_filter( 'themes_auto_update_enabled', '__return_false' );
 		}
 
 		add_action( 'set_site_transient_update_plugins', array( $this, 'watch_plugin_updates' ), 100 );
 		add_action( 'set_site_transient_update_themes', array( $this, 'watch_theme_updates' ), 100 );
 
-		if ( 'all' === $this->settings['theme_automatic_updates'] ) {
-			add_filter( 'auto_update_theme', '__return_true', 20, 2 );
-		} elseif ( 'custom' === $this->settings['theme_automatic_updates'] ) {
-			add_filter( 'auto_update_theme', array( $this, 'auto_update_theme' ), 20, 2 );
-		}
 
 		if ( $this->settings['scan_for_old_wordpress_sites'] ) {
 			add_action( 'itsec_scheduled_old-site-scan', array( $this, 'scan_for_old_sites' ) );
@@ -57,8 +57,14 @@ final class ITSEC_Version_Management {
 		add_action( '_core_updated_successfully', array( $this, 'log_core_update' ) );
 		add_action( 'automatic_updates_complete', array( $this, 'log_auto_update' ) );
 
-		add_filter( 'automatic_updates_send_debug_email', array( $this, 'maybe_enable_automatic_updates_debug_email' ) );
-		add_filter( 'automatic_updates_debug_email', array( $this, 'filter_automatic_updates_debug_email' ) );
+		if ( version_compare( $GLOBALS['wp_version'], '5.5', '>=' ) ) {
+			add_filter( 'auto_plugin_update_send_email', array( $this, 'maybe_enable_automatic_updates_debug_email' ), 100 );
+			add_filter( 'auto_theme_update_send_email', array( $this, 'maybe_enable_automatic_updates_debug_email' ), 100 );
+			add_filter( 'auto_plugin_theme_update_email', array( $this, 'filter_automatic_updates_debug_email' ), 100 );
+		} else {
+			add_filter( 'automatic_updates_send_debug_email', array( $this, 'maybe_enable_automatic_updates_debug_email' ), 100 );
+			add_filter( 'automatic_updates_debug_email', array( $this, 'filter_automatic_updates_debug_email' ), 100 );
+		}
 
 		add_action( 'itsec_scheduler_register_events', array( __CLASS__, 'register_events' ) );
 
@@ -225,9 +231,19 @@ final class ITSEC_Version_Management {
 			return true;
 		}
 
+		if ( empty( $item->plugin ) ) {
+			return $update;
+		}
+
 		require_once( dirname( __FILE__ ) . '/utility.php' );
 
-		return ITSEC_VM_Utility::should_auto_update_plugin( $item->plugin, $item->new_version );
+		$should = ITSEC_VM_Utility::should_auto_update_plugin( $item->plugin, isset( $item->new_version ) ? $item->new_version : '' );
+
+		if ( null === $should ) {
+			return $update;
+		}
+
+		return $should;
 	}
 
 	/**
@@ -243,9 +259,19 @@ final class ITSEC_Version_Management {
 			return true;
 		}
 
+		if ( empty( $item->theme ) ) {
+			return $update;
+		}
+
 		require_once( dirname( __FILE__ ) . '/utility.php' );
 
-		return ITSEC_VM_Utility::should_auto_update_theme( $item->theme, $item->new_version );
+		$should = ITSEC_VM_Utility::should_auto_update_theme( $item->theme, isset( $item->new_version ) ? $item->new_version : '' );
+
+		if ( null === $should ) {
+			return $update;
+		}
+
+		return $should;
 	}
 
 	/**
@@ -453,20 +479,19 @@ final class ITSEC_Version_Management {
 	}
 
 	/**
-	 * Enable the automatic debug email if it is enabled in the Notification Center.
+	 * Enable the automatic update email if it is enabled in the Notification Center.
 	 *
 	 * @param bool $enabled
 	 *
 	 * @return bool
 	 */
 	public function maybe_enable_automatic_updates_debug_email( $enabled ) {
-
-		// If the debug email is already enabled, don't disable it.
-		if ( ! $enabled ) {
-			$enabled = ITSEC_Core::get_notification_center()->is_notification_enabled( 'automatic-updates-debug' );
+		// The debug email is turned off by default. We don't want to disable it if it has been enabled by another system.
+		if ( $enabled && 'automatic_updates_send_debug_email' === current_filter() ) {
+			return $enabled;
 		}
 
-		return $enabled;
+		return ITSEC_Core::get_notification_center()->is_notification_enabled( 'automatic-updates-debug' );
 	}
 
 	/**

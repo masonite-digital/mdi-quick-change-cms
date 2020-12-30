@@ -8,18 +8,20 @@
 /**
  * Class Two_Factor_Totp
  */
-class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Provider_On_Boardable {
+class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Provider_On_Boardable, ITSEC_Two_Factor_Provider_CLI_Configurable {
 
 	public $recommended = true;
 
 	/**
 	 * The user meta token key.
+	 *
 	 * @var string
 	 */
 	const SECRET_META_KEY = '_two_factor_totp_key';
 
 	/**
 	 * The user meta token key.
+	 *
 	 * @var string
 	 */
 	const NOTICES_META_KEY = '_two_factor_totp_notices';
@@ -37,13 +39,13 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 	 * Class constructor. Sets up hooks, etc.
 	 */
 	protected function __construct() {
-		add_action( 'admin_enqueue_scripts',                 array( $this, 'enqueue_assets' ) );
-		add_action( 'wp_ajax_two-factor-totp-get-code',      array( $this, 'ajax_new_code' ) );
-		add_action( 'wp_ajax_two-factor-totp-verify-code',   array( $this, 'ajax_verify_code' ) );
-		add_action( 'two-factor-user-options-' . __CLASS__,  array( $this, 'user_two_factor_options' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'wp_ajax_two-factor-totp-get-code', array( $this, 'ajax_new_code' ) );
+		add_action( 'wp_ajax_two-factor-totp-verify-code', array( $this, 'ajax_verify_code' ) );
+		add_action( 'two-factor-user-options-' . __CLASS__, array( $this, 'user_two_factor_options' ) );
 		add_action( 'two-factor-admin-options-' . __CLASS__, array( $this, 'description' ) );
-		add_action( 'personal_options_update',               array( $this, 'user_two_factor_options_update' ), 11 );
-		add_action( 'edit_user_profile_update',              array( $this, 'user_two_factor_options_update' ), 11 );
+		add_action( 'personal_options_update', array( $this, 'user_two_factor_options_update' ), 11 );
+		add_action( 'edit_user_profile_update', array( $this, 'user_two_factor_options_update' ), 11 );
 
 		return parent::__construct();
 	}
@@ -57,6 +59,7 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 		if ( ! is_a( $instance, $class ) ) {
 			$instance = new $class;
 		}
+
 		return $instance;
 	}
 
@@ -70,7 +73,7 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 	/**
 	 * Enqueue assets.
 	 *
-	 * @since 0.1-dev
+	 * @since  0.1-dev
 	 *
 	 * @access public
 	 *
@@ -111,13 +114,15 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 			<p><?php esc_html_e( 'To generate Time-Based One-Time Password codes, you need to install and configure an app on your mobile device:', 'it-l10n-ithemes-security-pro' ); ?></p>
 			<p><?php printf( __( 'For Android devices, the <a href="%1$s">Authy</a>, <a href="%2$s">Google Authenticator</a>, <a href="%3$s">FreeOTP Authenticator</a>, or <a href="%4$s">Toopher</a> apps are the most popular token generators.', 'it-l10n-ithemes-security-pro' ), esc_url( 'https://play.google.com/store/apps/details?id=com.authy.authy&hl=en' ), esc_url( 'https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en' ), esc_url( 'https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp' ), esc_url( 'https://play.google.com/store/apps/details?id=com.toopher.android&hl=en' ) ); ?></p>
 			<p><?php printf( __( 'For iOS devices, the <a href="%1$s">Authy</a>, <a href="%2$s">Google Authenticator</a>, <a href="%3$s">FreeOTP Authenticator</a>, or <a href="%4$s">Toopher</a> apps are the most popular token generators.', 'it-l10n-ithemes-security-pro' ), esc_url( 'https://itunes.apple.com/us/app/authy/id494168017?mt=8' ), esc_url( 'https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8' ), esc_url( 'https://itunes.apple.com/us/app/freeotp-authenticator/id872559395?mt=8' ), esc_url( 'https://itunes.apple.com/us/app/toopher/id562592093?mt=8' ) ); ?></p>
-			<img src="<?php echo esc_attr( $this->get_google_qr_code( $site_name . ':' . $user->user_login, $totp_key->key, $site_name ) ); ?>" id="two-factor-totp-qrcode" width="200" height="200" />
+			<img src="<?php echo esc_attr( $this->get_google_qr_code( $site_name . ':' . $user->user_login, $totp_key->key, $site_name ) ); ?>" id="two-factor-totp-qrcode" width="200" height="200"/>
 			<p><?php printf( _x( 'Secret: %s', 'display time-based one-time password secret', 'it-l10n-ithemes-security-pro' ), '<code><strong id="two-factor-totp-key-text">' . esc_html( $totp_key->key ) . '</strong></code>' ); ?></p>
-			<div id="two-factor-totp-verify-code"<?php if ( $totp_key->already_active ) { echo ' style="display: none;"'; } ?>>
+			<div id="two-factor-totp-verify-code"<?php if ( $totp_key->already_active ) {
+				echo ' style="display: none;"';
+			} ?>>
 				<p><?php esc_html_e( 'Please scan the QR code or manually enter the secret, then enter an authentication code from your app in order to complete setup', 'it-l10n-ithemes-security-pro' ); ?></p>
 				<label for="two-factor-totp-authcode"><?php esc_html_e( 'Authentication Code:', 'it-l10n-ithemes-security-pro' ); ?></label>
-				<input type="hidden" name="two-factor-totp-key" id="two-factor-totp-key" value="<?php echo esc_attr( $totp_key->key ) ?>" />
-				<input type="tel" name="two-factor-totp-authcode" id="two-factor-totp-authcode" autocomplete="off" class="input" value="" size="20" pattern="[0-9]*" />
+				<input type="hidden" name="two-factor-totp-key" id="two-factor-totp-key" value="<?php echo esc_attr( $totp_key->key ) ?>"/>
+				<input type="tel" name="two-factor-totp-authcode" id="two-factor-totp-authcode" autocomplete="off" class="input" value="" size="20" pattern="[0-9]*"/>
 				<button id="two-factor-totp-verify-authcode" class="button button-two-factor-totp-verify-code button-secondary hide-if-no-js"><?php esc_html_e( 'Verify', 'it-l10n-ithemes-security-pro' ); ?></button>
 			</div>
 			<button id="two-factor-totp-new-secret" class="button button-two-factor-totp-new-secret button-secondary hide-if-no-js"><?php esc_html_e( 'Generate new secret', 'it-l10n-ithemes-security-pro' ); ?></button>
@@ -128,25 +133,26 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 	/**
 	 * Display TOTP options on the user settings page.
 	 *
-	 * @param WP_User $user The current user being edited.
+	 * @param WP_User $user           The current user being edited.
 	 *
 	 * @return object {
-	 *     @type bool   $already_active  Whether a key already existed
-	 *     @type string $key             The TOTP key
+	 * @type bool     $already_active Whether a key already existed
+	 * @type string   $key            The TOTP key
 	 * }
 	 */
 	public function get_key( $user = null ) {
 		if ( ! isset( $user ) ) {
 			$user = wp_get_current_user();
 		}
-		$return = new stdClass();
+		$return                 = new stdClass();
 		$return->already_active = true;
-		$return->key = get_user_meta( $user->ID, self::SECRET_META_KEY, true );
+		$return->key            = get_user_meta( $user->ID, self::SECRET_META_KEY, true );
 
 		if ( empty( $return->key ) ) {
-			$return->key = $this->generate_key();
+			$return->key            = $this->generate_key();
 			$return->already_active = false;
 		}
+
 		return $return;
 	}
 
@@ -196,31 +202,34 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 
 	public function ajax_new_code() {
 		check_ajax_referer( 'user_two_factor_totp_options', '_nonce_user_two_factor_totp_options' );
-		$site_name = get_bloginfo( 'name', 'display' );
-		$return = array();
-		$return['key'] = $this->generate_key();
+		$site_name            = get_bloginfo( 'name', 'display' );
+		$return               = array();
+		$return['key']        = $this->generate_key();
 		$return['qrcode_url'] = $this->get_google_qr_code( $site_name . ':' . $_POST['user_login'], $return['key'], $site_name );
 		wp_send_json_success( $return );
 	}
 
 	public function ajax_verify_code() {
 		check_ajax_referer( 'user_two_factor_totp_options', '_nonce_user_two_factor_totp_options' );
-		if ( ! current_user_can( 'edit_user', $_POST['user_id'] ) ) {
-			wp_send_json_error( __('You do not have permission to edit this user.', 'it-l10n-ithemes-security-pro') );
+
+		$user_id = (int) $_POST['user_id'];
+
+		if ( ! $user_id || ! current_user_can( 'edit_user', $user_id ) ) {
+			wp_send_json_error( __( 'You do not have permission to edit this user.', 'it-l10n-ithemes-security-pro' ) );
 		}
 
 		if ( $this->_is_valid_authcode( $_POST['key'], $_POST['authcode'] ) ) {
-			if ( ! update_user_meta( $_POST['user_id'], self::SECRET_META_KEY, $_POST['key'] ) ) {
+			if ( ! update_user_meta( $user_id, self::SECRET_META_KEY, $_POST['key'] ) ) {
 				wp_send_json_error( __( 'Unable to save two-factor secret.', 'it-l10n-ithemes-security-pro' ) );
 			}
 			wp_send_json_success( __( 'Success!', 'it-l10n-ithemes-security-pro' ) );
 		} else {
-			wp_send_json_error( __('The code you supplied is not valid.', 'it-l10n-ithemes-security-pro') );
+			wp_send_json_error( __( 'The code you supplied is not valid.', 'it-l10n-ithemes-security-pro' ) );
 		}
 
-		$site_name = get_bloginfo( 'name', 'display' );
-		$return = array();
-		$return['key'] = $this->generate_key();
+		$site_name            = get_bloginfo( 'name', 'display' );
+		$return               = array();
+		$return['key']        = $this->generate_key();
 		$return['qrcode_url'] = $this->get_google_qr_code( $site_name . ':' . $_POST['user_login'], $return['key'], $site_name );
 		wp_send_json( $return );
 	}
@@ -264,6 +273,7 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 	 */
 	public function validate_authentication( $user ) {
 		$key = get_user_meta( $user->ID, self::SECRET_META_KEY, true );
+
 		return $this->_is_valid_authcode( $key, trim( $_REQUEST['authcode'] ) );
 	}
 
@@ -298,6 +308,7 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -335,10 +346,10 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 		}
 
 		$five_bit_sections = str_split( $binary_string, 5 );
-		$base32 = '';
+		$base32            = '';
 
 		foreach ( $five_bit_sections as $five_bit_section ) {
-			$base32 .= $this->_base_32_chars[base_convert( str_pad( $five_bit_section, 5, '0' ), 2, 10 )];
+			$base32 .= $this->_base_32_chars[ base_convert( str_pad( $five_bit_section, 5, '0' ), 2, 10 ) ];
 		}
 
 		return $base32;
@@ -364,8 +375,9 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 			// 32bit PHP can't shift 32 bits like that, so we have to assume 0 for the higher and not pack anything beyond it's limits
 			$higher = 0;
 		}
-		$lowmap  = 0xffffffff;
-		$lower   = $value & $lowmap;
+		$lowmap = 0xffffffff;
+		$lower  = $value & $lowmap;
+
 		return pack( 'NN', $higher, $lower );
 	}
 
@@ -394,11 +406,11 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 		$offset = ord( $hash[19] ) & 0xf;
 
 		$code = (
-				( ( ord( $hash[ $offset + 0 ] ) & 0x7f ) << 24 ) |
-				( ( ord( $hash[ $offset + 1 ] ) & 0xff ) << 16 ) |
-				( ( ord( $hash[ $offset + 2 ] ) & 0xff ) << 8 ) |
-				( ord( $hash[ $offset + 3 ] ) & 0xff )
-			) % pow( 10, $digits );
+			        ( ( ord( $hash[ $offset + 0 ] ) & 0x7f ) << 24 ) |
+			        ( ( ord( $hash[ $offset + 1 ] ) & 0xff ) << 16 ) |
+			        ( ( ord( $hash[ $offset + 2 ] ) & 0xff ) << 8 ) |
+			        ( ord( $hash[ $offset + 3 ] ) & 0xff )
+		        ) % pow( 10, $digits );
 
 		return str_pad( $code, $digits, '0', STR_PAD_LEFT );
 	}
@@ -409,7 +421,7 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 	 * @param string $name  The name to display in the Authentication app.
 	 * @param string $key   The secret key to share with the Authentication app.
 	 * @param string $title The title to display in the Authentication app.
-	 * @param array  $opts Additional options.
+	 * @param array  $opts  Additional options.
 	 *
 	 * @return string A URL to use as an img src to display the QR code
 	 */
@@ -442,6 +454,7 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 	 * Whether this Two-Factor provider is configured and available for the user specified.
 	 *
 	 * @param WP_User $user WP_User object of the logged-in user.
+	 *
 	 * @return boolean
 	 */
 	public function is_available_for_user( $user ) {
@@ -457,21 +470,22 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 	 * @param WP_User $user WP_User object of the logged-in user.
 	 */
 	public function authentication_page( $user ) {
-		require_once( ABSPATH .  '/wp-admin/includes/template.php' );
+		require_once( ABSPATH . '/wp-admin/includes/template.php' );
 		?>
 		<p>
 			<label for="authcode"><?php esc_html_e( 'Authentication Code:', 'it-l10n-ithemes-security-pro' ); ?></label>
-			<input type="tel" name="authcode" id="authcode" class="input" value="" size="20" pattern="[0-9]*" />
+			<input type="tel" name="authcode" id="authcode" class="input" value="" size="20" pattern="[0-9]*"/>
 		</p>
 		<script type="text/javascript">
-			setTimeout( function(){
+			setTimeout( function() {
 				var d;
-				try{
-					d = document.getElementById('authcode');
+				try {
+					d = document.getElementById( 'authcode' );
 					d.value = '';
 					d.focus();
-				} catch(e){}
-			}, 200);
+				} catch ( e ) {
+				}
+			}, 200 );
 		</script>
 		<?php
 		submit_button( __( 'Authenticate', 'it-l10n-ithemes-security-pro' ) );
@@ -482,31 +496,31 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 	 *
 	 * @param string $base32_string The base 32 string to decode.
 	 *
+	 * @return string Binary representation of decoded string
 	 * @throws Exception If string contains non-base32 characters.
 	 *
-	 * @return string Binary representation of decoded string
 	 */
 	public function base32_decode( $base32_string ) {
 
-		$base32_string 	= strtoupper( $base32_string );
+		$base32_string = strtoupper( $base32_string );
 
 		if ( ! preg_match( '/^[' . $this->_base_32_chars . ']+$/', $base32_string, $match ) ) {
 			throw new Exception( 'Invalid characters in the base32 string.' );
 		}
 
-		$l 	= strlen( $base32_string );
-		$n	= 0;
-		$j	= 0;
+		$l      = strlen( $base32_string );
+		$n      = 0;
+		$j      = 0;
 		$binary = '';
 
-		for ( $i = 0; $i < $l; $i++ ) {
+		for ( $i = 0; $i < $l; $i ++ ) {
 
 			$n = $n << 5; // Move buffer left by 5 to make room.
-			$n = $n + strpos( $this->_base_32_chars, $base32_string[ $i ] ); 	// Add value into buffer.
+			$n = $n + strpos( $this->_base_32_chars, $base32_string[ $i ] );    // Add value into buffer.
 			$j += 5; // Keep track of number of bits in buffer.
 
 			if ( $j >= 8 ) {
-				$j -= 8;
+				$j      -= 8;
 				$binary .= chr( ( $n & ( 0xFF << $j ) ) >> $j );
 			}
 		}
@@ -528,7 +542,8 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 		if ( $a === $b ) {
 			return 0;
 		}
-		return ($a < $b) ? -1 : 1;
+
+		return ( $a < $b ) ? - 1 : 1;
 	}
 
 	public function description() {
@@ -606,6 +621,20 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 			wp_send_json_error( array(
 				'message' => esc_html__( 'The code you supplied is not valid.', 'it-l10n-ithemes-security-pro' ),
 			) );
+		}
+	}
+
+	public function configure_via_cli( WP_User $user, array $args ) {
+		$key = $this->generate_key();
+
+		if ( ! update_user_meta( $user->ID, self::SECRET_META_KEY, $key ) ) {
+			WP_CLI::error( 'Could not save Totp secret.' );
+		}
+
+		if ( empty( $args['porcelain'] ) ) {
+			WP_CLI::log( sprintf( 'Totp Secret: %s', $key ) );
+		} else {
+			WP_CLI::log( $key );
 		}
 	}
 }

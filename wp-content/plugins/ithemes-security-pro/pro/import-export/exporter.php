@@ -1,5 +1,7 @@
 <?php
 
+use \iThemesSecurity\User_Groups;
+
 final class ITSEC_Import_Export_Exporter {
 	public static function create( $email ) {
 		require_once( ITSEC_Core::get_core_dir() . '/lib/class-itsec-lib-file.php' );
@@ -19,13 +21,13 @@ final class ITSEC_Import_Export_Exporter {
 
 
 		$base_dir = ITSEC_Core::get_storage_dir() . '/export-' . current_time( 'Ymd-His' ) . '-';
-		$dir = $base_dir . wp_generate_password( 10, false );
-		$count = 0;
+		$dir      = $base_dir . wp_generate_password( 10, false );
+		$count    = 0;
 
 		while ( ITSEC_Lib_Directory::is_dir( $dir ) ) {
 			$dir = $base_dir . wp_generate_password( 10, false );
 
-			if ( ++$count > 20 ) {
+			if ( ++ $count > 20 ) {
 				return new WP_Error( 'itsec-import-export-exporter-create-cannot-find-unique-directory', __( 'Unable to find a unique, new directory to store the generated export file. The settings were not exported.', 'it-l10n-ithemes-security-pro' ) );
 			}
 		}
@@ -75,7 +77,7 @@ final class ITSEC_Import_Export_Exporter {
 		$mail->add_header(
 			esc_html__( 'Settings Export', 'it-l10n-ithemes-security-pro' ),
 			sprintf(
-				/* translators: 1. opening bold tag, 2. date, 3. time, 4. closing bold tag. */
+			/* translators: 1. opening bold tag, 2. date, 3. time, 4. closing bold tag. */
 				esc_html__( 'Settings Export created on %1$s %2$s at %3$s %4$s', 'it-l10n-ithemes-security-pro' ),
 				'<b>',
 				date_i18n( get_option( 'date_format' ), $time ),
@@ -164,6 +166,17 @@ final class ITSEC_Import_Export_Exporter {
 			);
 		}
 
+		$user_groups = [];
+
+		foreach ( ITSEC_Modules::get_container()->get( User_Groups\Repository\Repository::class )->all() as $user_group ) {
+			$user_groups[ $user_group->get_id() ] = [
+				'label'     => $user_group->get_label(),
+				'users'     => wp_list_pluck( $user_group->get_users(), 'ID' ),
+				'roles'     => $user_group->get_roles(),
+				'canonical' => $user_group->get_canonical_roles(),
+				'min_role'  => $user_group->get_min_role(),
+			];
+		}
 
 		$content = array(
 			'exporter_version' => 1,
@@ -172,6 +185,7 @@ final class ITSEC_Import_Export_Exporter {
 			'site'             => network_home_url(),
 			'options'          => $options,
 			'abspath'          => ABSPATH,
+			'user_groups'      => $user_groups,
 		);
 
 		return $content;

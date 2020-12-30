@@ -6,10 +6,7 @@ class ITSEC_Dashboard_Widget_Settings extends ITSEC_Settings {
 	}
 
 	public function get_defaults() {
-		return array(
-			'version'       => 1,
-			'nag_dismissed' => 0,
-		);
+		return array();
 	}
 }
 

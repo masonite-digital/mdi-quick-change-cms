@@ -40,12 +40,12 @@ class ITSEC_Two_Factor_On_Board extends ITSEC_Login_Interstitial {
 			return false;
 		}
 
-		if ( $this->two_factor->get_available_providers_for_user( $user, false ) ) {
-			return false;
-		}
-
 		if ( $requested ) {
 			return true;
+		}
+
+		if ( $this->two_factor->get_available_providers_for_user( $user, false ) ) {
+			return false;
 		}
 
 		if ( 'user_type' === $this->two_factor->get_two_factor_requirement_reason( $user->ID ) ) {
@@ -66,6 +66,10 @@ class ITSEC_Two_Factor_On_Board extends ITSEC_Login_Interstitial {
 		$reason = $this->two_factor->get_two_factor_requirement_reason( $session->get_user()->ID );
 
 		if ( ! $reason || 'vulnerable_site' === $reason ) {
+			return false;
+		}
+
+		if ( $this->two_factor->get_available_providers_for_user( $session->get_user(), false ) ) {
 			return false;
 		}
 
@@ -192,8 +196,7 @@ class ITSEC_Two_Factor_On_Board extends ITSEC_Login_Interstitial {
 		$session->save();
 
 		return array(
-			'message'            => esc_html__( 'Email confirmed. Please continue setting up Two-Factor in your original browser window.', 'it-l10n-ithemes-security-pro' ),
-			'allow_same_browser' => false,
+			'message' => esc_html__( 'Email confirmed. Please continue setting up Two-Factor in your original browser window.', 'it-l10n-ithemes-security-pro' ),
 		);
 	}
 
@@ -306,7 +309,7 @@ class ITSEC_Two_Factor_On_Board extends ITSEC_Login_Interstitial {
 	private function get_available_providers( $user ) {
 		$providers = array();
 
-		foreach ( $this->two_factor->get_helper()->get_enabled_provider_instances() as $provider ) {
+		foreach ( $this->two_factor->get_allowed_provider_instances_for_user( $user ) as $provider ) {
 			if ( $provider instanceof ITSEC_Two_Factor_Provider_On_Boardable ) {
 				$providers[] = $provider;
 			}
@@ -339,7 +342,7 @@ class ITSEC_Two_Factor_On_Board extends ITSEC_Login_Interstitial {
 			return $provider->is_available_for_user( $user ) ? 'enabled' : 'not-configured';
 		}
 
-		if ( ! isset( $enabled[ get_class( $provider ) ] ) ) {
+		if ( ! in_array( get_class( $provider ), $enabled, true ) ) {
 			return 'disabled';
 		}
 

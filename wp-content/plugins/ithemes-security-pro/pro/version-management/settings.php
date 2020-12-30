@@ -17,10 +17,25 @@ final class ITSEC_Version_Management_Settings extends ITSEC_Settings {
 			'is_software_outdated'         => false,
 			'old_site_details'             => array(),
 			'first_seen'                   => array( 'plugin' => array(), 'theme' => array() ),
+			'update_if_vulnerable'         => false,
 		);
 	}
 
+	public function load() {
+		parent::load();
+
+		if ( ITSEC_Lib::is_wp_version_at_least( '5.6' ) ) {
+			$this->settings['wordpress_automatic_updates'] = get_site_option( 'auto_update_core_major' ) === 'enabled';
+		}
+	}
+
 	protected function handle_settings_changes( $old_settings ) {
+		if (
+			ITSEC_Lib::is_wp_version_at_least( '5.6' ) &&
+			$this->settings['wordpress_automatic_updates'] !== $old_settings['wordpress_automatic_updates']
+		) {
+			update_site_option( 'auto_update_core_major', $this->settings['wordpress_automatic_updates'] ? 'enabled' : 'unset' );
+		}
 
 		$s = ITSEC_Core::get_scheduler();
 

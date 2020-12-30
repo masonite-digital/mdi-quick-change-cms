@@ -6,7 +6,7 @@
  *
  * @package Two_Factor
  */
-class Two_Factor_Backup_Codes extends Two_Factor_Provider implements ITSEC_Two_Factor_Provider_On_Boardable {
+class Two_Factor_Backup_Codes extends Two_Factor_Provider implements ITSEC_Two_Factor_Provider_On_Boardable, ITSEC_Two_Factor_Provider_CLI_Configurable {
 
 	/**
 	 * The user meta backup codes key.
@@ -382,6 +382,17 @@ class Two_Factor_Backup_Codes extends Two_Factor_Provider implements ITSEC_Two_F
 				'codes'      => $new,
 				'code_count' => count( $new ),
 			) );
+		}
+	}
+
+	public function configure_via_cli( WP_User $user, array $args ) {
+		$codes     = $this->generate_codes( $user );
+		$as_string = implode( ' ', $codes );
+
+		if ( empty( $args['porcelain'] ) ) {
+			WP_CLI::log( sprintf( 'Backup Codes: %s', $as_string ) );
+		} else {
+			WP_CLI::log( $as_string );
 		}
 	}
 }

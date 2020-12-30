@@ -33,7 +33,7 @@ function RoleTab( { dashboard, share = { type: 'role', roles: [] }, onChange } )
 					</li>
 				) ) }
 			</ul> :
-			<p>{ __( 'All roles already selected.', 'ithemes-security-pro' ) }</p>
+			<p>{ __( 'All roles already selected.', 'it-l10n-ithemes-security-pro' ) }</p>
 	);
 }
 

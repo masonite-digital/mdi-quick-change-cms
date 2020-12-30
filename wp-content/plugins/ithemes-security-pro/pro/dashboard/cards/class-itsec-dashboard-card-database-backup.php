@@ -37,7 +37,7 @@ class ITSEC_Dashboard_Card_Database_Backup extends ITSEC_Dashboard_Card {
 	 */
 	public function query_for_data( array $query_args, array $settings ) {
 
-		$dir    = ITSEC_Modules::get_setting( 'backup', 'location' );
+		$dir    = trailingslashit( ITSEC_Modules::get_setting( 'backup', 'location' ) );
 		$method = ITSEC_Modules::get_setting( 'backup', 'method' );
 
 		if ( 1 === $method ) {
@@ -78,6 +78,7 @@ class ITSEC_Dashboard_Card_Database_Backup extends ITSEC_Dashboard_Card {
 		$backups = array();
 
 		$files = scandir( $dir, SCANDIR_SORT_DESCENDING );
+		$files = array_unique( $files );
 
 		foreach ( $files as $file ) {
 			if ( 0 === strpos( $file, 'backup-' ) ) {
@@ -98,14 +99,14 @@ class ITSEC_Dashboard_Card_Database_Backup extends ITSEC_Dashboard_Card {
 	public function get_links() {
 		return array(
 			array(
-				'rel'   => ITSEC_Dashboard_REST::LINK_REL . 'logs',
-				'href'  => ITSEC_Core::get_logs_page_url( 'backup' ),
+				'rel'   => ITSEC_Lib_REST::LINK_REL . 'logs',
+				'href'  => ITSEC_Core::get_logs_page_url( array( 'module' => 'backup' ) ),
 				'title' => __( 'View Logs', 'it-l10n-ithemes-security-pro' ),
 				'media' => 'text/html',
 				'cap'   => ITSEC_Core::get_required_cap(),
 			),
 			array(
-				'rel'      => ITSEC_Dashboard_REST::LINK_REL . 'rpc',
+				'rel'      => ITSEC_Lib_REST::LINK_REL . 'rpc',
 				'title'    => __( 'Backup Now', 'it-l10n-ithemes-security-pro' ),
 				'endpoint' => 'backup',
 				'cap'      => ITSEC_Core::get_required_cap(),

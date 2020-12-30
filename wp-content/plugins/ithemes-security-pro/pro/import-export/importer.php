@@ -1,5 +1,7 @@
 <?php
 
+use \iThemesSecurity\User_Groups;
+
 final class ITSEC_Import_Export_Importer {
 	public static function import_from_form( $form_name ) {
 		require_once( ITSEC_Core::get_core_dir() . '/lib/class-itsec-lib-file.php' );
@@ -13,9 +15,9 @@ final class ITSEC_Import_Export_Importer {
 		}
 
 
-		$type = isset( $_FILES[$form_name]['type'] ) ? $_FILES[$form_name]['type'] : '';
-		$data = self::get_data_from_file( $_FILES[$form_name]['tmp_name'], $type );
-		ITSEC_Lib_File::remove( $_FILES[$form_name]['tmp_name'] );
+		$type = isset( $_FILES[ $form_name ]['type'] ) ? $_FILES[ $form_name ]['type'] : '';
+		$data = self::get_data_from_file( $_FILES[ $form_name ]['tmp_name'], $type );
+		ITSEC_Lib_File::remove( $_FILES[ $form_name ]['tmp_name'] );
 
 		if ( is_wp_error( $data ) ) {
 			/* translators: 1: original error message */
@@ -48,108 +50,208 @@ final class ITSEC_Import_Export_Importer {
 
 		ITSEC_Storage::save();
 
-		foreach ( $data['options'] as $option ) {
-			if ( ! empty( $data['abspath'] ) && ABSPATH !== $data['abspath'] ) {
-				if ( 'itsec-storage' === $option['name'] ) {
-					$abspath = trailingslashit( ABSPATH );
+		/**
+		 * Fires before the import starts.
+		 *
+		 * @param array $data
+		 */
+		do_action( 'itsec_before_import', $data );
 
-					$path_settings = array(
-						array(
-							'module'  => 'global',
-							'setting' => 'log_location',
-							'label'   => __( 'Path to Log Files', 'it-l10n-ithemes-security-pro' ),
-							'type'    => 'dir',
-						),
-						array(
-							'module'  => 'global',
-							'setting' => 'nginx_file',
-							'label'   => __( 'NGINX Conf File', 'it-l10n-ithemes-security-pro' ),
-							'type'    => 'file',
-						),
-						array(
-							'module'  => 'backup',
-							'setting' => 'location',
-							'label'   => __( 'Backup Location', 'it-l10n-ithemes-security-pro' ),
-							'type'    => 'dir',
-						)
-					);
+		self::import_user_groups( $data['user_groups'] );
 
-					foreach ( $path_settings as $setting ) {
-						if ( empty( $option['value'][ $setting['module'] ][ $setting['setting'] ] ) ) {
-							continue;
-						}
-
-						$replaced_path = preg_replace( '/^' . preg_quote( $data['abspath'], '/' ) . '/', $abspath, $option['value'][ $setting['module'] ][ $setting['setting'] ] );
-						$option['value'][ $setting['module'] ][ $setting['setting'] ] = $replaced_path;
-
-						$error = false;
-
-						if ( $setting['type'] === 'dir' ) {
-							$error = self::validate_directory( $replaced_path, $setting['label'], $setting['module'], "itsec-{$setting['module']}-{$setting['setting']}" );
-						} elseif ( $setting['type'] === 'file' ) {
-							$error = self::validate_file( $replaced_path, $setting['label'], $setting['module'], "itsec-{$setting['module']}-{$setting['setting']}" );
-						}
-
-						if ( is_wp_error( $error ) ) {
-							ITSEC_Response::add_warning( $error->get_error_message() );
-						}
-					}
-				}
-			}
-
-			switch ( $option['name'] ) {
-				case 'itsec_active_modules':
-					foreach ( ITSEC_Modules::get_available_modules() as $module ) {
-						if ( ITSEC_Modules::is_always_active( $module ) ) {
-							continue;
-						}
-
-						$is_active   = ITSEC_Modules::is_active( $module );
-						$make_active = ! empty( $option['value'][ $module ] );
-
-						if ( $make_active === $is_active ) {
-							continue; 
-						}
-
-						if ( $make_active ) {
-							ITSEC_Modules::activate( $module );
-						} else {
-							ITSEC_Modules::deactivate( $module );
-						}
-					}
-					break;
-				default:
-				 self::import_option( $option );
-				 break;
-			}
+		if ( $storage = wp_list_filter( $data['options'], [ 'name' => 'itsec-storage' ] ) ) {
+			self::import_storage( $storage[ ITSEC_Lib::array_key_first( $storage ) ]['value'], $data['abspath'] );
 		}
 
+		if ( $modules = wp_list_filter( $data['options'], [ 'name' => 'itsec_active_modules' ] ) ) {
+			self::import_active_modules( $modules[ ITSEC_Lib::array_key_first( $modules ) ]['value'] );
+		}
+
+		foreach ( $data['options'] as $option ) {
+			if ( in_array( $option['name'], [ 'itsec-storage', 'itsec_active_modules' ], true ) ) {
+				continue;
+			}
+
+			if ( ! self::import_option( $option ) ) {
+				ITSEC_Response::add_error( sprintf( __( 'Unable to save %s option.', 'it-l10n-ithemes-security-pro' ), $option ) );
+			}
+		}
 
 		if ( version_compare( $data['plugin_build'], ITSEC_Core::get_plugin_build(), '<' ) ) {
-			$core = ITSEC_Core::get_instance();
-			$core->handle_upgrade( $data['plugin_build'] );
+			ITSEC_Core::get_instance()->handle_upgrade( $data['plugin_build'] );
 		}
 
-		ITSEC_Storage::reload();
 		ITSEC_Response::regenerate_server_config();
 		ITSEC_Response::regenerate_wp_config();
 
+		/**
+		 * Fires after an import completes.
+		 *
+		 * @param array $data
+		 */
+		do_action( 'itsec_after_import', $data );
+
 		return true;
+	}
+
+	/**
+	 * Import user groups.
+	 *
+	 * @param array $user_groups
+	 */
+	private static function import_user_groups( $user_groups ) {
+		$repository = ITSEC_Modules::get_container()->get( User_Groups\Repository\Repository::class );
+
+		foreach ( $repository->all() as $user_group ) {
+			$repository->delete( $user_group );
+		}
+
+		foreach ( $user_groups as $user_group_id => $config ) {
+			$user_group = new User_Groups\User_Group( $user_group_id );
+			$user_group->set_label( $config['label'] );
+			$user_group->set_canonical_roles( $config['canonical'] );
+			$user_group->set_min_role( $config['min_role'] );
+
+			foreach ( $config['roles'] as $role ) {
+				if ( get_role( $role ) ) {
+					$user_group->add_role( $role );
+				}
+			}
+
+			foreach ( $config['users'] as $user_id ) {
+				if ( $user = get_userdata( $user_id ) ) {
+					$user_group->add_user( $user );
+				}
+			}
+
+			$repository->persist( $user_group );
+		}
+	}
+
+	/**
+	 * Imports the storage option.
+	 *
+	 * @param array  $option         The storage option.
+	 * @param string $import_abspath The imported abspath.
+	 */
+	private static function import_storage( $option, $import_abspath ) {
+		if ( $import_abspath !== ABSPATH ) {
+			$option = self::update_storage_paths( $option, $import_abspath );
+		}
+
+		self::import_option( [
+			'name'  => 'itsec-storage',
+			'value' => $option,
+			'auto'  => 'yes',
+		] );
+		ITSEC_Storage::reload();
+		ITSEC_Lib::clear_caches();
+	}
+
+	/**
+	 * Updates the storage paths to account for the new ABSPATH.
+	 *
+	 * @param array  $option         The storage option.
+	 * @param string $import_abspath The imported abspath.
+	 *
+	 * @return array
+	 */
+	private static function update_storage_paths( $option, $import_abspath ) {
+		$abspath = trailingslashit( ABSPATH );
+
+		$path_settings = array(
+			array(
+				'module'  => 'global',
+				'setting' => 'log_location',
+				'label'   => __( 'Path to Log Files', 'it-l10n-ithemes-security-pro' ),
+				'type'    => 'dir',
+			),
+			array(
+				'module'  => 'global',
+				'setting' => 'nginx_file',
+				'label'   => __( 'NGINX Conf File', 'it-l10n-ithemes-security-pro' ),
+				'type'    => 'file',
+			),
+			array(
+				'module'  => 'backup',
+				'setting' => 'location',
+				'label'   => __( 'Backup Location', 'it-l10n-ithemes-security-pro' ),
+				'type'    => 'dir',
+			)
+		);
+
+		foreach ( $path_settings as $setting ) {
+			if ( empty( $option[ $setting['module'] ][ $setting['setting'] ] ) ) {
+				continue;
+			}
+
+			$replaced_path = preg_replace( '/^' . preg_quote( $import_abspath, '/' ) . '/', $abspath, $option[ $setting['module'] ][ $setting['setting'] ] );
+
+			$option[ $setting['module'] ][ $setting['setting'] ] = $replaced_path;
+
+			$error = false;
+
+			if ( $setting['type'] === 'dir' ) {
+				$error = self::validate_directory( $replaced_path, $setting['label'], $setting['module'], "itsec-{$setting['module']}-{$setting['setting']}" );
+			} elseif ( $setting['type'] === 'file' ) {
+				$error = self::validate_file( $replaced_path, $setting['label'], $setting['module'], "itsec-{$setting['module']}-{$setting['setting']}" );
+			}
+
+			if ( is_wp_error( $error ) ) {
+				ITSEC_Response::add_warning( $error->get_error_message() );
+			}
+		}
+
+		return $option;
+	}
+
+	/**
+	 * Imports the active modules option.
+	 *
+	 * @param array $option
+	 */
+	private static function import_active_modules( $option ) {
+		foreach ( ITSEC_Modules::get_available_modules() as $module ) {
+			if ( ITSEC_Modules::is_always_active( $module ) ) {
+				continue;
+			}
+
+			$is_active   = ITSEC_Modules::is_active( $module );
+			$make_active = ! empty( $option[ $module ] );
+
+			if ( $make_active === $is_active ) {
+				continue;
+			}
+
+			if ( $make_active ) {
+				$activated = ITSEC_Modules::activate( $module );
+
+				if ( is_wp_error( $activated ) ) {
+					ITSEC_Response::add_error( $activated );
+				}
+			} else {
+				ITSEC_Modules::deactivate( $module );
+			}
+		}
 	}
 
 	/**
 	 * Default option import.
 	 *
 	 * @param array $option Option to import.
+	 *
+	 * @return bool
 	 */
 	private static function import_option( $option ) {
-			if ( is_multisite() ) {
-				delete_site_option( $option['name'] );
-				add_site_option( $option['name'], $option['value'] );
-			} else {
-				delete_option( $option['name'] );
-				add_option( $option['name'], $option['value'], null, $option['auto'] );
-			}
+		if ( is_multisite() ) {
+			delete_site_option( $option['name'] );
+
+			return add_site_option( $option['name'], $option['value'] );
+		}
+
+		delete_option( $option['name'] );
+
+		return add_option( $option['name'], $option['value'], null, $option['auto'] );
 	}
 
 	/**
@@ -158,13 +260,14 @@ final class ITSEC_Import_Export_Importer {
 	 * @static
 	 *
 	 * @param string $options The options to inspect to find the build version.
+	 *
 	 * @return int Build version of the supplied options.
 	 */
 	private static function get_plugin_build( $raw_options ) {
 		$options = array();
 
 		foreach ( $raw_options as $raw_option ) {
-			$options[$raw_option['name']] = $raw_option['value'];
+			$options[ $raw_option['name'] ] = $raw_option['value'];
 		}
 
 
@@ -186,10 +289,11 @@ final class ITSEC_Import_Export_Importer {
 	 *
 	 * @static
 	 *
+	 * @param string $file File path for the file to pull iThemes Security settings from.
+	 *
+	 * @return array|WP_Error Returns an array of options settings on success, or a WP_Error object on failure.
 	 * @uses ITSEC_Import_Export_Importer::get_data_from_json_file() to parse the JSON file.
 	 *
-	 * @param string $file File path for the file to pull iThemes Security settings from.
-	 * @return array|WP_Error Returns an array of options settings on success, or a WP_Error object on failure.
 	 */
 	private static function get_data_from_file( $file, $type ) {
 		$temp_dir = self::get_temp_dir();
@@ -217,7 +321,7 @@ final class ITSEC_Import_Export_Importer {
 
 					if ( is_wp_error( $result ) ) {
 						$error = $result;
-					} else if ( isset( $settings ) ) {
+					} elseif ( isset( $settings ) ) {
 						ITSEC_Lib_Directory::remove( $temp_dir );
 
 						return new WP_Error( 'multiple_settings_files_found', __( 'The supplied zip file contained more than one JSON file with valid iThemes Security settings. Only zip files with one JSON file of valid settings are permitted. Please ensure that a valid export file is supplied.', 'it-l10n-ithemes-security-pro' ) );
@@ -230,7 +334,7 @@ final class ITSEC_Import_Export_Importer {
 
 				if ( isset( $settings ) ) {
 					return $settings;
-				} else if ( isset( $error ) ) {
+				} elseif ( isset( $error ) ) {
 					return $error;
 				} else {
 					return new WP_Error( 'valid_json_settings_file_not_found', __( 'The supplied zip file did not contain a JSON file with valid iThemes Security settings. Please ensure that a valid export file is supplied.', 'it-l10n-ithemes-security-pro' ) );
@@ -250,7 +354,7 @@ final class ITSEC_Import_Export_Importer {
 		}
 
 
-		if ( ( '.zip' === substr( $file, -4 ) ) || ( false !== strpos( $type, 'zip' ) ) ) {
+		if ( ( '.zip' === substr( $file, - 4 ) ) || ( false !== strpos( $type, 'zip' ) ) ) {
 			if ( is_wp_error( $temp_dir ) ) {
 				$error = $temp_dir;
 			}
@@ -272,6 +376,7 @@ final class ITSEC_Import_Export_Importer {
 	 * @static
 	 *
 	 * @param string $file File path to the JSON file to pull the settings from.
+	 *
 	 * @return array|WP_Error Returns an array of valid iThemes Security settings, or a WP_Error object otherwise.
 	 */
 	private static function get_data_from_json_file( $file ) {
@@ -318,7 +423,7 @@ final class ITSEC_Import_Export_Importer {
 
 
 			if ( is_bool( $option['auto'] ) ) {
-				$data['options'][$index]['auto'] = ( $option['auto'] ) ? 'yes' : 'no';
+				$data['options'][ $index ]['auto'] = ( $option['auto'] ) ? 'yes' : 'no';
 			}
 		}
 
@@ -331,15 +436,16 @@ final class ITSEC_Import_Export_Importer {
 	 * @static
 	 *
 	 * @param string $form_name The name of the $_FILES index to check.
+	 *
 	 * @return bool|WP_Error Returns true if the requested entry is present and valid, or a WP_Error object containing an error message otherwise.
 	 */
 	private static function validate_uploaded_file( $form_name ) {
-		if ( ! isset( $_FILES[$form_name] ) ) {
+		if ( ! isset( $_FILES[ $form_name ] ) ) {
 			return new WP_Error( 'file_upload_field_missing', __( 'The form field used to upload the file is missing. This could indicate a browser or plugin compatibility issue. Please contact support.', 'it-l10n-ithemes-security-pro' ) );
 		}
 
 
-		$file = $_FILES[$form_name];
+		$file = $_FILES[ $form_name ];
 
 		if ( isset( $file['error'] ) && ( UPLOAD_ERR_OK !== $file['error'] ) ) {
 			$messages = array(
@@ -352,8 +458,8 @@ final class ITSEC_Import_Export_Importer {
 				UPLOAD_ERR_EXTENSION  => __( 'File upload stopped by extension.' ),
 			);
 
-			if ( isset( $messages[$file['error']] ) ) {
-				$message = $messages[$file['error']];
+			if ( isset( $messages[ $file['error'] ] ) ) {
+				$message = $messages[ $file['error'] ];
 			} else {
 				$message = sprintf( __( 'Unknown upload error (code "%s")', 'it-l10n-ithemes-security-pro' ), $file['error'] );
 			}
@@ -378,9 +484,9 @@ final class ITSEC_Import_Export_Importer {
 	 *
 	 * @static
 	 *
+	 * @return string|WP_Error Returns the path to the temporary directory
 	 * @uses ITSEC_Settings_Admin::get_writable_subdir() to get the generated random directory.
 	 *
-	 * @return string|WP_Error Returns the path to the temporary directory
 	 */
 	private static function get_temp_dir() {
 		if ( false !== ( $dir = self::get_writable_subdir( ITSEC_Core::get_storage_dir() ) ) ) {
@@ -427,6 +533,7 @@ final class ITSEC_Import_Export_Importer {
 	 * @static
 	 *
 	 * @param string $dir Directory path to create the randomized directory in.
+	 *
 	 * @return string|bool Returns the path to the writable directory, or false if it cannot be created.
 	 */
 	private static function get_writable_subdir( $dir ) {
@@ -453,6 +560,7 @@ final class ITSEC_Import_Export_Importer {
 		}
 		if ( ! is_writable( $subdir ) ) {
 			@rmdir( $subdir );
+
 			return false;
 		}
 

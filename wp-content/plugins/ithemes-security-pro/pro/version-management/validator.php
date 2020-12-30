@@ -23,11 +23,12 @@ class ITSEC_Version_Management_Validator extends ITSEC_Validator {
 		$this->sanitize_setting( array_keys( $this->get_update_types() ), 'plugin_automatic_updates', __( 'Plugin Automatic Updates', 'it-l10n-ithemes-security-pro' ) );
 		$this->sanitize_setting( array_keys( $this->get_update_types() ), 'theme_automatic_updates', __( 'Theme Automatic Updates', 'it-l10n-ithemes-security-pro' ) );
 		$this->sanitize_setting( 'cb-items:validate_package', 'packages', __( 'Plugin/Theme Configuration', 'it-l10n-ithemes-security-pro' ) );
+		$this->sanitize_setting( 'bool', 'update_if_vulnerable', __( 'Update if Vulnerable', 'it-l10n-ithemes-security-pro' ) );
 	}
 
 	public function get_update_types() {
 		return array(
-			'none'   => esc_html_x( 'None', 'Plugins/Themes', 'it-l10n-ithemes-security-pro' ),
+			'none'   => '',
 			'custom' => esc_html_x( 'Custom', 'Custom list of Plugins/Themes.', 'it-l10n-ithemes-security-pro' ),
 			'all'    => esc_html_x( 'All', 'Plugins/Themes', 'it-l10n-ithemes-security-pro' ),
 		);

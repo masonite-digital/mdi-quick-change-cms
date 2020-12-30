@@ -1,9 +1,12 @@
 <?php
 
+use iThemesSecurity\Lib\Lockout\Host_Context;
+
 class ITSEC_Recaptcha {
 	const A_LOGIN = 'login';
 	const A_REGISTER = 'register';
 	const A_COMMENT = 'comment';
+	const A_RESET_PASS = 'reset_pass';
 
 	private $settings;
 	private $cookie_name;
@@ -17,13 +20,15 @@ class ITSEC_Recaptcha {
 
 		// Run on init so that we can use is_user_logged_in()
 		// Warning: BuddyPress has issues with using is_user_logged_in() on plugins_loaded
-		add_action( 'init', array( $this, 'setup' ) );
+		add_action( 'init', array( $this, 'setup' ), - 100 );
 
 		add_filter( 'itsec_lockout_modules', array( $this, 'register_lockout_module' ) );
 
 		// Check for the opt-in and set the cookie.
 		if ( isset( $_REQUEST['recaptcha-opt-in'] ) && 'true' === $_REQUEST['recaptcha-opt-in'] ) {
-			setcookie( $this->cookie_name, 'true', time() + MONTH_IN_SECONDS, ITSEC_Lib::get_home_root(), COOKIE_DOMAIN, is_ssl(), true );
+			ITSEC_Lib::set_cookie( $this->cookie_name, 'true', array(
+				'length' => MONTH_IN_SECONDS,
+			) );
 		}
 	}
 
@@ -43,58 +48,31 @@ class ITSEC_Recaptcha {
 
 		// Logged in users are people, we don't need to re-verify
 		if ( is_user_logged_in() ) {
-			if ( is_multisite() ) {
-				add_action( 'network_admin_notices', array( $this, 'show_last_error' ) );
-			} else {
-				add_action( 'admin_notices', array( $this, 'show_last_error' ) );
-			}
-
 			return;
 		}
 
 		add_action( 'login_head', array( $this, 'print_login_styles' ) );
 
 		if ( $this->settings['comments'] ) {
-
-			if ( version_compare( $GLOBALS['wp_version'], '4.2', '>=' ) ) {
-				add_filter( 'comment_form_submit_button', array( $this, 'comment_form_submit_button' ) );
-			} else {
-				add_filter( 'comment_form_field_comment', array( $this, 'comment_form_field_comment' ) );
-			}
+			add_filter( 'comment_form_submit_button', array( $this, 'comment_form_submit_button' ) );
 			add_filter( 'preprocess_comment', array( $this, 'filter_preprocess_comment' ) );
-
 		}
 
 		if ( $this->settings['login'] ) {
-
 			add_action( 'login_form', array( $this, 'login_form' ) );
 			add_filter( 'login_form_middle', array( $this, 'wp_login_form' ), 100 );
-			add_filter( 'authenticate', array( $this, 'filter_authenticate' ), 30 );
-
+			add_filter( 'authenticate', array( $this, 'filter_authenticate' ), 30, 2 );
 		}
 
 		if ( $this->settings['register'] ) {
-
 			add_action( 'register_form', array( $this, 'register_form' ) );
 			add_filter( 'registration_errors', array( $this, 'registration_errors' ) );
-
 		}
 
-	}
-
-	public function show_last_error() {
-		if ( ! ITSEC_Core::current_user_can_manage() || $this->settings['validated'] || empty( $this->settings['last_error'] ) ) {
-			return;
+		if ( $this->settings['reset_pass'] ) {
+			add_action( 'lostpassword_form', [ $this, 'reset_password_form' ] );
+			add_action( 'lostpassword_post', [ $this, 'reset_password_errors' ] );
 		}
-
-		echo '<div class="error"><p><strong>';
-		printf( wp_kses( __( 'The reCAPTCHA settings for iThemes Security are invalid. %1$s Bots will not be blocked until <a href="%2$s" data-module-link="recaptcha">the reCAPTCHA settings</a> are set properly.', 'it-l10n-ithemes-security-pro' ), array(
-			'a' => array(
-				'href'             => array(),
-				'data-module-link' => array()
-			)
-		) ), esc_html( $this->settings['last_error'] ), ITSEC_Core::get_settings_module_url( 'recaptcha' ) );
-		echo '</strong></p></div>';
 	}
 
 	public function enqueue_everywhere() {
@@ -130,24 +108,7 @@ class ITSEC_Recaptcha {
 	}
 
 	public function print_login_styles() {
-		echo '<style type="text/css">#login { min-width: 350px !important; } </style>';
-	}
-
-	/**
-	 * Add recaptcha form to comment form
-	 *
-	 * @since 1.17
-	 *
-	 * @param string $comment_field The comment field in the comment form
-	 *
-	 * @return string The comment field with our recaptcha field appended
-	 */
-	public function comment_form_field_comment( $comment_field ) {
-
-		$comment_field .= $this->get_recaptcha( array( 'action' => self::A_COMMENT ) );
-
-		return $comment_field;
-
+		echo '<style type="text/css">#login { min-width: 350px !important; } .grecaptcha-badge { z-index: 1; } </style>';
 	}
 
 	/**
@@ -160,11 +121,9 @@ class ITSEC_Recaptcha {
 	 * @return string The submit button with our recaptcha field prepended
 	 */
 	public function comment_form_submit_button( $submit_button ) {
-
 		$submit_button = $this->get_recaptcha( array( 'action' => self::A_COMMENT ) ) . $submit_button;
 
 		return $submit_button;
-
 	}
 
 	/**
@@ -278,7 +237,26 @@ class ITSEC_Recaptcha {
 		}
 
 		return $errors;
+	}
 
+	/**
+	 * Adds the recaptcha to the reset password form.
+	 */
+	public function reset_password_form() {
+		$this->show_recaptcha( array( 'action' => self::A_RESET_PASS ) );
+	}
+
+	/**
+	 * Validates that the user submitted the recaptcha when requesting a password reset link.
+	 *
+	 * @param WP_Error $errors
+	 */
+	public function reset_password_errors( $errors ) {
+		$result = $this->validate_captcha( array( 'action' => self::A_RESET_PASS ) );
+
+		if ( is_wp_error( $result ) ) {
+			$errors->add( $result->get_error_code(), $result->get_error_message() );
+		}
 	}
 
 	// Leave this in as iThemes Exchange relies upon it.
@@ -292,32 +270,7 @@ class ITSEC_Recaptcha {
 		}
 	}
 
-	public function show_recaptcha( $args = array(), $margin_right = null, $margin_bottom = null, $margin_left = null ) {
-		if ( is_numeric( $args ) ) {
-			_deprecated_argument( __METHOD__, '5.7.0', 'Use $args[margin_top] instead. Use ITSEC_Recaptcha_API for the stable interface.' );
-
-			$args = array(
-				'margin' => array(
-					'top' => $args,
-				),
-			);
-		}
-
-		if ( $margin_right !== null ) {
-			$args['margin']['right'] = $margin_right;
-			_deprecated_argument( __METHOD__, '5.7.0', 'Use $args[margin_right] instead. Use ITSEC_Recaptcha_API for the stable interface.' );
-		}
-
-		if ( $margin_bottom !== null ) {
-			$args['margin']['bottom'] = $margin_bottom;
-			_deprecated_argument( __METHOD__, '5.7.0', 'Use $args[margin_bottom] instead. Use ITSEC_Recaptcha_API for the stable interface.' );
-		}
-
-		if ( $margin_left !== null ) {
-			$args['margin']['left'] = $margin_left;
-			_deprecated_argument( __METHOD__, '5.7.0', 'Use $args[margin_left] instead. Use ITSEC_Recaptcha_API for the stable interface.' );
-		}
-
+	public function show_recaptcha( $args = array() ) {
 		$args['margin'] = wp_parse_args( isset( $args['margin'] ) ? $args['margin'] : array(), array(
 			'top'    => 10,
 			'bottom' => 10,
@@ -374,42 +327,18 @@ class ITSEC_Recaptcha {
 		return $html;
 	}
 
-	public function get_recaptcha( $args = array(), $margin_right = null, $margin_bottom = null, $margin_left = null ) {
+	public function get_recaptcha( $args = array() ) {
 		self::$captcha_count ++;
 
-		if ( is_numeric( $args ) ) {
-			_deprecated_argument( __METHOD__, '5.7.0', 'Use $args[margin_top] instead. Use ITSEC_Recaptcha_API for the stable interface.' );
-
-			$args = array(
-				'margin' => array(
-					'top' => $args,
-				),
-			);
-		}
-
-		if ( $margin_right !== null ) {
-			$args['margin']['right'] = $margin_right;
-			_deprecated_argument( __METHOD__, '5.7.0', 'Use $args[margin_right] instead. Use ITSEC_Recaptcha_API for the stable interface.' );
-		}
-
-		if ( $margin_bottom !== null ) {
-			$args['margin']['bottom'] = $margin_bottom;
-			_deprecated_argument( __METHOD__, '5.7.0', 'Use $args[margin_bottom] instead. Use ITSEC_Recaptcha_API for the stable interface.' );
-		}
-
-		if ( $margin_left !== null ) {
-			$args['margin']['left'] = $margin_left;
-			_deprecated_argument( __METHOD__, '5.7.0', 'Use $args[margin_left] instead. Use ITSEC_Recaptcha_API for the stable interface.' );
-		}
-
 		$defaults = array(
-			'margin' => array(
+			'margin'     => array(
 				'top'    => 0,
 				'right'  => 0,
 				'bottom' => 0,
 				'left'   => 0,
 			),
-			'action' => '',
+			'action'     => '',
+			'controlled' => false,
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
@@ -438,7 +367,9 @@ class ITSEC_Recaptcha {
 	private function get_g_recaptcha_html( $args, $include_fallback = true ) {
 
 		if ( 'v3' === $this->settings['type'] ) {
-			return '<input type="hidden" name="g-recaptcha-response" class="g-recaptcha" data-sitekey="' . esc_attr( $this->settings['site_key'] ) . '" data-action="' . esc_attr( $args['action'] ) . '">';
+			$controlled = $args['controlled'] ? ' data-controlled="true"' : '';
+
+			return sprintf( '<input type="hidden" name="g-recaptcha-response" class="itsec-g-recaptcha" data-action="%s"%s>', esc_attr( $args['action'] ), $controlled );
 		}
 
 		if ( 'invisible' === $this->settings['type'] ) {
@@ -491,12 +422,16 @@ class ITSEC_Recaptcha {
 		$script = $this->build_itsec_script();
 
 		if ( 'v3' === $this->settings['type'] ) {
-			wp_enqueue_script( 'itsec-recaptcha-script', $script, array( 'jquery', 'itsec-recaptcha-api' ), ITSEC_Core::get_plugin_build() );
+			wp_enqueue_script( 'itsec-recaptcha-script', $script, array( 'jquery', 'itsec-recaptcha-api' ), 4121 );
 		} elseif ( 'invisible' === $this->settings['type'] ) {
-			wp_enqueue_script( 'itsec-recaptcha-script', $script, array( 'jquery', 'itsec-recaptcha-api' ), ITSEC_Core::get_plugin_build() );
+			wp_enqueue_script( 'itsec-recaptcha-script', $script, array( 'jquery', 'itsec-recaptcha-api' ), 4118 );
 		} else {
-			wp_enqueue_script( 'itsec-recaptcha-script', $script, array( 'itsec-recaptcha-api' ), ITSEC_Core::get_plugin_build() );
+			wp_enqueue_script( 'itsec-recaptcha-script', $script, array( 'itsec-recaptcha-api' ), 4118 );
 		}
+
+		wp_localize_script( 'itsec-recaptcha-script', 'itsecRecaptcha', [
+			'siteKey' => $this->settings['site_key'],
+		] );
 	}
 
 	/**
@@ -575,9 +510,9 @@ class ITSEC_Recaptcha {
 				return $GLOBALS['__itsec_recaptcha_cached_result'];
 			}
 
-			$GLOBALS['__itsec_recaptcha_cached_result'] = new WP_Error( 'itsec-recaptcha-form-not-submitted', esc_html__( 'You must submit the reCAPTCHA to proceed. Please try again.', 'it-l10n-ithemes-security-pro' ) );
+			$GLOBALS['__itsec_recaptcha_cached_result'] = new WP_Error( 'itsec-recaptcha-form-not-submitted', esc_html__( 'You must submit the reCAPTCHA to proceed. Please try again.', 'it-l10n-ithemes-security-pro' ), compact( 'args' ) );
 
-			$this->log_failed_validation( $GLOBALS['__itsec_recaptcha_cached_result'] );
+			$this->log_failed_validation( $GLOBALS['__itsec_recaptcha_cached_result'], $args );
 
 			return $GLOBALS['__itsec_recaptcha_cached_result'];
 		}
@@ -647,7 +582,7 @@ class ITSEC_Recaptcha {
 
 		$GLOBALS['__itsec_recaptcha_cached_result'] = $validation_error;
 
-		$this->log_failed_validation( $GLOBALS['__itsec_recaptcha_cached_result'] );
+		$this->log_failed_validation( $GLOBALS['__itsec_recaptcha_cached_result'], $args );
 
 		return $GLOBALS['__itsec_recaptcha_cached_result'];
 	}
@@ -691,25 +626,25 @@ class ITSEC_Recaptcha {
 		$error = new WP_Error( 'itsec-recaptcha-incorrect', esc_html__( 'The captcha response you submitted does not appear to be valid. Please try again.', 'it-l10n-ithemes-security-pro' ) );
 
 		if ( ! $response['success'] ) {
-			$error->add_data( array( 'validate_error' => 'invalid-token' ) );
+			$error->add_data( array( 'validate_error' => 'invalid-token', 'args' => $args ) );
 
 			return $error;
 		}
 
 		if ( ! $this->validate_host( $response ) ) {
-			$error->add_data( array( 'validate_error' => 'host-mismatch' ) );
+			$error->add_data( array( 'validate_error' => 'host-mismatch', 'args' => $args ) );
 
 			return $error;
 		}
 
 		if ( ! $this->validate_action( $response, $args ) ) {
-			$error->add_data( array( 'validate_error' => 'action-mismatch' ) );
+			$error->add_data( array( 'validate_error' => 'action-mismatch', 'args' => $args ) );
 
 			return $error;
 		}
 
-		if ( ! $this->validate_score( $response ) ) {
-			$error->add_data( array( 'validate_error' => 'insufficient_score' ) );
+		if ( ! $this->validate_score( $response, $args ) ) {
+			$error->add_data( array( 'validate_error' => 'insufficient_score', 'args' => $args ) );
 
 			return $error;
 		}
@@ -769,30 +704,51 @@ class ITSEC_Recaptcha {
 	 * Validate that the action matches and the score is above the threshold..
 	 *
 	 * @param array $status Response from Google.
+	 * @param array $args   Validation args.
 	 *
 	 * @return bool
 	 */
-	private function validate_score( $status ) {
+	private function validate_score( $status, $args ) {
 
 		if ( 'v3' !== $this->settings['type'] ) {
 			return true;
 		}
 
-		return $status['score'] >= $this->settings['v3_threshold'];
+		$threshold = isset( $args['v3_threshold'] ) ? $args['v3_threshold'] : $this->settings['v3_threshold'];
+
+		return $status['score'] >= $threshold;
 	}
 
 	/**
 	 * Log when Recaptcha fails to validate.
 	 *
-	 * @param WP_Error $data
+	 * @param WP_Error $error
+	 * @param array    $args
 	 */
-	private function log_failed_validation( $data ) {
+	private function log_failed_validation( $error, $args ) {
 		/** @var ITSEC_Lockout $itsec_lockout */
 		global $itsec_lockout;
 
-		ITSEC_Log::add_notice( 'recaptcha', 'failed-validation', $data );
+		/**
+		 * Fires when a user fails the reCAPTCHA test.
+		 *
+		 * @param WP_Error $error
+		 * @param array    $args
+		 */
+		do_action( 'itsec_failed_recaptcha', $error, $args );
 
-		$itsec_lockout->do_lockout( 'recaptcha' );
+		ITSEC_Log::add_notice( 'recaptcha', 'failed-validation', $error );
+
+		$data    = $error->get_error_data();
+		$context = new Host_Context( 'recaptcha' );
+
+		if ( ! empty( $data['args']['user'] ) ) {
+			$context->set_login_user_id( $data['args']['user'] );
+		} elseif ( ! empty( $data['args']['username'] ) ) {
+			$context->set_login_username( $data['args']['username'] );
+		}
+
+		$itsec_lockout->do_lockout( $context );
 	}
 
 	/**
@@ -800,25 +756,35 @@ class ITSEC_Recaptcha {
 	 *
 	 * @since 1.13
 	 *
-	 * @param null|WP_User|WP_Error $user     WP_User if the user is authenticated.
-	 *                                        WP_Error or null otherwise.
+	 * @param WP_User|WP_Error|null $user WP_User if the user is authenticated, WP_Error or null otherwise.
+	 * @param string                $username
 	 *
-	 * @return null|WP_User|WP_Error $user     WP_User if the user is authenticated.
-	 *                                         WP_Error or null otherwise.
+	 * @return WP_User|WP_Error|null
 	 */
-	public function filter_authenticate( $user ) {
+	public function filter_authenticate( $user, $username ) {
 		if ( empty( $_POST ) || ITSEC_Core::is_api_request() ) {
 			return $user;
 		}
 
-		$result = $this->validate_captcha( array( 'action' => self::A_LOGIN ) );
+		ITSEC_Lib::load( 'login' );
+
+		$args = array( 'action' => self::A_LOGIN );
+
+		if ( $user instanceof WP_User ) {
+			$args['user'] = $user->ID;
+		} elseif ( $found_user = ITSEC_Lib_Login::get_user( $username ) ) {
+			$args['user'] = $found_user->ID;
+		} else {
+			$args['username'] = $username;
+		}
+
+		$result = $this->validate_captcha( $args );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
 		return $user;
-
 	}
 
 	/**
@@ -826,7 +792,7 @@ class ITSEC_Recaptcha {
 	 *
 	 * @since 1.13
 	 *
-	 * @param  array $lockout_modules array of lockout modules
+	 * @param array $lockout_modules array of lockout modules
 	 *
 	 * @return array                   array of lockout modules
 	 */
@@ -835,6 +801,7 @@ class ITSEC_Recaptcha {
 		$lockout_modules['recaptcha'] = array(
 			'type'   => 'recaptcha',
 			'reason' => __( 'too many failed captcha submissions.', 'it-l10n-ithemes-security-pro' ),
+			'label'  => __( 'reCAPTCHA', 'it-l10n-ithemes-security-pro' ),
 			'host'   => isset( $this->settings['error_threshold'] ) ? absint( $this->settings['error_threshold'] ) : 7,
 			'period' => isset( $this->settings['check_period'] ) ? absint( $this->settings['check_period'] ) : 5,
 		);

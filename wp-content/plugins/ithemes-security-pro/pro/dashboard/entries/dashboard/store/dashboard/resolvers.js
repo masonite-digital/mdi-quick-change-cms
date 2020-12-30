@@ -13,7 +13,7 @@ import {
 	receiveDashboardQuery,
 } from './actions';
 import { apiFetch } from '../controls';
-import { entriesToObject } from 'packages/utils/src';
+import { entriesToObject } from '@ithemes/security-utils';
 
 /**
  * Requests dashboards from the REST API.

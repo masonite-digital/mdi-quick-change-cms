@@ -1,14 +1,26 @@
 <?php
 
-class ITSEC_Password_Expiration {
+use iThemesSecurity\Contracts\Runnable;
+use iThemesSecurity\User_Groups;
+
+class ITSEC_Password_Expiration implements Runnable {
+	/** @var User_Groups\Matcher */
+	private $matcher;
 
 	private $settings;
 
-	function run() {
+	/**
+	 * ITSEC_Password_Expiration constructor.
+	 *
+	 * @param User_Groups\Matcher $matcher
+	 */
+	public function __construct( User_Groups\Matcher $matcher ) { $this->matcher = $matcher; }
 
+	public function run() {
 		$this->settings = ITSEC_Modules::get_settings( 'password-expiration' );
 
 		add_action( 'itsec_register_password_requirements', array( $this, 'register_requirements' ) );
+		add_action( 'itsec_register_user_group_settings', [ $this, 'register_group_setting' ] );
 
 		add_action( 'itsec_password_requirements_enqueue_scripts_and_styles', array( $this, 'enqueue_force_scripts' ) );
 		add_action( 'itsec_password_requirements_settings_before', array( $this, 'render_force_button' ) );
@@ -19,7 +31,10 @@ class ITSEC_Password_Expiration {
 		ITSEC_Lib_Password_Requirements::register( 'age', array(
 			'flag_check'      => array( $this, 'check_age' ),
 			'reason'          => array( $this, 'age_reason' ),
-			'defaults'        => array( 'role' => 'subscriber', 'expire_max' => 120 ),
+			'defaults'        => array(
+				'group'      => ITSEC_Modules::get_settings_obj( 'user-groups' )->get_groups_for_all_users(),
+				'expire_max' => 120,
+			),
 			'settings_config' => array( $this, 'get_settings_config' ),
 		) );
 
@@ -28,6 +43,17 @@ class ITSEC_Password_Expiration {
 			'reason'     => array( $this, 'force_reason' ),
 			'label'      => esc_html__( 'Force Password Change', 'it-l10n-ithemes-security-pro' ),
 		) );
+	}
+
+	public function register_group_setting( User_Groups\Settings_Registry $registry ) {
+		if ( ITSEC_Lib_Password_Requirements::is_requirement_enabled( 'age' ) ) {
+			$registry->register( new User_Groups\Settings_Registration( 'password-requirements', 'requirement_settings.age.group', User_Groups\Settings_Registration::T_MULTIPLE, static function () {
+				return [
+					'title'       => __( 'Password Expiration', 'it-l10n-ithemes-security-pro' ),
+					'description' => __( 'Strengthen the passwords on the site with automated password expiration.', 'it-l10n-ithemes-security-pro' ),
+				];
+			} ) );
+		}
 	}
 
 	/**
@@ -40,9 +66,9 @@ class ITSEC_Password_Expiration {
 	 */
 	public function check_age( $user, $settings ) {
 
-		require_once( ITSEC_Core::get_core_dir() . '/lib/class-itsec-lib-canonical-roles.php' );
+		$target = User_Groups\Match_Target::for_user( $user );
 
-		if ( ! ITSEC_Lib_Canonical_Roles::is_user_at_least( $settings['role'], $user ) ) {
+		if ( ! $this->matcher->matches( $target, $settings['group'] ) ) {
 			return false;
 		}
 
@@ -51,7 +77,7 @@ class ITSEC_Password_Expiration {
 
 		$oldest_allowed = ITSEC_Core::get_current_time_gmt() - $period;
 
-		return ITSEC_Lib_Password_Requirements::password_last_changed( $user ) <= $oldest_allowed;
+		return ITSEC_Lib_Password_Requirements::password_last_changed( $user ) < $oldest_allowed;
 	}
 
 	public function get_settings_config() {
@@ -69,22 +95,18 @@ class ITSEC_Password_Expiration {
 	 * @param ITSEC_Form $form
 	 */
 	public function render_settings( $form ) {
-
-		$href = 'http://codex.wordpress.org/Roles_and_Capabilities';
-		$link = '<a href="' . $href . '" target="_blank" rel="noopener noreferrer">' . $href . '</a>';
 		?>
 		<tr>
 			<th scope="row">
-				<label for="itsec-password-requirements-requirement_settings-age-role">
-					<?php esc_html_e( 'Minimum Role', 'it-l10n-ithemes-security-pro' ); ?>
+				<label for="itsec-password-requirements-requirement_settings-age-group">
+					<?php esc_html_e( 'User Group', 'it-l10n-ithemes-security-pro' ); ?>
 				</label>
 			</th>
 			<td>
-				<?php $form->add_canonical_roles( 'role' ); ?>
+				<?php $form->add_user_groups( 'group', 'password-requirements', 'requirement_settings.age.group' ); ?>
 				<br/>
-				<label for="itsec-password-requirements-requirement_settings-age-role"><?php esc_html_e( 'Minimum role at which password expiration is enforced.', 'it-l10n-ithemes-security-pro' ); ?></label>
-				<p class="description"><?php esc_html_e( 'We suggest enabling this setting for all users, but it may lead to users forgetting their passwords. The minimum role option above allows you to select the lowest user role to apply strong password generation.', 'it-l10n-ithemes-security-pro' ); ?></p>
-				<p class="description"><?php printf( esc_html__( 'For more information on WordPress roles and capabilities please see %s.', 'it-l10n-ithemes-security-pro' ), $link ); ?></p>
+				<label for="itsec-password-requirements-requirement_settings-age-group"><?php esc_html_e( 'Require users in the selected groups to change their password periodically.', 'it-l10n-ithemes-security-pro' ); ?></label>
+				<p class="description"><?php esc_html_e( 'We suggest enabling this setting for all users, but it may lead to users forgetting their passwords.', 'it-l10n-ithemes-security-pro' ); ?></p>
 			</td>
 		</tr>
 		<tr>
@@ -107,8 +129,7 @@ class ITSEC_Password_Expiration {
 	 */
 	public function sanitize_settings( $settings ) {
 		return array(
-			array( 'string', 'role', esc_html__( 'Minimum Role for Password Expiration', 'it-l10n-ithemes-security-pro' ) ),
-			array( 'canonical-roles', 'role', esc_html__( 'Minimum Role for Password Expiration', 'it-l10n-ithemes-security-pro' ) ),
+			array( 'user-groups', 'group', esc_html__( 'User Group', 'it-l10n-ithemes-security-pro' ) ),
 			array( 'positive-int', 'expire_max', esc_html__( 'Maximum Password Age', 'it-l10n-ithemes-security-pro' ) ),
 		);
 	}

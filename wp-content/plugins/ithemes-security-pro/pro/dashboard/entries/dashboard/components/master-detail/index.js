@@ -2,19 +2,43 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { curry, find } from 'lodash';
+import { curry, find, isString } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import { DOWN, UP, ENTER, SPACE } from '@wordpress/keycodes';
 import { compose, withInstanceId, pure } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import Detail from './Detail';
 import './style.scss';
+
+function getSelected( masters, getId, selectedId ) {
+	if ( ! masters.length ) {
+		return undefined;
+	}
+
+	if ( selectedId === false ) {
+		return undefined;
+	}
+
+	if ( ! selectedId ) {
+		return masters[ 0 ];
+	}
+
+	const selected = find( masters, ( item ) => getId( item ) === selectedId );
+
+	if ( selected ) {
+		return selected;
+	}
+
+	return masters[ 0 ];
+}
 
 function MasterDetail( {
 	masters,
@@ -26,9 +50,15 @@ function MasterDetail( {
 	mode = 'table',
 	idProp = 'id',
 	isSmall = false,
+	direction = 'horizontal',
+	borderless = false,
 	children,
+	hasNext,
+	loadNext,
+	isQuerying,
 } ) {
-	const selected = find( masters, [ idProp, selectedId || masters[ 0 ][ idProp ] ] );
+	const getId = isString( idProp ) ? ( item ) => item[ idProp ] : idProp;
+	const selected = getSelected( masters, getId, selectedId );
 
 	const masterRefs = {};
 	let containerRef;
@@ -57,13 +87,13 @@ function MasterDetail( {
 			case SPACE:
 				e.preventDefault();
 				e.stopPropagation();
-				select( masters[ pos ][ idProp ] );
+				select( getId( masters[ pos ] ) );
 				return;
 			default:
 				return;
 		}
 
-		const ref = masterRefs[ masters[ newPos ][ idProp ] ];
+		const ref = masterRefs[ getId( masters[ newPos ] ) ];
 
 		if ( ref ) {
 			e.stopPropagation();
@@ -93,23 +123,23 @@ function MasterDetail( {
 	}
 
 	const masterList = masters.map( ( master, i ) => {
-		const isSelected = selectedId === master[ idProp ];
+		const isSelected = selectedId === getId( master );
 
 		return (
 			<MasterEl
-				key={ master[ idProp ] }
-				id={ `itsec-component-master-detail-${ instanceId }__master--${ master[ idProp ] }` }
+				key={ getId( master ) }
+				id={ `itsec-component-master-detail-${ instanceId }__master--${ getId( master ) }` }
 				tabIndex={ ( isSelected || ( ! selectedId && i === 0 ) ) ? 0 : -1 }
 				role="tab"
 				aria-selected={ isSelected }
-				aria-controls={ `itsec-component-master-detail-${ instanceId }__detail--${ master[ idProp ] }` }
-				onFocus={ () => ! isSmall && select( master[ idProp ] ) }
-				onClick={ () => select( master[ idProp ] ) }
+				aria-controls={ `itsec-component-master-detail-${ instanceId }__detail--${ getId( master ) }` }
+				onFocus={ () => ! isSmall && select( getId( master ) ) }
+				onClick={ () => select( getId( master ) ) }
 				onKeyDown={ onKeyDown( i ) }
-				ref={ ( ref ) => masterRefs[ master[ idProp ] ] = ref }
+				ref={ ( ref ) => masterRefs[ getId( master ) ] = ref }
 				className={ classnames( 'itsec-component-master-detail__master', {
 					'itsec-component-master-detail__master--selected': isSelected,
-					'itsec-component-master-detail__master--selected-default': ! selectedId && i === 0,
+					'itsec-component-master-detail__master--selected-default': 0 === selectedId && i === 0,
 				} ) }
 			>
 				<MasterRender master={ master } />
@@ -117,20 +147,38 @@ function MasterDetail( {
 		);
 	} );
 
+	let next = false;
+
+	if ( hasNext ) {
+		const nextButton = ( <Button isLink onClick={ loadNext } disabled={ isQuerying } isBusy={ isQuerying }>{ __( 'Load More', 'it-l10n-ithemes-security-pro' ) }</Button> );
+
+		if ( mode === 'list' ) {
+			next = ( <li>{ nextButton }</li> );
+		} else {
+			next = ( <tfoot><tr><td colSpan={ 100 }>{ nextButton }</td></tr></tfoot> );
+		}
+	}
+
 	return (
-		<section className={ classnames( 'itsec-component-master-detail', {
-			'itsec-component-master-detail--is-small': isSmall,
-			'itsec-component-master-detail--has-detail': selectedId,
-		} ) }>
+		<section className={ classnames(
+			'itsec-component-master-detail',
+			`itsec-component-master-detail--direction-${ direction }`,
+			{
+				'itsec-component-master-detail--is-small': isSmall,
+				'itsec-component-master-detail--has-detail': selectedId,
+				'itsec-component-master-detail--borderless': borderless,
+			}
+		) }>
 			<section className="itsec-component-master-detail__master-list-container" ref={ ( ref ) => containerRef = ref }>
 				{ /* eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role */ }
 				<ListEl className="itsec-component-master-detail__master-list" role="tablist">
 					{ children }
 					{ mode === 'table' ? <tbody>{ masterList }</tbody> : masterList }
+					{ next }
 				</ListEl>
 			</section>
 			{ masters.map( ( master ) => (
-				<Detail key={ master[ idProp ] } master={ master } idProp={ idProp }
+				<Detail key={ getId( master ) } master={ master } getId={ getId }
 					parentInstanceId={ instanceId } isSelected={ master === selected } DetailRender={ DetailRender } />
 			) ) }
 		</section>

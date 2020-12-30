@@ -81,9 +81,11 @@ class Ithemes_Updater_Updates {
 		$details = Ithemes_Updater_Packages::get_full_details( $response );
 
 		$updates = array(
-			'update_themes'  => array(),
-			'update_plugins' => array(),
-			'expiration'     => $details['expiration'],
+			'update_themes'            => array(),
+			'update_themes_no_update'  => array(),
+			'update_plugins'           => array(),
+			'update_plugins_no_update' => array(),
+			'expiration'               => $details['expiration'],
 		);
 
 		if ( ! $cached ) {
@@ -105,7 +107,7 @@ class Ithemes_Updater_Updates {
 
 
 		foreach ( $details['packages'] as $path => $data ) {
-			if ( empty( $data['package-url'] ) || version_compare( $data['installed'], $data['available'], '>=' ) ) {
+			if ( empty( $data['package-url'] ) ) {
 				continue;
 			}
 
@@ -113,8 +115,12 @@ class Ithemes_Updater_Updates {
 			$force_minor_version_update = $GLOBALS['ithemes-updater-settings']->get_option( 'force_minor_version_update' );
 			$quick_releases = $GLOBALS['ithemes-updater-settings']->get_option( 'quick_releases' );
 
-			if ( ( isset( $data['upgrade'] ) && ! $data['upgrade'] ) && ! $force_minor_version_update && ! $quick_releases ) {
-				continue;
+			$update_available = true;
+
+			if ( version_compare( $data['installed'], $data['available'], '>=' ) ) {
+				$update_available = false;
+			} else if ( ( isset( $data['upgrade'] ) && ! $data['upgrade'] ) && ! $force_minor_version_update && ! $quick_releases ) {
+				$update_available = false;
 			}
 
 			if ( ! $use_ssl ) {
@@ -131,11 +137,20 @@ class Ithemes_Updater_Updates {
 					'package'     => $data['package-url'],
 				);
 
-				if ( isset( $data['autoupdate'] ) ) {
-					$update['autoupdate'] = $data['autoupdate'];
-				}
-				if ( isset( $data['upgrade_notice'] ) ) {
-					$update['upgrade_notice'] = $data['upgrade_notice'];
+				if ( $update_available ) {
+					if ( isset( $data['autoupdate'] ) ) {
+						$update['autoupdate'] = $data['autoupdate'];
+					}
+					if ( isset( $data['upgrade_notice'] ) ) {
+						$update['upgrade_notice'] = $data['upgrade_notice'];
+					}
+				} else {
+					$update['icons'] = array();
+					$update['banners'] = array();
+					$update['banners_rtl'] = array();
+					$update['tested'] = '';
+					$update['requires_php'] = '';
+					$update['compatibility'] = new stdClass();
 				}
 
 				$update = (object) $update;
@@ -148,17 +163,26 @@ class Ithemes_Updater_Updates {
 					'package'     => $data['package-url'],
 				);
 
-				if ( isset( $data['autoupdate'] ) ) {
-					$update['autoupdate'] = $data['autoupdate'];
-				}
-				if ( isset( $data['upgrade_notice'] ) ) {
-					$update['upgrade_notice'] = $data['upgrade_notice'];
+				if ( $update_available ) {
+					if ( isset( $data['autoupdate'] ) ) {
+						$update['autoupdate'] = $data['autoupdate'];
+					}
+					if ( isset( $data['upgrade_notice'] ) ) {
+						$update['upgrade_notice'] = $data['upgrade_notice'];
+					}
+				} else {
+					$update['requires'] = '';
+					$update['requires_php'] = '';
 				}
 
 				$path = dirname( $path );
 			}
 
-			$updates["update_{$data['type']}s"][$path] = $update;
+			if ( $update_available ) {
+				$updates["update_{$data['type']}s"][$path] = $update;
+			} else {
+				$updates["update_{$data['type']}s_no_update"][$path] = $update;
+			}
 		}
 
 

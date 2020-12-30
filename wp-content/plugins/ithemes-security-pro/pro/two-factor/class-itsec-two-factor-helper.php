@@ -1,5 +1,7 @@
 <?php
 
+use iThemesSecurity\TwoFactor\Application_Passwords_Core;
+
 /**
  * Two-Factor Helper Class
  *
@@ -8,14 +10,6 @@
  * @package iThemes_Security
  */
 class ITSEC_Two_Factor_Helper {
-
-	/**
-	 * The name of the module's saved options setting
-	 *
-	 * @access private
-	 * @var string
-	 */
-	private $_setting_name = 'itsec_two_factor';
 
 	/**
 	 * Array of two-factor providers
@@ -38,27 +32,18 @@ class ITSEC_Two_Factor_Helper {
 	 */
 	private static $instance = false;
 
+	/** @var array */
+	private $_enabled_providers;
+
+	/** @var array */
+	private $_enabled_provider_instances;
+
 	/**
 	 * private construct to enforce singleton
 	 */
 	private function __construct() {
-
-		require_once( 'class-itsec-two-factor-core-compat.php' );
-
-		/**
-		 * Include the base provider class here, so that other plugins can also extend it.
-		 */
-		require_once( 'providers/class.two-factor-provider.php' );
-
-		if ( 'disabled' === ITSEC_Modules::get_setting( 'two-factor', 'application_passwords_type' ) ) {
-			add_filter( 'authenticate', array( $this, 'block_xmlrpc' ), 100 );
-		} else {
-			/**
-			 * Include the application passwords system.
-			 */
-			require_once( 'application-passwords.php' );
-			ITSEC_Application_Passwords::add_hooks();
-		}
+		require_once __DIR__ . '/class-itsec-two-factor-core-compat.php';
+		require_once __DIR__ . '/providers/class.two-factor-provider.php';
 
 		if ( is_admin() ) {
 			// Always instantiate enabled providers in admin for use in settings, etc
@@ -66,7 +51,6 @@ class ITSEC_Two_Factor_Helper {
 		} else {
 			add_action( 'init', array( $this, 'get_all_providers' ) );
 		}
-
 	}
 
 	/**
@@ -81,23 +65,9 @@ class ITSEC_Two_Factor_Helper {
 	}
 
 	/**
-	 * Block XML-RPC login requests for users using Two-Factor.
-	 *
-	 * @param WP_User|WP_Error|null $user_or_error
-	 *
-	 * @return WP_Error|WP_User|null
-	 */
-	public function block_xmlrpc( $user_or_error ) {
-
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && $user_or_error instanceof WP_User && ITSEC_Two_Factor::get_instance()->is_user_using_two_factor( $user_or_error->ID ) ) {
-			$user_or_error = new WP_Error( 'two_factor_required', esc_html__( 'User has Two-Factor enabled.', 'it-l10n-ithemes-security-pro' ) );
-		}
-
-		return $user_or_error;
-	}
-
-	/**
 	 * Get a list of providers
+	 *
+	 * @param bool $refresh Whether to bypass the in-memory cache.
 	 *
 	 * @return array where key is provider class name and value is the provider file
 	 */
@@ -197,6 +167,20 @@ class ITSEC_Two_Factor_Helper {
 		$this->_enabled_provider_instances = $this->_instantiate_providers( $this->get_enabled_providers( $refresh ) );
 
 		return $this->_enabled_provider_instances;
+	}
+
+	/**
+	 * Get an instance for a Two Factor Provider.
+	 *
+	 * @param string $provider Provider class name.
+	 * @param bool   $refresh  Whether to refresh a new instance.
+	 *
+	 * @return Two_Factor_Provider|null
+	 */
+	public function get_provider_instance( $provider, $refresh = false ) {
+		$instances = $this->get_all_provider_instances( $refresh );
+
+		return isset( $instances[ $provider ] ) ? $instances[ $provider ] : null;
 	}
 
 	private function _instantiate_providers( $providers ) {

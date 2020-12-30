@@ -1,5 +1,7 @@
 <?php
 
+use \iThemesSecurity\User_Groups;
+
 class ITSEC_Grading_System_Section_Security_Settings extends ITSEC_Grading_System_Section {
 	public function get_id() {
 		return 'security_settings';
@@ -30,6 +32,15 @@ class ITSEC_Grading_System_Section_Security_Settings extends ITSEC_Grading_Syste
 	}
 
 	public function resolve_issue( $id ) {
+		if ( ! ITSEC_Core::current_user_can_manage() ) {
+			ITSEC_Response::add_error( new WP_Error(
+				'itsec-grading-report-security-settings-no-permissions',
+				__( 'Sorry, you do not have permission to resolve this issue.', 'it-l10n-ithemes-security-pro' )
+			) );
+
+			return;
+		}
+
 		$recommendations = $this->get_recommendations();
 
 		if ( ! isset( $recommendations[$id] ) ) {
@@ -79,12 +90,16 @@ class ITSEC_Grading_System_Section_Security_Settings extends ITSEC_Grading_Syste
 				'name'    => $recommendation['name'],
 				'percent' => $score['percent'],
 				'details' => $score['description'],
-				'fixable' => true,
+				'fixable' => ITSEC_Core::current_user_can_manage(),
 				'issue'   => ( $score['percent'] < 100 ),
 			);
 
 			if ( ! empty( $score['cap'] ) ) {
 				$report['cap'] = $score['cap'];
+			}
+
+			if ( 'setting' === $recommendation['type'] && ! isset( $recommendation['recommendation'] ) ) {
+				$report['fixable'] = false;
 			}
 
 			$criteria[$id] = $report;
@@ -338,30 +353,20 @@ class ITSEC_Grading_System_Section_Security_Settings extends ITSEC_Grading_Syste
 			),
 			'two-factor-protect-user-type' => array(
 				'type'           => 'setting',
-				'name'           => __( 'Two-Factor Authentication: User Type Protection', 'it-l10n-ithemes-security-pro' ),
+				'name'           => __( 'Two-Factor Authentication: Force Two-Factor', 'it-l10n-ithemes-security-pro' ),
 				'module'         => 'two-factor',
-				'setting'        => 'protect_user_type',
+				'setting'        => 'protect_user_group',
 				'weight'         => 500,
-				'recommendation' => 'privileged_users',
 				'score-callback' => array( $this, 'get_two_factor_protect_user_type_score' ),
 			),
 			'two-factor-exclude-type' => array(
 				'type'           => 'setting',
 				'name'           => __( 'Two-Factor Authentication: Disable Two-Factor for Certain Users', 'it-l10n-ithemes-security-pro' ),
 				'module'         => 'two-factor',
-				'setting'        => 'exclude_type',
+				'setting'        => 'exclude_group',
 				'weight'         => 500,
-				'recommendation' => 'disabled',
-				'scores' => array(
-					'disabled'  => array(
-						'percent' => 100,
-						'description' => __( 'Not disabled for any users as recommended.', 'it-l10n-ithemes-security-pro' ),
-					),
-					'custom' => array(
-						'percent'     => 0,
-						'description' => __( 'Fix to allow enforcing Two-Factor for all users. This is recommended as Two-Factor is one of the best ways to help protect your user\'s information.', 'it-l10n-ithemes-security-pro' ),
-					),
-				),
+				'recommendation' => [],
+				'score-callback' => array( $this, 'get_two_factor_exclude_type_score' ),
 			),
 			'two-factor-protect-vulnerable-users' => array(
 				'type'           => 'setting',
@@ -396,28 +401,6 @@ class ITSEC_Grading_System_Section_Security_Settings extends ITSEC_Grading_Syste
 					false => array(
 						'percent'     => 0,
 						'description' => __( 'Fix to enable Vulnerable Site Protection for Two-Factor Authentication. This is highly recommended as it requires all users to use two-factor authentication to log in when the site is known to be vulnerable.', 'it-l10n-ithemes-security-pro' ),
-					),
-				),
-			),
-			'two-factor-application-password-type' => array(
-				'type'           => 'setting',
-				'name'           => __( 'Two-Factor Authentication: Application Passwords', 'it-l10n-ithemes-security-pro' ),
-				'module'         => 'two-factor',
-				'setting'        => 'application_passwords_type',
-				'weight'         => 200,
-				'recommendation' => 'enabled',
-				'scores'         => array(
-					'enabled'  => array(
-						'percent'     => 100,
-						'description' => __( 'Enabled as recommended. Two-Factor users can configure Application Passwords when using API powered applications.', 'it-l10n-ithemes-security-pro' )
-					),
-					'disabled' => array(
-						'percent'     => 100,
-						'description' => __( 'Disable Application Passwords if API access is not required.', 'it-l10n-ithemes-security-pro' ),
-					),
-					'custom'   => array(
-						'percent'     => 0,
-						'description' => __( 'Fix to enable Application Passwords for all users. If API access is available, disabling Application Passwords may dissuade API users from enabling Two-Factor.', 'it-l10n-ithemes-security-pro' ),
 					),
 				),
 			),
@@ -528,18 +511,6 @@ class ITSEC_Grading_System_Section_Security_Settings extends ITSEC_Grading_Syste
 		);
 	}
 
-	private function get_role_id_from_display_name( $name ) {
-		$roles = wp_roles()->roles;
-
-		foreach ( $roles as $role => $data ) {
-			if ( $name === $data['name'] ) {
-				return $role;
-			}
-		}
-
-		return false;
-	}
-
 	private function get_backup_score() {
 
 		if ( $file = ITSEC_Lib::get_backup_plugin() ) {
@@ -580,59 +551,37 @@ class ITSEC_Grading_System_Section_Security_Settings extends ITSEC_Grading_Syste
 	}
 
 	private function get_two_factor_protect_user_type_score() {
-		$protect_user_type = ITSEC_Modules::get_setting( 'two-factor', 'protect_user_type' );
+		$protect_user_group = ITSEC_Modules::get_setting( 'two-factor', 'protect_user_group' );
 
-		if ( 'privileged_users' === $protect_user_type ) {
-			return array(
-				'percent'     => 100,
-				'description' => __( 'Privileged Users is selected as recommended. This ensures that all accounts that have privileges to change site settings, software, or content use two-factor authentication.', 'it-l10n-ithemes-security-pro' ),
-			);
-		} else if ( 'all_users' === $protect_user_type ) {
-			return array(
-				'percent'     => 100,
-				'description' => __( 'All Users is selected. This is not recommended for sites that have large numbers of unprivileged users, but it does greatly increase the difficultly of breaking into user accounts.', 'it-l10n-ithemes-security-pro' ),
-			);
-		} else if ( 'disabled' === $protect_user_type ) {
+		if ( ! $protect_user_group ) {
 			return array(
 				'percent'     => 0,
 				'cap'         => '75',
-				'description' => __( 'Fix to change setting from Disabled to Privileged Users. The User Type Protection feature is highly recommended as it automatically enforces strong account security on accounts that have the most potential to harm the site if an attacker gained access to them.', 'it-l10n-ithemes-security-pro' ),
+				'description' => __( 'The Force Two-Factor feature is highly recommended as it automatically enforces strong account security on accounts that have the most potential to harm the site if an attacker gained access to them.', 'it-l10n-ithemes-security-pro' ),
 			);
 		}
 
+		$matcher = ITSEC_Modules::get_container()->get( User_Groups\Matcher::class );
 
-		require_once( ITSEC_Core::get_core_dir() . '/lib/class-itsec-lib-canonical-roles.php' );
-
-		$protect_user_type_roles = ITSEC_Modules::get_setting( 'two-factor', 'protect_user_type_roles' );
-		$validator = ITSEC_Modules::get_validator( 'two-factor' );
-		$available_protect_user_type_roles = $validator->get_protect_user_type_roles();
-		$missing_roles = array();
-
-		foreach ( $available_protect_user_type_roles as $role ) {
-			if ( in_array( $role, $protect_user_type_roles ) ) {
-				continue;
-			}
-
-			$role_id = $this->get_role_id_from_display_name( $role );
-			$role_obj = get_role( $role_id );
-			$canonical_role = ITSEC_Lib_Canonical_Roles::get_role_from_caps( $role_obj->capabilities );
-
-			if ( ITSEC_Lib_Canonical_Roles::is_canonical_role_at_least( $canonical_role, 'contributor' ) ) {
-				$missing_roles[] = $role;
-			}
+		if ( ! $matcher->matches( User_Groups\Match_Target::for_role( 'administrator' ), $protect_user_group ) ) {
+			return array(
+				'percent'     => 0,
+				'cap'         => '75',
+				'description' => __( 'Forcing administrator users to use Two-Factor feature is highly recommended as those accounts have the most potential to harm the site if an attacker gained access to them.', 'it-l10n-ithemes-security-pro' ),
+			);
 		}
 
-		if ( empty( $missing_roles ) ) {
+		if ( ! $matcher->matches( User_Groups\Match_Target::for_role( 'editor' ), $protect_user_group ) ) {
 			return array(
-				'percent'     => 100,
-				'description' => __( 'The manually-selected roles protect all the privileged roles. The accounts of the selected roles are automatically protected by automatically requiring two-factor authentication when logging in.', 'it-l10n-ithemes-security-pro' ),
+				'percent'     => 50,
+				'cap'         => '75',
+				'description' => __( 'Forcing editor users to use Two-Factor feature is highly recommended as those accounts have the most potential to harm the site if an attacker gained access to them.', 'it-l10n-ithemes-security-pro' ),
 			);
 		}
 
 		return array(
-			'percent'     => 0,
-			'cap'         => '75',
-			'description' => __( 'Fix to change setting from Select Roles Manually to Privileged Users. Not all of the privileged roles were manually-selected, thus opening up the possibility that some privileged accounts will not require two-factor authentication.', 'it-l10n-ithemes-security-pro' ),
+			'percent'     => 100,
+			'description' => __( 'The Force Two-Factor feature is configured as recommended.', 'it-l10n-ithemes-security-pro' ),
 		);
 	}
 
@@ -689,7 +638,7 @@ class ITSEC_Grading_System_Section_Security_Settings extends ITSEC_Grading_Syste
 			return array(
 				'percent'     => 70,
 				'cap'         => '85',
-				'description' => __( 'Fix to change setting to All Methods. With email two-factor disabled, iThemes Security cannot provide other recommended Two-Factor Authentication features.', 'it-l10n-ithemes-security-pro' ),a
+				'description' => __( 'Fix to change setting to All Methods. With email two-factor disabled, iThemes Security cannot provide other recommended Two-Factor Authentication features.', 'it-l10n-ithemes-security-pro' ),
 			);
 		} else {
 			return array(
@@ -698,5 +647,21 @@ class ITSEC_Grading_System_Section_Security_Settings extends ITSEC_Grading_Syste
 				'description' => __( 'Fix to change setting to All Methods as recommended. Currently all the methods are disabled, effectively disabling Two-Factor Authentication.', 'it-l10n-ithemes-security-pro' ),
 			);
 		}
+	}
+
+	private function get_two_factor_exclude_type_score() {
+		$groups = ITSEC_Modules::get_setting( 'two-factor', 'exclude_group' );
+
+		if ( ! $groups ) {
+			return array(
+				'percent'     => 100,
+				'description' => __( 'Not disabled for any users as recommended.', 'it-l10n-ithemes-security-pro' ),
+			);
+		}
+
+		return array(
+			'percent' => 0,
+			'description' => __( 'Fix to allow enforcing Two-Factor for all users. This is recommended as Two-Factor is one of the best ways to help protect your user\'s information.', 'it-l10n-ithemes-security-pro' ),
+		);
 	}
 }

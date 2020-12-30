@@ -14,6 +14,7 @@ class ITSEC_Recaptcha_Validator extends ITSEC_Validator {
 		$this->sanitize_setting( 'bool', 'login', esc_html__( 'Use on Login', 'it-l10n-ithemes-security-pro' ) );
 		$this->sanitize_setting( 'bool', 'register', esc_html__( 'Use on New User Registration', 'it-l10n-ithemes-security-pro' ) );
 		$this->sanitize_setting( 'bool', 'comments', esc_html__( 'Use on Comments', 'it-l10n-ithemes-security-pro' ) );
+		$this->sanitize_setting( 'bool', 'reset_pass', esc_html__( 'Use on Reset Password', 'it-l10n-ithemes-security-pro' ) );
 		$this->sanitize_setting( array_keys( $this->get_valid_languages() ), 'language', esc_html__( 'Language', 'it-l10n-ithemes-security-pro' ) );
 		$this->sanitize_setting( 'bool', 'theme', esc_html__( 'Use Dark Theme', 'it-l10n-ithemes-security-pro' ) );
 		$this->sanitize_setting( 'positive-int', 'error_threshold', esc_html__( 'Lockout Error Threshold', 'it-l10n-ithemes-security-pro' ) );

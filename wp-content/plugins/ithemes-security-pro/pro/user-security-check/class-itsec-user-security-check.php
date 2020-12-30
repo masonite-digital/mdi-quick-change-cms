@@ -3,7 +3,8 @@
 class ITSEC_User_Security_Check {
 	public function run() {
 		add_filter( 'manage_toplevel_page_itsec_columns', array( $this, 'add_columns' ) );
-		add_action( 'manage_users_custom_column', array( $this, 'column_content' ), null, 3);
+		add_filter( 'manage_toplevel_page_itsec-network_columns', array( $this, 'add_columns' ) );
+		add_action( 'manage_users_custom_column', array( $this, 'column_content' ), 10, 3 );
 		add_action( 'wp_ajax_itsec-user-security-check-user-search', array( $this, 'user_search' ) );
 		add_action( 'wp_ajax_itsec-set-user-role', array( $this, 'set_role' ) );
 		add_action( 'wp_ajax_itsec-destroy-sessions', array( $this, 'destroy_sessions' ) );
@@ -308,51 +309,17 @@ class ITSEC_User_Security_Check {
 		$requester = wp_get_current_user();
 		$recipient = get_userdata( $_POST['user_id'] );
 
-		$nc = ITSEC_Core::get_notification_center();
-		$mail = $nc->mail();
-		$mail->set_recipients( array( $recipient->user_email ) );
+		require_once( __DIR__ . '/utility.php' );
 
-		$mail->add_header(
-			esc_html__( 'Two Factor Reminder', 'it-l10n-ithemes-security-pro' ),
-			sprintf( esc_html__( 'Two Factor Authentication Reminder for %s', 'it-l10n-ithemes-security-pro' ), '<b>' . get_bloginfo( 'name', 'display' ) . '</b>' ),
-			true
-		);
+		$sent = ITSEC_User_Security_Check_Utility::send_2fa_reminder( $recipient, $requester );
 
-		$message = ITSEC_Core::get_notification_center()->get_message( 'two-factor-reminder' );
-		$message = ITSEC_Lib::replace_tags( $message, array(
-			'username'               => $recipient->user_login,
-			'display_name'           => $recipient->display_name,
-			'requester_username'     => $requester->user_login,
-			'requester_display_name' => $requester->display_name,
-			'site_title'             => get_bloginfo( 'name', 'display' ),
-		) );
-		$mail->add_text( $message );
-
-		$configure_2fa_url = ITSEC_Mail::filter_admin_page_url( add_query_arg( ITSEC_Lib_Login_Interstitial::SHOW_AFTER_LOGIN, '2fa-on-board', wp_login_url() ) );
-
-		$mail->add_button( esc_html__( 'Setup now', 'it-l10n-ithemes-security-pro' ), $configure_2fa_url );
-
-		$mail->add_list( array(
-			esc_html__( 'Enabling two-factor authentication greatly increases the security of your user account on this site.', 'it-l10n-ithemes-security-pro' ),
-			esc_html__( 'With two-factor authentication enabled, after you login with your username and password, you will be asked for an authentication code before you can successfully log in.', 'it-l10n-ithemes-security-pro' ),
-			sprintf(
-				/* translators: %1$s and %2$s are opening link tags, %3$s is the closing link tag. */
-				esc_html__( '%1$sLearn more about Two Factor Authentication%3$s, or %2$show to set it up%3$s.', 'it-l10n-ithemes-security-pro' ),
-				'<a href="' . esc_url( 'https://ithemes.com/2015/07/28/two-factor-authentication/' ) . '">',
-				'<a href="' . esc_url( 'https://ithemes.com/2016/07/26/two-factor-authentication-ithemes-security-pro-plugin/' ) . '">',
-				'</a>'
-			)
-		), true );
-
-		$mail->add_user_footer();
-
-		if ( $nc->send( 'two-factor-reminder', $mail ) ) {
-			wp_send_json_success( array(
-				'message' => __( 'Reminder E-Mail has been sent.', 'it-l10n-ithemes-security-pro' ),
+		if ( is_wp_error( $sent ) ) {
+			wp_send_json_error( array(
+				'message' => $sent->get_error_message(),
 			) );
 		} else {
-			wp_send_json_error( array(
-				'message' => __( 'There was a problem sending the E-Mail reminder. Please try again.', 'it-l10n-ithemes-security-pro' ),
+			wp_send_json_success( array(
+				'message' => __( 'Reminder E-Mail has been sent.', 'it-l10n-ithemes-security-pro' ),
 			) );
 		}
 	}

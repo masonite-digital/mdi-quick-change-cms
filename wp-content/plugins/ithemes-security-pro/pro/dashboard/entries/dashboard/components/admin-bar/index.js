@@ -10,6 +10,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
+import { AdminBarSlot } from 'pro/dashboard/entries/api';
 import EditCards from '../edit-cards';
 import Share from './share';
 import ReadOnlyShare from './read-only-share';
@@ -17,7 +18,7 @@ import ManageDashboards from '../manage-dashboards';
 import './style.scss';
 
 function AdminBar( { dashboard, dashboardId, canEdit, requesting, editingCards, openCards, closeCards, canCreate, dashboards } ) {
-	const title = <h1>{ dashboard ? decodeEntities( dashboard.label.rendered ) : __( 'No Dashboard Selected', 'ithemes-security-pro' ) }</h1>;
+	const title = <h1>{ dashboard ? decodeEntities( dashboard.label.rendered ) : __( 'No Dashboard Selected', 'it-l10n-ithemes-security-pro' ) }</h1>;
 
 	return ! requesting && (
 		<div className="itsec-admin-bar">
@@ -27,10 +28,10 @@ function AdminBar( { dashboard, dashboardId, canEdit, requesting, editingCards, 
 						className="itsec-admin-bar-manage-dashboards__trigger"
 						contentClassName="itsec-admin-bar-manage-dashboards__content"
 						position="bottom right"
-						headerTitle={ __( 'Manage Dashboards', 'ithemes-security-pro' ) }
+						headerTitle={ __( 'Manage Dashboards', 'it-l10n-ithemes-security-pro' ) }
 						expandOnMobile
 						renderToggle={ ( { isOpen, onToggle } ) => (
-							<Button aria-expanded={ isOpen } onClick={ onToggle }>
+							<Button aria-expanded={ isOpen } onClick={ onToggle } isSecondary>
 								{ title }
 								<Dashicon icon={ isOpen ? 'arrow-up-alt2' : 'arrow-down-alt2' } size={ 15 } />
 							</Button>
@@ -41,18 +42,19 @@ function AdminBar( { dashboard, dashboardId, canEdit, requesting, editingCards, 
 					/> ) }
 			</div>
 			{ dashboard && ( canEdit ? <Share dashboardId={ dashboardId } /> : <ReadOnlyShare dashboardId={ dashboardId } /> ) }
+			<AdminBarSlot />
 			{ canEdit && (
 				<div className="itsec-admin-bar__edit-cards">
 					<div className="itsec-admin-bar-edit-cards__trigger">
-						<Button aria-expanded={ editingCards } onClick={ editingCards ? closeCards : openCards }>
+						<Button aria-expanded={ editingCards } onClick={ editingCards ? closeCards : openCards } isSecondary>
 							<Dashicon icon="layout" size={ 15 } />
-							{ __( 'Edit Cards', 'ithemes-security-pro' ) }
+							{ __( 'Edit Cards', 'it-l10n-ithemes-security-pro' ) }
 						</Button>
 					</div>
 					{ editingCards && (
 						<Popover className="itsec-admin-bar-edit-cards__content"
 							position="bottom"
-							headerTitle={ __( 'Edit Cards', 'ithemes-security-pro' ) } expandOnMobile
+							headerTitle={ __( 'Edit Cards', 'it-l10n-ithemes-security-pro' ) } expandOnMobile
 							onClickOutside={ closeCards } onClose={ closeCards }>
 							<EditCards dashboardId={ dashboardId } close={ closeCards } />
 						</Popover>

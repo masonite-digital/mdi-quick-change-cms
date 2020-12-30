@@ -17,10 +17,10 @@ function CardCrash( { card, config } ) {
 					<Title card={ card } config={ config } />
 				</Header>
 			) }
-			<h3>{ __( 'Unexpected Error', 'ithemes-security-pro' ) }</h3>
+			<h3>{ __( 'Unexpected Error', 'it-l10n-ithemes-security-pro' ) }</h3>
 			<Icon />
-			<p>{ __( 'An error occurred while rendering this card.', 'ithemes-security-pro' ) }</p>
-			<p>{ __( 'Try refreshing your browser. If the error persists, please contact support.', 'ithemes-security-pro' ) }</p>
+			<p>{ __( 'An error occurred while rendering this card.', 'it-l10n-ithemes-security-pro' ) }</p>
+			<p>{ __( 'Try refreshing your browser. If the error persists, please contact support.', 'it-l10n-ithemes-security-pro' ) }</p>
 		</div>
 	);
 }

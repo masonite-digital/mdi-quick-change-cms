@@ -8,25 +8,25 @@ import { __ } from '@wordpress/i18n';
  */
 import Header, { Title, Date } from '../../components/card/header';
 import { FooterSchemaActions } from '../../components/card/footer';
-import { shortenNumber } from 'packages/utils/src';
+import { shortenNumber } from '@ithemes/security-utils';
 import './style.scss';
 
 function VersionManagement( { card, config } ) {
 	const boxes = [
 		{
-			label: __( 'WordPress Updates', 'ithemes-security-pro' ),
+			label: __( 'WordPress Updates', 'it-l10n-ithemes-security-pro' ),
 			value: card.data.counts.core,
 		},
 		{
-			label: __( 'Plugin Updates', 'ithemes-security-pro' ),
+			label: __( 'Plugin Updates', 'it-l10n-ithemes-security-pro' ),
 			value: card.data.counts.plugin,
 		},
 		{
-			label: __( 'Theme Updates', 'ithemes-security-pro' ),
+			label: __( 'Theme Updates', 'it-l10n-ithemes-security-pro' ),
 			value: card.data.counts.theme,
 		},
 		{
-			label: __( 'Total Updates', 'ithemes-security-pro' ),
+			label: __( 'Total Updates', 'it-l10n-ithemes-security-pro' ),
 			value: card.data.all,
 		},
 	];

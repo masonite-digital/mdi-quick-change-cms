@@ -83,7 +83,7 @@ class ITSEC_Dashboard_Card_Active_Lockouts extends ITSEC_Dashboard_Card {
 				'callback' => array( $this, 'get_lockout_details' ),
 			),
 			array(
-				'rel'      => ITSEC_Dashboard_REST::LINK_REL . 'release-lockout',
+				'rel'      => ITSEC_Lib_REST::LINK_REL . 'release-lockout',
 				'route'    => 'lockout/(?P<lockout_id>[\d]+)',
 				'title'    => __( 'Release Lockout', 'it-l10n-ithemes-security-pro' ),
 				'methods'  => WP_REST_Server::DELETABLE,

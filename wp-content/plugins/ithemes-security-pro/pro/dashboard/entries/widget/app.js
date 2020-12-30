@@ -9,6 +9,7 @@ import '@wordpress/notices';
 /**
  * Internal dependencies
  */
+import '@ithemes/security-data';
 import 'pro/dashboard/entries/dashboard/store';
 import Static from 'pro/dashboard/entries/dashboard/components/header/static';
 import Carousel from './components/carousel';

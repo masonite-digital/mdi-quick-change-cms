@@ -3,25 +3,24 @@
  */
 import { Button, Dropdown, Tooltip } from '@wordpress/components';
 import { compose, withState } from '@wordpress/compose';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
-import { withSelect, withDispatch } from '@wordpress/data';
-
+import { withDispatch, withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import CloseButton from '../../components/close-button';
 import { getAvatarUrl } from '../../utils';
 
 function ShareUser( { userId, user, remove } ) {
-	const label = user ? user.name : sprintf( __( 'User #%d', 'ithemes-security-pro' ), userId ),
+	const label = user ? user.name : sprintf( __( 'User #%d', 'it-l10n-ithemes-security-pro' ), userId ),
 		avatar = getAvatarUrl( user );
 
 	return (
 		<Dropdown
 			className="itsec-admin-bar-share__recipient itsec-admin-bar-share__recipient--user"
 			contentClassName="itsec-admin-bar-share__recipient-content itsec-admin-bar-share__recipient-content--user"
-			headerTitle={ sprintf( __( 'Share Settings for %s', 'ithemes-security-pro' ), label ) }
+			headerTitle={ sprintf( __( 'Share Settings for %s', 'it-l10n-ithemes-security-pro' ), label ) }
+			focusOnMount="container"
 			expandOnMobile
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Tooltip text={ label }>
@@ -34,16 +33,15 @@ function ShareUser( { userId, user, remove } ) {
 					/>
 				</Tooltip>
 			) }
-			renderContent={ ( { onClose } ) => (
+			renderContent={ () => (
 				<Fragment>
 					<header>
 						<img src={ avatar } alt="" />
 						<h3>{ label }</h3>
-						<CloseButton close={ onClose } />
 					</header>
 					<footer>
 						<Button isLink onClick={ remove }>
-							{ __( 'Remove', 'ithemes-security-pro' ) }
+							{ __( 'Remove', 'it-l10n-ithemes-security-pro' ) }
 						</Button>
 					</footer>
 				</Fragment>

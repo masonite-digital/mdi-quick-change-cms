@@ -6,7 +6,8 @@
 final class ITSEC_Geolocator_MaxMind_DB implements ITSEC_Geolocator {
 
 	// https://dev.maxmind.com/geoip/geoip2/geolite2/
-	const URL = 'http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz';
+	// https://dev.maxmind.com/geoip/geoipupdate/#Direct_Downloads
+	const URL = 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&suffix=tar.gz&license_key=%s';
 	const NAME = 'GeoLite2-City.mmdb';
 
 	/** @var ITSEC_MaxMind_DB_Reader */
@@ -44,7 +45,7 @@ final class ITSEC_Geolocator_MaxMind_DB implements ITSEC_Geolocator {
 	 * @inheritDoc
 	 */
 	public function is_available() {
-		return file_exists( self::get_db_file() );
+		return ITSEC_Modules::get_setting( 'fingerprinting', 'maxmind_lite_key' ) && file_exists( self::get_db_file() );
 	}
 
 	/**
@@ -53,6 +54,12 @@ final class ITSEC_Geolocator_MaxMind_DB implements ITSEC_Geolocator {
 	 * @return WP_Error|true
 	 */
 	public static function download() {
+
+		$api_key = ITSEC_Modules::get_setting( 'fingerprinting', 'maxmind_lite_key' );
+
+		if ( ! $api_key ) {
+			return new WP_Error( 'itsec-maxmind-db-download-missing-api-key', esc_html__( 'An API Key must be configured.', 'it-l10n-ithemes-security-pro' ) );
+		}
 
 		require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-directory.php' );
 
@@ -64,7 +71,7 @@ final class ITSEC_Geolocator_MaxMind_DB implements ITSEC_Geolocator {
 			return new WP_Error( 'itsec-maxmind-db-download-download_url', esc_html__( 'The download_url function is undefined.', 'it-l10n-ithemes-security-pro' ) );
 		}
 
-		$temp_file = download_url( self::URL );
+		$temp_file = download_url( sprintf( self::URL, $api_key ) );
 
 		if ( is_wp_error( $temp_file ) ) {
 			return $temp_file;
@@ -111,6 +118,8 @@ final class ITSEC_Geolocator_MaxMind_DB implements ITSEC_Geolocator {
 		}
 
 		@unlink( $temp_file );
+
+		ITSEC_Lib_Directory::empty_directory( $path );
 
 		foreach ( scandir( $extract_to . $unzipped, SCANDIR_SORT_NONE ) as $move ) {
 			if ( '.' !== $move && '..' !== $move ) {

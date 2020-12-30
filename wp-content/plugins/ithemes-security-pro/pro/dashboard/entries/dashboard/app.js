@@ -1,17 +1,19 @@
 /**
  * WordPress dependencies
  */
-import { NoticeList, SlotFillProvider } from '@wordpress/components';
+import { NoticeList, SlotFillProvider, Popover } from '@wordpress/components';
 import { compose, pure, withGlobalEvents } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
+import { PluginArea } from '@wordpress/plugins';
 import '@wordpress/notices';
 
 /**
  * Internal dependencies
  */
+import '@ithemes/security.dashboard.api';
+import '@ithemes/security-data';
 import './api-fetch';
-import './store';
 import './cards';
 import Header from './components/header';
 import AdminBar from './components/admin-bar';
@@ -41,12 +43,14 @@ class App extends Component {
 		const { dashboardId, page, notices, removeNotice } = this.props;
 		return (
 			<SlotFillProvider>
+				<Popover.Slot />
 				<div className={ `wrap itsec-app-page--${ page }` } style={ { marginTop: 20 } }>
 					<NoticeList notices={ notices } onRemove={ removeNotice } />
 					<Header />
 					<AdminBar dashboardId={ dashboardId } />
 					<Page page={ page } dashboardId={ dashboardId } />
 				</div>
+				<PluginArea />
 			</SlotFillProvider>
 		);
 	}

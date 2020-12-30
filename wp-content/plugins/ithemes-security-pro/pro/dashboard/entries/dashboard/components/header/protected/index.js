@@ -13,7 +13,7 @@ function Protected() {
 	return (
 		<div className="itsec-header-protected">
 			<span className="itsec-header-protected__text">
-				{ __( 'Your site is protected.', 'ithemes-security-pro' ) }
+				{ __( 'Your site is protected.', 'it-l10n-ithemes-security-pro' ) }
 			</span>
 
 			<span className="itsec-header-protected__url">

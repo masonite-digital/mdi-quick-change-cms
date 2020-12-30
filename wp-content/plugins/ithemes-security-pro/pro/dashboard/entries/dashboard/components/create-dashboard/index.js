@@ -17,7 +17,7 @@ function CreateDashboard( { instanceId, defaultLabel, scratchLabel, setState, ad
 	if ( ! canCreate && canCreateLoaded ) {
 		return (
 			<div className="itsec-create-dashboard">
-				<p>{ __( 'You don’t have permission to create new dashboards. Try switching to a dashboard or ask an administrator to invite you to one.', 'ithemes-security-pro' ) }</p>
+				<p>{ __( 'You don’t have permission to create new dashboards. Try switching to a dashboard or ask an administrator to invite you to one.', 'it-l10n-ithemes-security-pro' ) }</p>
 			</div>
 		);
 	}
@@ -47,21 +47,21 @@ function CreateDashboard( { instanceId, defaultLabel, scratchLabel, setState, ad
 			<section className="itsec-create-dashboard__start itsec-create-dashboard__start--default">
 				<header>
 					<DefaultLayout height={ 100 } />
-					<h2>{ __( 'Start with the default layout.', 'ithemes-security-pro' ) }</h2>
-					<p>{ __( 'You can continue to customize this later.', 'ithemes-security-pro' ) }</p>
+					<h2>{ __( 'Start with the default layout.', 'it-l10n-ithemes-security-pro' ) }</h2>
+					<p>{ __( 'You can continue to customize this later.', 'it-l10n-ithemes-security-pro' ) }</p>
 				</header>
 				<form onSubmit={ create( 'default' ) }>
 					<TextControl
 						className="itsec-create-dashboard__name"
-						label={ __( 'Dashboard Name', 'ithemes-security-pro' ) }
-						placeholder={ __( 'Dashboard Name...', 'ithemes-security-pro' ) }
+						label={ __( 'Dashboard Name', 'it-l10n-ithemes-security-pro' ) }
+						placeholder={ __( 'Dashboard Name...', 'it-l10n-ithemes-security-pro' ) }
 						id={ `itsec-create-dashboard__name--default-${ instanceId }` }
 						value={ defaultLabel } onChange={ ( label ) => setState( { defaultLabel: label } ) }
 						disabled={ addingDefault || addingScratch }
 					/>
 					<div className="itsec-create-dashboard__trigger-container">
 						<Button className="itsec-create-dashboard__trigger" type="submit" isBusy={ addingDefault } disabled={ addingScratch }>
-							{ __( 'Create Board', 'ithemes-security-pro' ) }
+							{ __( 'Create Board', 'it-l10n-ithemes-security-pro' ) }
 						</Button>
 					</div>
 				</form>
@@ -70,21 +70,21 @@ function CreateDashboard( { instanceId, defaultLabel, scratchLabel, setState, ad
 			<section className="itsec-create-dashboard__start itsec-create-dashboard__start--scratch">
 				<header>
 					<ScratchLayout height={ 100 } className="itsec-create-dashboard__scratch-icon" />
-					<h2>{ __( 'Start from Scratch.', 'ithemes-security-pro' ) }</h2>
-					<p>{ __( 'Start building a dashboard with security cards.', 'ithemes-security-pro' ) }</p>
+					<h2>{ __( 'Start from Scratch.', 'it-l10n-ithemes-security-pro' ) }</h2>
+					<p>{ __( 'Start building a dashboard with security cards.', 'it-l10n-ithemes-security-pro' ) }</p>
 				</header>
 				<form onSubmit={ create( 'scratch' ) }>
 					<TextControl
 						className="itsec-create-dashboard__name"
-						label={ __( 'Dashboard Name', 'ithemes-security-pro' ) }
-						placeholder={ __( 'Dashboard Name...', 'ithemes-security-pro' ) }
+						label={ __( 'Dashboard Name', 'it-l10n-ithemes-security-pro' ) }
+						placeholder={ __( 'Dashboard Name...', 'it-l10n-ithemes-security-pro' ) }
 						id={ `itsec-create-dashboard__name--name-${ instanceId }` }
 						value={ scratchLabel } onChange={ ( label ) => setState( { scratchLabel: label } ) }
 						disabled={ addingDefault || addingScratch }
 					/>
 					<div className="itsec-create-dashboard__trigger-container">
 						<Button className="itsec-create-dashboard__trigger" type="submit" isBusy={ addingScratch } disabled={ addingDefault }>
-							{ __( 'Create Board', 'ithemes-security-pro' ) }
+							{ __( 'Create Board', 'it-l10n-ithemes-security-pro' ) }
 						</Button>
 					</div>
 				</form>

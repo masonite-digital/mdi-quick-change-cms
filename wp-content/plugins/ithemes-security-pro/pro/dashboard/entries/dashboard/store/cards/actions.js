@@ -205,7 +205,7 @@ export function* addDashboardCard( collectionEP, card, context ) {
 		} );
 	} catch ( e ) {
 		yield failedAddDashboardCard( collectionEP, card, context, e );
-		yield createNotice( 'error', sprintf( __( 'Error when adding card to dashboard: %s', 'ithemes-security-pro' ), e.message ) );
+		yield createNotice( 'error', sprintf( __( 'Error when adding card to dashboard: %s', 'it-l10n-ithemes-security-pro' ), e.message ) );
 
 		return;
 	}
@@ -225,7 +225,7 @@ export function* saveDashboardCard( dashboardId, card ) {
 			data: card,
 		} );
 	} catch ( e ) {
-		yield createNotice( 'error', sprintf( __( 'Error when saving dashboard card: %s', 'ithemes-security-pro' ), e.message ) );
+		yield createNotice( 'error', sprintf( __( 'Error when saving dashboard card: %s', 'it-l10n-ithemes-security-pro' ), e.message ) );
 
 		return e;
 	}
@@ -253,7 +253,7 @@ export function* removeDashboardCard( dashboardId, card, optimistic = true ) {
 			yield receiveDashboardCard( dashboardId, card );
 		}
 
-		yield createNotice( 'error', sprintf( __( 'Error when removing card from dashboard: %s', 'ithemes-security-pro' ), e.message ) );
+		yield createNotice( 'error', sprintf( __( 'Error when removing card from dashboard: %s', 'it-l10n-ithemes-security-pro' ), e.message ) );
 
 		return;
 	}
@@ -289,7 +289,7 @@ export function* refreshDashboardCards( dashboardId ) {
 		} );
 	} catch ( e ) {
 		yield failedRefreshDashboardCards( dashboardId, e );
-		yield createNotice( 'warning', sprintf( __( 'Refreshing dashboard data failed: %s', 'ithemes-security-pro' ), e.message ), { autoDismiss: true } );
+		yield createNotice( 'warning', sprintf( __( 'Refreshing dashboard data failed: %s', 'it-l10n-ithemes-security-pro' ), e.message ), { autoDismiss: true } );
 
 		return e;
 	}
@@ -367,7 +367,7 @@ export function* callDashboardCardRpc( cardId, href, data ) {
 		} );
 	} catch ( e ) {
 		yield failedDashboardCardRpc( cardId, href, data, e );
-		yield createNotice( 'error', sprintf( __( 'Error when performing card action: %s', 'ithemes-security-pro' ), e.message ) );
+		yield createNotice( 'error', sprintf( __( 'Error when performing card action: %s', 'it-l10n-ithemes-security-pro' ), e.message ) );
 
 		return e;
 	}

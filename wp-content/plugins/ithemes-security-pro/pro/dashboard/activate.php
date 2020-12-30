@@ -1,7 +1,9 @@
 <?php
 
+use iThemesSecurity\Exception\Unsatisfied_Module_Dependencies_Exception;
+
 if ( version_compare( $GLOBALS['wp_version'], '5.0.0', '<' ) ) {
-	return new WP_Error( 'itsec-dashboard-wp-requirements', esc_html__( 'The Dashboard module requires WordPress 5.0.0 or later.', 'it-l10n-ithemes-security-pro' ) );
+	throw new Unsatisfied_Module_Dependencies_Exception( esc_html__( 'The Dashboard module requires WordPress 5.0.0 or later.', 'it-l10n-ithemes-security-pro' ) );
 }
 
 ITSEC_Core::get_scheduler()->schedule( ITSEC_Scheduler::S_DAILY, 'dashboard-consolidate-events' );

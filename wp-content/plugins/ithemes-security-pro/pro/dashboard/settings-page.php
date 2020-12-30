@@ -11,12 +11,6 @@ class ITSEC_Dashboard_Settings_Page extends ITSEC_Module_Settings_Page {
 		$this->pro         = true;
 	}
 
-	public function register() {
-		if ( current_user_can( 'itsec_create_dashboards' ) || ! ITSEC_Modules::is_active( $this->id ) ) {
-			parent::register();
-		}
-	}
-
 	public function enqueue_scripts_and_styles() {
 		wp_enqueue_style( 'itsec-dashboard-admin', plugins_url( 'css/settings-page.css', __FILE__ ), array(), ITSEC_Core::get_plugin_build() );
 	}
@@ -25,9 +19,8 @@ class ITSEC_Dashboard_Settings_Page extends ITSEC_Module_Settings_Page {
 		echo '<p>' . $this->description . '</p>';
 	}
 
+	/** @param ITSEC_Form $form */
 	protected function render_settings( $form ) {
-
-		$users = ITSEC_Modules::get_validator( $this->id )->get_users();
 		?>
 
 		<p><a href="<?php echo esc_url( network_admin_url( 'index.php?page=itsec-dashboard' ) ) ?>"><?php esc_html_e( 'View Security Dashboard', 'it-l10n-ithemes-security-pro' ); ?></a></p>
@@ -35,25 +28,15 @@ class ITSEC_Dashboard_Settings_Page extends ITSEC_Module_Settings_Page {
 		<table class="form-table">
 			<tr>
 				<th scope="row">
-					<label for="itsec-dashboard-disabled_users">
-						<?php esc_html_e( 'Disable Creating Dashboards for Users', 'it-l10n-ithemes-security-pro' ) ?>
+					<label for="itsec-dashboard-group">
+						<?php esc_html_e( 'Enable Dashboard Creation', 'it-l10n-ithemes-security-pro' ) ?>
 					</label>
 				</th>
 				<td>
 					<p class="description">
-						<?php esc_html_e( 'By default, any user who can manage iThemes Security can create dashboards.', 'it-l10n-ithemes-security-pro' ) ?>&nbsp;
-						<?php esc_html_e( 'Prevent the selected users below from creating dashboards and from viewing/editing Security Dashboard settings.', 'it-l10n-ithemes-security-pro' ); ?>
+						<?php esc_html_e( 'Allow the group to create new iThemes Security Dashboards.', 'it-l10n-ithemes-security-pro' ) ?>&nbsp;
 					</p>
-					<ul>
-						<?php foreach ( $users as $id => $name ): ?>
-							<li>
-								<label>
-									<?php $form->add_multi_checkbox( 'disabled_users', $id ); ?>
-									<?php echo esc_html( $name ); ?>
-								</label>
-							</li>
-						<?php endforeach; ?>
-					</ul>
+					<?php $form->add_user_groups( 'group', $this->id ); ?>
 				</td>
 			</tr>
 		</table>

@@ -6,12 +6,8 @@ class ITSEC_Dashboard_Widget_Validator extends ITSEC_Validator {
 	}
 
 	protected function sanitize_settings() {
-		$this->set_previous_if_empty( array_keys( $this->defaults ) );
-		$this->vars_to_skip_validate_matching_fields = array_keys( $this->defaults );
-		$this->vars_to_skip_validate_matching_types  = array_keys( $this->defaults );
-
-		$this->sanitize_setting( array( 1, 2 ), 'version', esc_html__( 'Widget Version', 'it-l10n-ithemes-security-pro' ) );
-		$this->sanitize_setting( 'positive-int', 'nag_dismissed', esc_html__( 'Last Nag', 'it-l10n-ithemes-security-pro' ) );
+		$this->preserve_setting_if_exists( [ 'version', 'nag_dismissed' ] );
+		$this->vars_to_skip_validate_matching_fields = [ 'version', 'nag_dismissed' ];
 	}
 }
 

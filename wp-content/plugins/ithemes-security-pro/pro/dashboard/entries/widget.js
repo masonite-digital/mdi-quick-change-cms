@@ -1,4 +1,3 @@
-import 'packages/webpack/src/public-path';
 /**
  * WordPress dependencies
  */
@@ -7,7 +6,7 @@ import { render } from '@wordpress/element';
 import domReady from '@wordpress/dom-ready';
 
 // Silence warnings until JS i18n is stable.
-setLocaleData( { '': {} }, 'ithemes-security-pro' );
+setLocaleData( { '': {} }, 'it-l10n-ithemes-security-pro' );
 
 /**
  * Internal dependencies

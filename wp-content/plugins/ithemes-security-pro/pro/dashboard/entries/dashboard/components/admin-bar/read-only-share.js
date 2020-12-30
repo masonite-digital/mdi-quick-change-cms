@@ -13,7 +13,7 @@ import { withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { isApiError } from 'packages/utils/src';
+import { isApiError } from '@ithemes/security-utils';
 import { getAvatarUrl } from '../../utils';
 
 function Share( { dashboard } ) {

@@ -10,9 +10,10 @@ class ITSEC_Fingerprinting_Settings extends ITSEC_Settings {
 
 	public function get_defaults() {
 		return array(
-			'role'                         => 'subscriber',
+			'group'                        => ITSEC_Modules::get_settings_obj( 'user-groups' )->get_groups_for_all_users(),
 			'restrict_capabilities'        => false,
 			'session_hijacking_protection' => false,
+			'maxmind_lite_key'             => '',
 			'maxmind_api_user'             => '',
 			'maxmind_api_key'              => '',
 			'mapbox_access_token'          => '',

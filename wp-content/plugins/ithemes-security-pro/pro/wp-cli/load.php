@@ -11,12 +11,16 @@ function itsec_load_wp_cli() {
 	require_once( dirname( __FILE__ ) . '/class-itsec-wp-cli-command-itsec.php' );
 	WP_CLI::add_command( 'itsec', 'ITSEC_WP_CLI_Command_ITSEC' );
 
+	require_once( dirname( __FILE__ ) . '/logs.php' );
+	require_once( dirname( __FILE__ ) . '/ban.php' );
 	require_once( dirname( __FILE__ ) . '/geo.php' );
 	require_once( dirname( __FILE__ ) . '/map.php' );
 	require_once( dirname( __FILE__ ) . '/scheduler.php' );
 	require_once( dirname( __FILE__ ) . '/modules.php' );
 	require_once( dirname( __FILE__ ) . '/settings.php' );
 	require_once( dirname( __FILE__ ) . '/lockout.php' );
+	require_once( dirname( __FILE__ ) . '/feature-flag.php' );
+	require_once( dirname( __FILE__ ) . '/remote-messages.php' );
 
 	$always_active = ITSEC_Modules::get_always_active_modules();
 

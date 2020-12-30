@@ -62,14 +62,14 @@ class ITSEC_REST_Dashboard_Cards_Controller extends ITSEC_REST_Dashboard_Control
 		}
 
 		if ( 'edit' === $request['context'] && ! current_user_can( 'itsec_edit_dashboard', $id ) ) {
-			return new WP_Error( 'rest_forbidden_context', esc_html__( 'Sorry, you are not allowed to edit this dashboard.' ), array( 'status' => rest_authorization_required_code() ) );
+			return new WP_Error( 'rest_forbidden_context', esc_html__( 'Sorry, you are not allowed to edit this dashboard.', 'it-l10n-ithemes-security-pro' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
-		if ( current_user_can( 'itsec_view_dashboard', $id ) ) {
-			return true;
+		if ( ! current_user_can( 'itsec_view_dashboard', $id ) ) {
+			return new WP_Error( 'rest_cannot_view', esc_html__( 'Sorry, you do not have permission to view this dashboard.', 'it-l10n-ithemes-security-pro' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
-		return new WP_Error( 'rest_cannot_view', esc_html__( 'Sorry, you do not have permission to view this dashboard.', array( 'status' => rest_authorization_required_code() ) ) );
+		return true;
 	}
 
 	/**

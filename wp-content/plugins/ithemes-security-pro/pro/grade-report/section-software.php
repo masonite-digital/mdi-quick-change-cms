@@ -91,7 +91,6 @@ class ITSEC_Grading_System_Section_Software extends ITSEC_Grading_System_Section
 		}
 
 		require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
-		require_once( dirname( __FILE__ ) . '/upgrader-skin.php' );
 
 		$skin     = new ITSEC_Upgrader_Skin( array( 'add_to_response' => true ) );
 		$upgrader = new Plugin_Upgrader( $skin );
@@ -151,7 +150,6 @@ class ITSEC_Grading_System_Section_Software extends ITSEC_Grading_System_Section
 
 
 		require_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
-		require_once( dirname( __FILE__ ) . '/upgrader-skin.php' );
 
 		$upgrader = new Theme_Upgrader( new ITSEC_Upgrader_Skin() );
 		$result = $upgrader->upgrade( $slug, array( 'clear_update_cache' => false ) );
@@ -283,7 +281,7 @@ class ITSEC_Grading_System_Section_Software extends ITSEC_Grading_System_Section
 				'name'    => sprintf( esc_html__( 'Plugin: %s', 'it-l10n-ithemes-security-pro' ), $data['Name'] ),
 				'percent' => 100,
 				'details' => '',
-				'fixable' => true,
+				'fixable' => current_user_can( 'update_plugins' ),
 				'issue'   => false,
 			);
 
@@ -291,10 +289,30 @@ class ITSEC_Grading_System_Section_Software extends ITSEC_Grading_System_Section
 
 			if ( ! empty( $update_plugins ) && isset( $update_plugins->response ) && isset( $update_plugins->response[$plugin] ) ) {
 				$report['percent'] = 0;
-				$report['cap'] = 75;
-				$report['issue'] = true;
+				$report['cap']     = 75;
+				$report['issue']   = true;
 
-				$report['details'] = sprintf( esc_html__( 'An update for plugin %1$s from version %2$s to %3$s is available. You should create a backup of the site and update the plugin as soon as possible.', 'it-l10n-ithemes-security-pro' ), $data['Name'], $data['Version'], $update_plugins->response[$plugin]->new_version );
+				$api = $update_plugins->response[ $plugin ];
+
+				if ( function_exists( 'is_php_version_compatible' ) ) {
+					$compatible_php = is_php_version_compatible( isset( $api->requires_php ) ? $api->requires_php : null );
+				} else {
+					$compatible_php = true;
+				}
+
+				if ( $compatible_php ) {
+					$report['details'] = sprintf( esc_html__( 'An update for plugin %1$s from version %2$s to %3$s is available. You should create a backup of the site and update the plugin as soon as possible.', 'it-l10n-ithemes-security-pro' ), $data['Name'], $data['Version'], $update_plugins->response[ $plugin ]->new_version );
+				} else {
+					$report['fixable'] = false;
+					$report['details'] = sprintf(
+						__( 'An update for plugin %1$s from version %2$s to %3$s is available, but it doesn&#8217;t work with your version of PHP. <a href="%4$s">Learn more about updating PHP</a>.', 'it-l10n-ithemes-security-pro' ),
+						$data['Name'],
+						$data['Version'],
+						$update_plugins->response[ $plugin ]->new_version,
+						esc_url( wp_get_update_php_url() )
+					);
+					$report['details'] .= '<em>' . wp_get_update_php_annotation() . '</em>';
+				}
 			} else {
 				$report['details'] = sprintf( esc_html__( 'Plugin %1$s is running version %2$s, the latest version available to the site.', 'it-l10n-ithemes-security-pro' ), $data['Name'], $data['Version'] );
 			}
@@ -316,7 +334,7 @@ class ITSEC_Grading_System_Section_Software extends ITSEC_Grading_System_Section
 				'name'    => sprintf( esc_html__( 'Theme: %s', 'it-l10n-ithemes-security-pro' ), $data->name ),
 				'percent' => 100,
 				'details' => '',
-				'fixable' => true,
+				'fixable' => current_user_can( 'update_themes' ),
 				'issue'  => false,
 			);
 
@@ -343,7 +361,7 @@ class ITSEC_Grading_System_Section_Software extends ITSEC_Grading_System_Section
 			'name'    => esc_html__( 'WordPress Version', 'it-l10n-ithemes-security-pro' ),
 			'percent' => 100,
 			'details' => '',
-			'fixable' => true,
+			'fixable' => current_user_can( 'update_core' ),
 			'issue'   => false,
 		);
 
@@ -578,7 +596,7 @@ class ITSEC_Grading_System_Section_Software extends ITSEC_Grading_System_Section
 					),
 					'5.6' => array(
 						'eol'    => '2018-12-31',
-						'latest' => '5.6.39'
+						'latest' => '5.6.40'
 					),
 					'7.0' => array(
 						'eol'    => '2018-12-03',
@@ -586,15 +604,15 @@ class ITSEC_Grading_System_Section_Software extends ITSEC_Grading_System_Section
 					),
 					'7.1' => array(
 						'eol'    => '2019-12-01',
-						'latest' => '7.1.24'
+						'latest' => '7.1.33'
 					),
 					'7.2' => array(
 						'eol'    => '2020-11-30',
-						'latest' => '7.2.13'
+						'latest' => '7.2.24'
 					),
 					'7.3' => array(
 						'eol'    => '2021-12-06',
-						'latest' => '7.3.0',
+						'latest' => '7.3.11',
 					),
 				),
 				'versions' => array(),
@@ -749,100 +767,121 @@ class ITSEC_Grading_System_Section_Software extends ITSEC_Grading_System_Section
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814586,
-						'latest' => '3.7.27'
+						'last_release' => 1571085425,
+						'latest' => '3.7.31'
 					),
 					'3.8' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814575,
-						'latest' => '3.8.27'
+						'last_release' => 1571085306,
+						'latest' => '3.8.31'
 					),
 					'3.9' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814564,
-						'latest' => '3.9.25'
+						'last_release' => 1571085011,
+						'latest' => '3.9.29'
 					),
 					'4.0' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814549,
-						'latest' => '4.0.24'
+						'last_release' => 1571085005,
+						'latest' => '4.0.28'
 					),
 					'4.1' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814535,
-						'latest' => '4.1.24'
+						'last_release' => 1571084951,
+						'latest' => '4.1.28'
 					),
 					'4.2' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814517,
-						'latest' => '4.2.21'
+						'last_release' => 1571084945,
+						'latest' => '4.2.25'
 					),
 					'4.3' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814460,
-						'latest' => '4.3.17'
+						'last_release' => 1571084898,
+						'latest' => '4.3.21'
 					),
 					'4.4' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814439,
-						'latest' => '4.4.16'
+						'last_release' => 1571084892,
+						'latest' => '4.4.20'
 					),
 					'4.5' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814420,
-						'latest' => '4.5.15'
+						'last_release' => 1571084886,
+						'latest' => '4.5.19'
 					),
 					'4.6' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814401,
-						'latest' => '4.6.12'
+						'last_release' => 1571084834,
+						'latest' => '4.6.16'
 					),
 					'4.7' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814382,
-						'latest' => '4.7.11'
+						'last_release' => 1571084827,
+						'latest' => '4.7.15'
 					),
 					'4.8' => array(
 						'dangerous' => false,
 						'old_branch' => true,
 						'eol' => true,
-						'last_release' => 1530814364,
-						'latest' => '4.8.7'
+						'last_release' => 1571084775,
+						'latest' => '4.8.11'
 					),
 					'4.9' => array(
 						'dangerous' => false,
-						'old_branch' => false,
-						'eol' => false,
-						'last_release' => 1533245593,
-						'latest' => '4.9.6'
+						'old_branch' => true,
+						'eol' => true,
+						'last_release' => 1571084767,
+						'latest' => '4.9.12'
 					),
 					'5.0' => array(
 						'dangerous' => false,
+						'old_branch' => true,
+						'eol' => true,
+						'last_release' => 1571084707,
+						'latest' => '5.0.7'
+					),
+					'5.1' => array(
+						'dangerous' => false,
+						'old_branch' => true,
+						'eol' => true,
+						'last_release' => 1571084657,
+						'latest' => '5.1.3'
+					),
+					'5.2' => array(
+						'dangerous' => false,
+						'old_branch' => true,
+						'eol' => true,
+						'last_release' => 1571084649,
+						'latest' => '5.2.4'
+					),
+					'5.3' => array(
+						'dangerous' => false,
 						'old_branch' => false,
 						'eol' => false,
-						'last_release' => 1544123596,
-						'latest' => '5.0.0'
-					)
+						'last_release' => 1573590610,
+						'latest' => '5.3'
+					),
 				),
 				'versions' => array(),
 			);

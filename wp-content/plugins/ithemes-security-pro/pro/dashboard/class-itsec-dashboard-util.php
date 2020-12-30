@@ -25,14 +25,6 @@ class ITSEC_Dashboard_Util {
 	 */
 	public static function get_registered_cards() {
 		if ( ! isset( self::$registered_cards ) ) {
-			require_once( dirname( __FILE__ ) . '/cards/abstract-class-itsec-dashboard-card.php' );
-			require_once( dirname( __FILE__ ) . '/cards/class-itsec-dashboard-card-pie-chart.php' );
-			require_once( dirname( __FILE__ ) . '/cards/class-itsec-dashboard-card-line-graph.php' );
-			require_once( dirname( __FILE__ ) . '/cards/class-itsec-dashboard-card-malware-scan.php' );
-			require_once( dirname( __FILE__ ) . '/cards/class-itsec-dashboard-card-security-profile-list.php' );
-			require_once( dirname( __FILE__ ) . '/cards/class-itsec-dashboard-card-security-profile-pinned.php' );
-			require_once( dirname( __FILE__ ) . '/cards/class-itsec-dashboard-card-active-lockouts.php' );
-
 			$cards = array(
 				new ITSEC_Dashboard_Card_Malware_Scan(),
 				new ITSEC_Dashboard_Card_Security_Profile_List(),
@@ -93,7 +85,7 @@ class ITSEC_Dashboard_Util {
 					'circle_callback' => array( __CLASS__, '_get_lockout_count' ),
 					'circle_label'    => _x( 'Total', 'Total Lockouts', 'it-l10n-ithemes-security-pro' ),
 				) ),
-				new ITSEC_Dashboard_Card_Pie_Chart( 'banned-users', __( 'Banned Users', 'it-l10n-ithemes-security-pro' ), array(
+				new ITSEC_Dashboard_Card_Pie_Chart( 'banned-users', __( 'Bans Overview', 'it-l10n-ithemes-security-pro' ), array(
 					array(
 						'events' => 'blacklist-four_oh_four',
 						'label'  => __( '404', 'it-l10n-ithemes-security-pro' ),
@@ -115,6 +107,10 @@ class ITSEC_Dashboard_Util {
 					'circle_label'    => _x( 'Banned', 'Total Banned IPs', 'it-l10n-ithemes-security-pro' ),
 				) ),
 			);
+
+			if ( ITSEC_Modules::get_container()->get( 'ban-hosts.repositories' ) ) {
+				$cards[] = new ITSEC_Dashboard_Card_Banned_Users();
+			}
 
 			if ( ITSEC_Modules::is_active( 'backup' ) ) {
 				require_once( dirname( __FILE__ ) . '/cards/class-itsec-dashboard-card-database-backup.php' );
@@ -158,7 +154,7 @@ class ITSEC_Dashboard_Util {
 	}
 
 	public static function _get_banned_count() {
-		return count( ITSEC_Modules::get_setting( 'ban-users', 'host_list', array() ) );
+		return ITSEC_Modules::get_container()->get( \iThemesSecurity\Ban_Hosts\Multi_Repository::class )->count_bans( new \iThemesSecurity\Ban_Hosts\Filters() );
 	}
 
 	/**
@@ -170,6 +166,10 @@ class ITSEC_Dashboard_Util {
 	 * @return WP_Post[]|int[]
 	 */
 	public static function get_owned_dashboards( $user = false, $return = 'posts' ) {
+		if ( ! class_exists( 'ITSEC_Dashboard' ) ) {
+			require_once( dirname( __FILE__ ) . '/class-itsec-dashboard.php' );
+		}
+
 		$user = ITSEC_Lib::get_user( $user );
 
 		if ( isset( self::$_query_cache['owned'][ $user->ID ] ) ) {
@@ -208,6 +208,10 @@ class ITSEC_Dashboard_Util {
 	 * @return WP_Post[]|int[]
 	 */
 	public static function get_shared_dashboards( $user = false, $return = 'posts' ) {
+		if ( ! class_exists( 'ITSEC_Dashboard' ) ) {
+			require_once( dirname( __FILE__ ) . '/class-itsec-dashboard.php' );
+		}
+
 		$user = ITSEC_Lib::get_user( $user );
 
 		if ( isset( self::$_query_cache['shared'][ $user->ID ] ) ) {
@@ -259,6 +263,10 @@ class ITSEC_Dashboard_Util {
 	 * @return bool
 	 */
 	public static function can_access_card( $card, $user = false ) {
+		if ( ! class_exists( 'ITSEC_Dashboard' ) ) {
+			require_once( dirname( __FILE__ ) . '/class-itsec-dashboard.php' );
+		}
+
 		$user = ITSEC_Lib::get_user( $user );
 
 		if ( user_can( $user, 'itsec_create_dashboards' ) ) {
@@ -271,10 +279,15 @@ class ITSEC_Dashboard_Util {
 
 			global $wpdb;
 
-			$cards = $wpdb->get_col( $wpdb->prepare(
-				"SELECT DISTINCT `meta_value` FROM {$wpdb->postmeta} AS t1 JOIN {$wpdb->posts} AS t2 ON (t1.`post_id` = t2.`ID`) WHERE t1.`meta_key` = %s AND t2.`post_parent` IN ({$id_where})",
-				array_merge( array( ITSEC_Dashboard::META_CARD ), $ids )
-			) );
+			if ( $ids ) {
+				$cards = $wpdb->get_col( $wpdb->prepare(
+					"SELECT DISTINCT `meta_value` FROM {$wpdb->postmeta} AS t1 JOIN {$wpdb->posts} AS t2 ON (t1.`post_id` = t2.`ID`) WHERE t1.`meta_key` = %s AND t2.`post_parent` IN ({$id_where})",
+					ITSEC_Dashboard::META_CARD,
+					...$ids
+				) );
+			} else {
+				$cards = false;
+			}
 
 			if ( false === $cards ) {
 				self::$_query_cache['allowed_cards'][ $user->ID ] = array();
@@ -294,6 +307,9 @@ class ITSEC_Dashboard_Util {
 	 * @return WP_Post[]
 	 */
 	public static function get_dashboard_cards( $dashboard_id ) {
+		if ( ! class_exists( 'ITSEC_Dashboard' ) ) {
+			require_once( dirname( __FILE__ ) . '/class-itsec-dashboard.php' );
+		}
 
 		if ( isset( self::$_query_cache['cards'][ $dashboard_id ] ) ) {
 			return array_map( 'get_post', self::$_query_cache['cards'][ $dashboard_id ] );
@@ -324,12 +340,14 @@ class ITSEC_Dashboard_Util {
 	 * @return int
 	 */
 	public static function get_primary_dashboard_id( $user = false ) {
+		if ( ! class_exists( 'ITSEC_Dashboard' ) ) {
+			require_once( dirname( __FILE__ ) . '/class-itsec-dashboard.php' );
+		}
+
 		$user       = ITSEC_Lib::get_user( $user );
 		$primary_id = (int) get_user_meta( $user->ID, ITSEC_Dashboard::META_PRIMARY, true );
 
 		if ( ! $primary_id || ITSEC_Dashboard::CPT_DASHBOARD !== get_post_type( $primary_id ) ) {
-			require_once( dirname( __FILE__ ) . '/class-itsec-dashboard-util.php' );
-
 			if ( $owned = self::get_owned_dashboards() ) {
 				$primary_id = (int) $owned[0]->ID;
 			} elseif ( $shared = self::get_shared_dashboards() ) {
@@ -935,6 +953,9 @@ ON DUPLICATE KEY UPDATE `event_slug` = `event_slug`",
 	 * @return array
 	 */
 	public static function export_cards( $dashboard_id, $args = array() ) {
+		if ( ! class_exists( 'ITSEC_Dashboard' ) ) {
+			require_once( dirname( __FILE__ ) . '/class-itsec-dashboard.php' );
+		}
 
 		$args = wp_parse_args( $args, array(
 			'include' => array( 'size', 'position' )
@@ -975,6 +996,9 @@ ON DUPLICATE KEY UPDATE `event_slug` = `event_slug`",
 	 * @param array $args
 	 */
 	public static function import_cards( $dashboard_id, $cards, $args = array() ) {
+		if ( ! class_exists( 'ITSEC_Dashboard' ) ) {
+			require_once( dirname( __FILE__ ) . '/class-itsec-dashboard.php' );
+		}
 
 		$args = wp_parse_args( $args, array(
 			'clear'        => true,
@@ -1009,5 +1033,12 @@ ON DUPLICATE KEY UPDATE `event_slug` = `event_slug`",
 
 			wp_insert_post( $post );
 		}
+	}
+
+	/**
+	 * Flushes the internal query cache.
+	 */
+	public static function flush_cache() {
+		self::$_query_cache = [];
 	}
 }

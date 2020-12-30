@@ -8,8 +8,8 @@ class ITSEC_Two_Factor_Interstitial extends ITSEC_Login_Interstitial {
 	/** @var ITSEC_Two_Factor */
 	private $two_factor;
 
-	/** @var string */
-	private $failed_provider_label;
+	/** @var Two_Factor_Provider */
+	private $failed_provider;
 
 	/** @var string */
 	private $current_provider_class;
@@ -69,7 +69,7 @@ class ITSEC_Two_Factor_Interstitial extends ITSEC_Login_Interstitial {
 		<?php $provider->authentication_page( $user ); ?>
 
 		<?php if ( $this->two_factor->is_remember_allowed( $user ) ): ?>
-			<p>
+			<p style="margin-bottom: -1em">
 				<label for="itsec-remember-2fa" style="font-size: 12px">
 					<input type="checkbox" name="itsec_remember_2fa" id="itsec-remember-2fa">
 					<?php esc_html_e( 'Remember Device for 30 Days', 'it-l10n-ithemes-security-pro' ); ?>
@@ -77,8 +77,15 @@ class ITSEC_Two_Factor_Interstitial extends ITSEC_Login_Interstitial {
 			</p>
 		<?php endif; ?>
 
+		<?php if ( $provider->can_resend_code() ): ?>
+			<div style="clear:both;margin-top:3em;padding-top:1em;border-top:1px solid #ddd;margin-bottom: -2em">
+				<p style="margin-bottom: 1em;"><?php esc_html_e( 'Did your Two-Factor code not arrive?', 'it-l10n-ithemes-security-pro' ); ?></p>
+				<button class="button" name="itsec_resend_2fa" type="submit" value="1"><?php esc_html_e( 'Resend', 'it-l10n-ithemes-security-pro' ); ?></button>
+			</div>
+		<?php endif; ?>
+
 		<?php if ( $backup_providers ) : ?>
-			<div class="itsec-backup-methods" style="clear:both;margin-top:4em;padding-top:2em;border-top:1px solid #ddd;">
+			<div class="itsec-backup-methods" style="clear:both;margin-top:3em;padding-top:1em;border-top:1px solid #ddd;margin-bottom: -2em;">
 				<p><?php esc_html_e( 'Or, use a backup method:', 'it-l10n-ithemes-security-pro' ); ?></p>
 				<ul style="margin-left:1em;">
 					<?php foreach ( $backup_providers as $backup_classname => $backup_provider ) : ?>
@@ -103,6 +110,7 @@ class ITSEC_Two_Factor_Interstitial extends ITSEC_Login_Interstitial {
 	public function pre_render( ITSEC_Login_Interstitial_Session $session ) {
 		if ( $provider = $this->get_provider( $session ) ) {
 			$provider->pre_render_authentication_page( $session->get_user() );
+			do_action( 'itsec_two_factor_interstitial_pre_render', $session, $provider );
 		}
 	}
 
@@ -156,21 +164,31 @@ class ITSEC_Two_Factor_Interstitial extends ITSEC_Login_Interstitial {
 			$provider = $this->two_factor->get_primary_provider_for_user( $user->ID );
 		}
 
+		if ( isset( $post_data['itsec_resend_2fa'] ) ) {
+			return new WP_Error(
+				'itsec-two-factor-resent-2fa',
+				esc_html__( 'Two-Factor code resent.', 'it-l10n-ithemes-security-pro' ),
+				'message'
+			);
+		}
+
 		$provider_class = get_class( $provider );
 		$user_id        = $user->ID;
 
 		if ( true !== $provider->validate_authentication( $user ) ) {
 			ITSEC_Log::add_debug( 'two_factor', "failed_authentication::$user_id,$provider_class,invalid_code", compact( 'user_id', 'provider_class', 'post_data' ), compact( 'user_id' ) );
 
-			$this->failed_provider_label = $provider->get_label();
+			$this->failed_provider = $provider;
 			add_filter( 'itsec-filter-failed-login-details', array( $this, 'filter_failed_login_details' ) );
 
-			do_action( 'wp_login_failed', $user->user_login );
-
-			return new WP_Error(
+			$error = new WP_Error(
 				'itsec-two-factor-invalid-code',
 				esc_html__( 'ERROR: Invalid Authentication Code.', 'it-l10n-ithemes-security-pro' )
 			);
+
+			do_action( 'wp_login_failed', $user->user_login, $error );
+
+			return $error;
 		}
 
 		$this->current_provider_class = $provider_class;
@@ -210,9 +228,6 @@ class ITSEC_Two_Factor_Interstitial extends ITSEC_Login_Interstitial {
 	public function show_to_user( WP_User $user, $is_requested ) {
 
 		if ( ! $this->two_factor->is_user_using_two_factor( $user->ID ) ) {
-			// The user is logged in and not using two factor, remove user meta to show recommended notice again.
-			delete_user_meta( $user->ID, 'itsec-two-factor-hide-recommended-notice-this-session' );
-
 			return false;
 		}
 
@@ -283,10 +298,10 @@ class ITSEC_Two_Factor_Interstitial extends ITSEC_Login_Interstitial {
 	 * @return array
 	 */
 	public function filter_failed_login_details( $details ) {
-		if ( empty( $this->failed_provider_label ) ) {
-			$details['authentication_types'] = array( __( 'unknown_two_factor_provider', 'it-l10n-ithemes-security-pro' ) );
+		if ( empty( $this->failed_provider ) ) {
+			$details['authentication_types'] = array( __( 'unknown_two_factor_provider', 'it-l10n-ithemes-security-pro' ), 'unknown' );
 		} else {
-			$details['authentication_types'] = array( $this->failed_provider_label );
+			$details['authentication_types'] = array( $this->failed_provider->get_label(), get_class( $this->failed_provider ) );
 		}
 
 		return $details;

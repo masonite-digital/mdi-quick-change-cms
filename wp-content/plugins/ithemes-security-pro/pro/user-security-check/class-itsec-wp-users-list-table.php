@@ -20,6 +20,14 @@ class ITSEC_WP_Users_List_Table extends WP_Users_List_Table {
 	 */
 	public function __construct( $args = array() ) {
 		parent::__construct( $args );
+
+		add_filter( 'users_list_table_query_args', static function ( $args ) {
+			if ( is_multisite() && current_user_can( 'manage_network_users' ) ) {
+				$args['blog_id'] = null;
+			}
+
+			return $args;
+		} );
 	}
 
 	/**

@@ -14,15 +14,15 @@ import Icon from './icons/card-unknown.svg';
 function CardUnknown( { card, removing, canRemove, remove } ) {
 	return (
 		<div className="itsec-empty-state-card itsec-empty-state-card--unknown">
-			<h3>{ __( 'Unknown Card', 'ithemes-security-pro' ) }</h3>
+			<h3>{ __( 'Unknown Card', 'it-l10n-ithemes-security-pro' ) }</h3>
 			<Icon />
-			<p>{ __( 'Something went wrong with this card. This is most likely due to disabling an iThemes Security Module.', 'ithemes-security-pro' ) }</p>
+			<p>{ __( 'Something went wrong with this card. This is most likely due to disabling an iThemes Security Module.', 'it-l10n-ithemes-security-pro' ) }</p>
 			{ canRemove && (
 				<Button isDefault isBusy={ removing } onClick={ remove }>
-					{ __( 'Remove Card', 'ithemes-security-pro' ) }
+					{ __( 'Remove Card', 'it-l10n-ithemes-security-pro' ) }
 				</Button>
 			) }
-			<span>{ __( 'Card Type: ', 'ithemes-security-pro' ) }<br /><code>{ card.original }</code></span>
+			<span>{ __( 'Card Type: ', 'it-l10n-ithemes-security-pro' ) }<br /><code>{ card.original }</code></span>
 		</div>
 	);
 }

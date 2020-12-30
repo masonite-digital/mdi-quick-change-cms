@@ -1,9 +1,11 @@
 <?php
 
+use iThemesSecurity\User_Groups;
+
 /**
  * Class ITSEC_Dashboard
  */
-class ITSEC_Dashboard {
+class ITSEC_Dashboard implements \iThemesSecurity\Contracts\Runnable {
 
 	const CPT_DASHBOARD = 'itsec-dashboard';
 	const META_SHARE_USER = '_itsec_dashboard_share_user';
@@ -17,16 +19,22 @@ class ITSEC_Dashboard {
 
 	const META_PRIMARY = '_itsec_primary_dashboard';
 
+	/** @var User_Groups\Matcher */
+	private $matcher;
+
+	/**
+	 * ITSEC_Dashboard constructor.
+	 *
+	 * @param User_Groups\Matcher $matcher
+	 */
+	public function __construct( User_Groups\Matcher $matcher ) { $this->matcher = $matcher; }
+
 	/**
 	 * Run the dashboard module.
 	 */
 	public function run() {
-
-		if ( ! version_compare( $GLOBALS['wp_version'], '4.9.8', '>=' ) ) {
-			return;
-		}
-
 		add_action( 'init', array( $this, 'register_data_storage' ) );
+		add_action( 'itsec_register_user_group_settings', [ $this, 'register_group_setting' ], 1 );
 		add_action( 'itsec_scheduler_register_events', array( $this, 'register_events' ) );
 		add_action( 'itsec_scheduled_dashboard-consolidate-events', array( $this, 'run_consolidate_events' ) );
 		add_action( 'after_delete_post', array( $this, 'after_delete_post' ) );
@@ -37,14 +45,10 @@ class ITSEC_Dashboard {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'current_screen', array( $this, 'render_help_tabs' ) );
 
-		if ( ! ITSEC_Modules::get_setting( 'global', 'hide_admin_bar' ) ) {
-			add_action( 'admin_bar_menu', array( $this, 'modify_admin_bar' ), 100 );
-		}
-
 		if ( is_multisite() ) {
-			add_action( 'network_admin_menu', array( $this, 'register_menu' ) );
+			add_action( 'network_admin_menu', array( $this, 'register_menu' ), 20 );
 		} else {
-			add_action( 'admin_menu', array( $this, 'register_menu' ) );
+			add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
 		}
 
 		require_once( dirname( __FILE__ ) . '/class-itsec-dashboard-rest.php' );
@@ -115,6 +119,15 @@ class ITSEC_Dashboard {
 				)
 			),
 		) );
+	}
+
+	public function register_group_setting( User_Groups\Settings_Registry $registry ) {
+		$registry->register( new User_Groups\Settings_Registration( 'dashboard', 'group', User_Groups\Settings_Registration::T_MULTIPLE, static function () {
+			return [
+				'title'       => __( 'Enable Dashboard Creation', 'it-l10n-ithemes-security-pro' ),
+				'description' => __( 'Allow the group to create new iThemes Security Dashboards.', 'it-l10n-ithemes-security-pro' ),
+			];
+		} ) );
 	}
 
 	/**
@@ -319,8 +332,8 @@ class ITSEC_Dashboard {
 					return array( 'do_not_allow' );
 				}
 
-				if ( $user_id === (int) $post->post_author ) {
-					return array( ITSEC_Core::get_required_cap() );
+				if ( $user_id === (int) $post->post_author && user_can( $user_id, 'itsec_create_dashboards' ) ) {
+					return array();
 				}
 
 				$uids = get_post_meta( $post->ID, '_itsec_dashboard_share_user' );
@@ -343,38 +356,26 @@ class ITSEC_Dashboard {
 					return array( 'do_not_allow' );
 				}
 
-				if ( $user_id === (int) $post->post_author ) {
-					return array( ITSEC_Core::get_required_cap() );
+				if ( $user_id === (int) $post->post_author && user_can( $user_id, 'itsec_create_dashboards' ) ) {
+					return array();
 				}
 
 				return array( 'do_not_allow' );
 			case 'itsec_create_dashboards':
-				$disabled = ITSEC_Modules::get_setting( 'dashboard', 'disabled_users' );
-
-				if ( in_array( $user_id, $disabled, false ) ) {
+				if ( ! $user = get_userdata( $user_id ) ) {
 					return array( 'do_not_allow' );
 				}
 
-				return array( ITSEC_Core::get_required_cap() );
+				$group = ITSEC_Modules::get_setting( 'dashboard', 'group' );
+
+				if ( ! $this->matcher->matches( User_Groups\Match_Target::for_user( $user ), $group ) ) {
+					return array( 'do_not_allow' );
+				}
+
+				return array();
 		}
 
 		return $caps;
-	}
-
-	/**
-	 * Add a link to the dashboard in the Admin Bar Security submenu.
-	 *
-	 * @param WP_Admin_Bar $wp_admin_bar
-	 */
-	public function modify_admin_bar( $wp_admin_bar ) {
-		$wp_admin_bar->add_node(
-			array(
-				'parent' => 'itsec_admin_bar_menu',
-				'title'  => __( 'Dashboard', 'it-l10n-ithemes-security-pro' ),
-				'href'   => network_admin_url( 'index.php?page=itsec-dashboard' ),
-				'id'     => 'itsec_admin_bar_dashboard',
-			)
-		);
 	}
 
 	/**
@@ -438,6 +439,10 @@ class ITSEC_Dashboard {
 			'/ithemes-security/v1/dashboard-available-cards' => array(
 				'route' => '/ithemes-security/v1/dashboard-available-cards',
 			),
+			'/ithemes-security/v1/actors?_embed=1'           => array(
+				'route' => '/ithemes-security/v1/actors',
+				'embed' => true,
+			),
 			'/wp/v2/users/me?context=edit'                   => array(
 				'route' => '/wp/v2/users/me',
 				'query' => array( 'context' => 'edit' ),
@@ -499,6 +504,8 @@ class ITSEC_Dashboard {
 			'logs_nonce'        => wp_create_nonce( 'itsec-logs-nonce' ),
 			'ajaxurl'           => admin_url( 'admin-ajax.php' ),
 		) );
+
+		do_action( 'itsec_dashboard_enqueue_scripts' );
 	}
 
 	private static function get_pretty_url() {

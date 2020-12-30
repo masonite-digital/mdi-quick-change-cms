@@ -1,10 +1,15 @@
 /**
+ * External dependencies
+ */
+import { get } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import { Dashicon, Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose, withState, withInstanceId } from '@wordpress/compose';
-import { withDispatch } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 
 /**
@@ -15,7 +20,7 @@ import Header, { Title, Status } from '../../components/card/header';
 import MasterDetail, { Back } from '../../components/master-detail';
 import UserInfo from './user-info';
 import { getTwoFactor } from './utils';
-import { withProps } from 'packages/hocs/src';
+import { withProps } from '@ithemes/security-hocs';
 
 function MasterRender( { master } ) {
 	return (
@@ -37,23 +42,26 @@ function MasterRender( { master } ) {
 	);
 }
 
-function DetailRender( { master, pinUser } ) {
+function DetailRender( { master, pinUser, profileCards } ) {
 	return (
 		<section className="itsec-card-security-profile__user">
 			<header className="itsec-card-security-profile__user-header">
 				<img src={ master.avatar } alt="" />
 				<h3>{ master.name }</h3>
-				<Button isLink onClick={ () => pinUser( master.id ) }>
-					{ __( 'Pin', 'ithemes-security-pro' ) }
-				</Button>
+				{ ! profileCards.includes( master.id ) && (
+					<Button isLink onClick={ () => pinUser( master.id ) }>
+						{ __( 'Pin', 'it-l10n-ithemes-security-pro' ) }
+					</Button>
+				) }
 			</header>
 			<UserInfo user={ master } />
 		</section>
 	);
 }
 
-function SecurityProfile( { card, config, eqProps, pinUser, selected, setState } ) {
-	const detailRender = withProps( { pinUser } )( DetailRender );
+function SecurityProfile( { card, config, eqProps, profileCards, pinUser, selected, setState } ) {
+	const detailRender = withProps( { pinUser, profileCards } )( DetailRender );
+
 	const select = ( id ) => setState( { selected: id } );
 	const isSmall = eqProps[ 'max-width' ] && eqProps[ 'max-width' ].includes( '500px' );
 
@@ -70,17 +78,17 @@ function SecurityProfile( { card, config, eqProps, pinUser, selected, setState }
 					<tr>
 						<th className="itsec-card-security-profile__users--column-avatar">
 							<span className="screen-reader-text">
-								{ __( 'Avatar', 'ithemes-security-pro' ) }
+								{ __( 'Avatar', 'it-l10n-ithemes-security-pro' ) }
 							</span>
 						</th>
 						<th className="itsec-card-security-profile__users--column-username">
-							{ __( 'Username', 'ithemes-security-pro' ) }
+							{ __( 'Username', 'it-l10n-ithemes-security-pro' ) }
 						</th>
 						<th className="itsec-card-security-profile__users--column-role">
-							{ __( 'Role', 'ithemes-security-pro' ) }
+							{ __( 'Role', 'it-l10n-ithemes-security-pro' ) }
 						</th>
 						<th className="itsec-card-security-profile__users--column-two-factor">
-							{ __( '2FA', 'ithemes-security-pro' ) }
+							{ __( '2FA', 'it-l10n-ithemes-security-pro' ) }
 						</th>
 					</tr>
 				</thead>
@@ -104,6 +112,9 @@ export const settings = {
 				} );
 			},
 		} ) ),
+		withSelect( ( select, ownProps ) => ( {
+			profileCards: select( 'ithemes-security/dashboard' ).getDashboardCards( ownProps.dashboardId ).filter( ( card ) => card.card === 'security-profile' ).map( ( card ) => get( card, [ 'data', 'user', 'id' ] ) ),
+		} ) ),
 	] )( SecurityProfile ),
 	elementQueries: [
 		{
@@ -126,11 +137,11 @@ export const settings = {
 
 addFilter( 'dashboard.getCardTitle.security-profile', 'ithemes-security/security-profile/default', function( title, card ) {
 	if ( card.data.user && card.data.user.name ) {
-		return sprintf( __( 'Security Profile – %s', 'ithemes-security-pro' ), card.data.user.name );
+		return sprintf( __( 'Security Profile – %s', 'it-l10n-ithemes-security-pro' ), card.data.user.name );
 	}
 
 	if ( card.settings && card.settings.user ) {
-		return sprintf( __( 'User (%d) Security Profile', 'ithemes-security-pro' ), card.settings.user );
+		return sprintf( __( 'User (%d) Security Profile', 'it-l10n-ithemes-security-pro' ), card.settings.user );
 	}
 
 	return title;

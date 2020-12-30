@@ -56,12 +56,46 @@ class Ithemes_Updater_Server {
 		return Ithemes_Updater_Server::request( 'package-deactivate', $query, $data );
 	}
 
-	public static function get_package_details( $packages ) {
+	public static function get_licensed_site_url( $packages ) {
 		$query = array();
 
 		$data = array(
 			'packages' => $packages
 		);
+
+		return Ithemes_Updater_Server::request( 'licensed-site-url-get', $query, $data );
+	}
+
+	public static function set_licensed_site_url( $username, $password, $site_url, $keys ) {
+		$query = array(
+			'user' => $username
+		);
+
+		$data = array(
+			'auth_token' => self::get_password_hash( $username, $password ),
+			'site_url'   => $site_url,
+			'keys'       => $keys,
+		);
+
+		return Ithemes_Updater_Server::request( 'licensed-site-url-set', $query, $data );
+	}
+
+	public static function get_package_details( $packages ) {
+		global $rcp_options;
+
+		$query = array();
+
+		$data = array(
+			'packages' => $packages
+		);
+
+		if ( ! empty( $rcp_options ) && is_array( $rcp_options ) && ! empty( $rcp_options['license_key'] ) ) {
+			$data['rcp_license_key'] = $rcp_options['license_key'];
+		}
+
+		if ( isset( $packages['wpcomplete'] ) ) {
+			$data['wpcomplete_license_key'] = get_option( 'wpcomplete_license_key' );
+		}
 
 		return Ithemes_Updater_Server::request( 'package-details', $query, $data );
 	}
@@ -137,7 +171,7 @@ class Ithemes_Updater_Server {
 			}
 		}
 
-		if ( is_wp_error( $response ) && ( 'connect() timed out!' != $response->get_error_message() ) ) {
+		if ( is_wp_error( $response ) && ( 'connect() timed out!' != $response->get_error_message() ) && defined( 'ITHEMES_ALLOW_HTTP_FALLBACK' ) && ITHEMES_ALLOW_HTTP_FALLBACK ) {
 			$response = wp_remote_post( self::$insecure_server_url . $request, $remote_post_args );
 
 			$options['use_ssl'] = false;
@@ -172,10 +206,19 @@ class Ithemes_Updater_Server {
 	}
 
 	private static function get_site_url() {
-		if ( is_callable( 'network_home_url' ) ) {
-			$site_url = network_home_url();
-		} else {
-			$site_url = get_bloginfo( 'url' );
+		require_once( $GLOBALS['ithemes_updater_path'] . '/settings.php' );
+
+		// Ensure that a fatal error isn't triggered on upgrade.
+		if ( is_callable( array( $GLOBALS['ithemes-updater-settings'], 'get_licensed_site_url' ) ) ) {
+			$site_url = $GLOBALS['ithemes-updater-settings']->get_licensed_site_url();
+		}
+
+		if ( empty( $site_url ) ) {
+			if ( is_callable( 'network_home_url' ) ) {
+				$site_url = network_home_url( '', 'http' );
+			} else {
+				$site_url = get_bloginfo( 'url' );
+			}
 		}
 
 		$site_url = preg_replace( '/^https/', 'http', $site_url );

@@ -5,31 +5,11 @@
  */
 class ITSEC_Dashboard_REST {
 
-	const LINK_REL = 'https://s.api.ithemes.com/l/ithemes-security/';
-
 	public function run() {
-		add_filter( 'rest_response_link_curies', array( $this, 'register_curie' ) );
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_filter( 'rest_route_data', array( $this, 'filter_route_data' ) );
 		add_filter( 'rest_pre_dispatch', array( $this, 'handle_options_request' ), 100, 3 );
 		add_filter( 'rest_request_before_callbacks', array( $this, 'return_permission_errors_before_validation' ), 10, 3 );
-	}
-
-	/**
-	 * Register the CURIE to shorten link refs.
-	 *
-	 * @param array $curies
-	 *
-	 * @return array
-	 */
-	public function register_curie( $curies ) {
-		$curies[] = array(
-			'name'      => 'ithemes-security',
-			'href'      => self::LINK_REL . '{rel}',
-			'templated' => true,
-		);
-
-		return $curies;
 	}
 
 	/**

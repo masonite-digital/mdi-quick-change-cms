@@ -22,7 +22,11 @@ class ITSEC_WP_CLI_Command_ITSEC extends WP_CLI_Command {
 
 		$build = ! empty( $assoc_args['build'] ) ? $assoc_args['build'] : false;
 
-		ITSEC_Core::get_instance()->handle_upgrade( $build );
+		$error = ITSEC_Core::get_instance()->handle_upgrade( $build );
+
+		if ( is_wp_error( $error ) ) {
+			WP_CLI::error( $error );
+		}
 
 		WP_CLI::success( __( 'Upgrade routine completed.', 'it-l10n-ithemes-security-pro' ) );
 	}
@@ -49,20 +53,18 @@ class ITSEC_WP_CLI_Command_ITSEC extends WP_CLI_Command {
 	}
 
 	/**
-	 * Performs a file change scan
-	 */
-	public function filescan() {
-		WP_CLI::error( 'Deprecated. See wp itsec file-change scan' );
-	}
-
-	/**
-	 * Retrieve active lockouts
+	 * Retrieve active lockouts.
+	 *
+	 * # DEPRECATED
+	 *
+	 * See the "wp itsec lockout list" command for a replacement.
 	 *
 	 * @since 1.12
 	 *
 	 * @return void
 	 */
 	public function getlockouts() {
+		WP_CLI::warning( 'Deprecated. See the "wp itsec lockout list" command for a replacement.' );
 
 		/** @var ITSEC_Lockout $itsec_lockout */
 		global $itsec_lockout;
@@ -109,6 +111,10 @@ class ITSEC_WP_CLI_Command_ITSEC extends WP_CLI_Command {
 	/**
 	 * Release a lockout using one or more ID's provided by getlockouts.
 	 *
+	 * ## DEPRECATED
+	 *
+	 * See the "wp itsec lockout release" command for a replacement.
+	 *
 	 * ## OPTIONS
 	 *
 	 * [<id>...]
@@ -130,6 +136,7 @@ class ITSEC_WP_CLI_Command_ITSEC extends WP_CLI_Command {
 	 * @return void
 	 */
 	public function releaselockout( $args, $assoc_args ) {
+		WP_CLI::warning( 'Deprecated. See the "wp itsec lockout release" command for a replacement.' );
 
 		/** @var ITSEC_Lockout $itsec_lockout */
 		global $itsec_lockout;
@@ -163,6 +170,10 @@ class ITSEC_WP_CLI_Command_ITSEC extends WP_CLI_Command {
 	/**
 	 * List the most recent log items
 	 *
+	 * ## DEPRECATED
+	 *
+	 * See the "wp itsec log list" command for a replacement.
+	 *
 	 * ## OPTIONS
 	 *
 	 * [<count>]
@@ -190,6 +201,8 @@ class ITSEC_WP_CLI_Command_ITSEC extends WP_CLI_Command {
 	 * @return void
 	 */
 	public function getrecent( $args, $assoc_args ) {
+		WP_CLI::warning( 'Deprecated. See the "wp itsec log list" command for a replacement.' );
+
 		if ( isset( $assoc_args['count'] ) && 10 != $assoc_args['count'] ) {
 			$count = intval( $assoc_args['count'] );
 		} elseif ( isset( $args[0] ) && 10 != $args[0] ) {
@@ -284,6 +297,92 @@ class ITSEC_WP_CLI_Command_ITSEC extends WP_CLI_Command {
 	}
 
 	/**
+	 * Evaluates a password's strength.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <password>
+	 * : The password.
+	 *
+	 * [--fields=<fields>]
+	 * : Limit the output to specific object fields.
+	 *
+	 * [--field=<field>]
+	 * : Instead of returning the whole results, returns the value of a single field.
+	 *
+	 * [--format=<format>]
+	 * : Render output in a particular format.
+	 * ---
+	 * default: table
+	 * options:
+	 *  - table
+	 *  - json
+	 *  - csv
+	 *  - yaml
+	 */
+	public function zxcvbn( $args, $assoc_args ) {
+		$results   = ITSEC_Lib::get_password_strength_results( $args[0] );
+		$formatted = [
+			'score'       => $results->score,
+			'guesses'     => $results->guesses,
+			'calc_time'   => $results->calc_time,
+			'warning'     => $results->feedback->warning,
+			'suggestions' => $results->feedback->suggestions,
+			'times'       => $results->crack_times_display,
+			'sequence'    => $results->sequence,
+		];
+
+		$foramtter = new \WP_CLI\Formatter( $assoc_args, array_keys( $formatted ) );
+		$foramtter->display_item( $formatted );
+	}
+
+	/**
+	 * Generates a random password.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<length>]
+	 * : The password length. Defaults to 32 characters long.
+	 *
+	 * @subcommand generate-password
+	 */
+	public function generate_password( $args ) {
+		$length = isset( $args[0] ) ? $args[0] : 32;
+
+		WP_CLI::log( wp_generate_password( $length ) );
+	}
+
+	/**
+	 * Changes the "admin" username and/or the user id of 1.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--username=<username>]
+	 * : The username to change "admin" to.
+	 *
+	 * [--change-id]
+	 * : Whether to change the user id of 1.
+	 *
+	 * @subcommand change-admin-user
+	 */
+	public function change_admin_user( $args, $assoc_args ) {
+		$username  = \WP_CLI\Utils\get_flag_value( $assoc_args, 'username' );
+		$change_id = \WP_CLI\Utils\get_flag_value( $assoc_args, 'change-id', false );
+
+		if ( ! $username && ! $change_id ) {
+			WP_CLI::error( 'Must include --username or --change-id.' );
+		}
+
+		$changed = itsec_change_admin_user( $username, $change_id );
+
+		if ( $changed ) {
+			WP_CLI::success( 'Updated.' );
+		} else {
+			WP_CLI::error( 'The user was unable to be successfully updated. This could be due to a plugin or server configuration conflict.' );
+		}
+	}
+
+	/**
 	 * Scaffold a JavaScript entry.
 	 *
 	 * ## OPTIONS
@@ -302,15 +401,19 @@ class ITSEC_WP_CLI_Command_ITSEC extends WP_CLI_Command {
 
 		list( $module, $name ) = $args;
 
-		if ( ! file_exists( $itsec_dir . 'pro/' . $module ) ) {
-			WP_CLI::error( "Invalid module. Directory '{$itsec_dir}pro/{$module}/' not found." );
+		if ( file_exists( $itsec_dir . 'pro/' . $module ) ) {
+			$filename = $itsec_dir . 'pro/' . $module;
+		} elseif ( file_exists( $itsec_dir . 'core/modules/' . $module ) ) {
+			$filename = $itsec_dir . 'core/modules/' . $module;
+		} else {
+			WP_CLI::error( 'Invalid module. Module directory not found.' );
 		}
 
 		if ( ! preg_match( '/[a-z]+/', $name ) ) {
 			WP_CLI::error( 'Invalid entry name. Only lower-case alpha allowed.' );
 		}
 
-		$entries_dir = "{$itsec_dir}pro/{$module}/entries/";
+		$entries_dir = "{$filename}/entries/";
 		$entry_dir   = "{$entries_dir}/{$name}";
 
 		if ( ! wp_mkdir_p( $entry_dir ) ) {
@@ -376,14 +479,6 @@ JS;
 				}
 			}
 		}
-
-		/*if ( $fh = fopen( $itsec_dir . '/.gitignore', 'ab' ) ) {
-			if ( ! fwrite( $fh, "/pro/{$module}/js/{$name}.js" . PHP_EOL . "/pro/{$module}/css/{$name}.css" . PHP_EOL ) ) {
-				WP_CLI::warning( 'Failed to add gitignore entries.' );
-			}
-		} else {
-			WP_CLI::warning( 'Failed to open gitignore file.' );
-		}*/
 
 		WP_CLI::success( 'Entry created.' );
 	}

@@ -1,15 +1,3 @@
-/*
- * Webfonts
- */
-@font-face {
-	font-family: 'Font Awesome';
-	font-style: normal;
-	font-weight: 900;
-	src: url("../webfonts/fontawesome/fa-solid-900.eot");
-	src: url("../webfonts/fontawesome/fa-solid-900.eot?#iefix") format("embedded-opentype"), url("../webfonts/fontawesome/fa-solid-900.woff2") format("woff2"), url("../webfonts/fontawesome/fa-solid-900.woff") format("woff"), url("../webfonts/fontawesome/fa-solid-900.ttf") format("truetype"), url("../webfonts/fontawesome/fa-solid-900.svg#fontawesome") format("svg");
-}
-
-
 #itsec-grade-report-cards {
 	display: -ms-grid;
 	display: grid;
@@ -57,7 +45,6 @@
 }
 #itsec-grade-report .itsec-card-grade {
 	border-left: 10px solid black;
-	font-family: 'Open Sans', sans-serif;
 	font-size: 58px;
 	font-weight: bold;
 	float: left;
@@ -139,7 +126,6 @@
 	position: relative;
 }
 #itsec-grade-report #itsec-security-score-graph .itsec-grade {
-	font-family: 'Open Sans', sans-serif;
 	font-size: 58px;
 	font-weight: bold;
 	line-height: 200px;
@@ -291,32 +277,27 @@
 	vertical-align: middle;
 }
 #itsec-grade-report .itsec-section-list span.itsec-grade::before {
-	font-family: 'Font Awesome';
-	font-style: normal;
-	font-weight: 900;
-	text-decoration: inherit;
-	font-size: 16px;
-	line-height: 16px;
+	font-weight: 600;
 }
 #itsec-grade-report .itsec-section-list span.itsec-grade-a::before {
 	color: #00C778;
-	content: "\f058";
+	content: "\f147";
 }
 #itsec-grade-report .itsec-section-list span.itsec-grade-b::before {
 	color: #00A0D2;
-	content: "\f058";
+	content: "\f147";
 }
 #itsec-grade-report .itsec-section-list span.itsec-grade-c::before {
 	color: #FA9408;
-	content: "\f056";
+	content: "\f460";
 }
 #itsec-grade-report .itsec-section-list span.itsec-grade-d::before {
 	color: #E7635D;
-	content: "\f057";
+	content: "\f335";
 }
 #itsec-grade-report .itsec-section-list span.itsec-grade-f::before {
 	color: #98030E;
-	content: "\f057";
+	content: "\f335";
 }
 #itsec-resolve-issues-container {
 	display: none;

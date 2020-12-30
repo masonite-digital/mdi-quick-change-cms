@@ -22,14 +22,14 @@ import MasterDetail, { Back } from '../../components/master-detail';
 import { CardHappy } from '../../components/empty-states';
 import Detail from './Detail';
 import lockoutController from './lockout-controller';
-import { withDebounceHandler } from 'packages/hocs/src';
+import { withDebounceHandler } from '@ithemes/security-hocs';
 import './style.scss';
 
 function MasterRender( { master } ) {
 	return (
 		<Fragment>
 			<time className="itsec-card-active-lockouts__start-time" dateTime={ master.start_gmt } title={ dateI18n( 'M d, Y g:s A', master.start_gmt ) }>
-				{ sprintf( __( '%s ago', 'ithemes-security-pro' ), master.start_gmt_relative ) }
+				{ sprintf( __( '%s ago', 'it-l10n-ithemes-security-pro' ), master.start_gmt_relative ) }
 			</time>
 			<h3 className="itsec-card-active-lockouts__label">{ master.label }</h3>
 			<p className="itsec-card-active-lockouts__description">{ master.description }</p>
@@ -74,12 +74,12 @@ function ActiveLockouts( { card, config, isQuerying, query, selectedId, releasin
 			</Header>
 			{ selectedId === 0 && (
 				<div className="itsec-card-active-lockouts__search-container">
-					<input type="search" onChange={ ( e ) => query( { search: e.target.value } ) } placeholder={ __( 'Search Lockouts', 'ithemes-security-pro' ) } />
+					<input type="search" onChange={ ( e ) => query( { search: e.target.value } ) } placeholder={ __( 'Search Lockouts', 'it-l10n-ithemes-security-pro' ) } />
 					{ isQuerying ? <Spinner /> : <Dashicon icon="search" /> }
 				</div>
 			) }
 			{ isEmpty( card.data.lockouts ) ?
-				<CardHappy title={ __( 'All Clear!', 'ithemes-security-pro' ) } text={ __( 'No users are currently locked out of your site.', 'ithemes-security-pro' ) } /> :
+				<CardHappy title={ __( 'All Clear!', 'it-l10n-ithemes-security-pro' ) } text={ __( 'No users are currently locked out of your site.', 'it-l10n-ithemes-security-pro' ) } /> :
 				<MasterDetail masters={ withLinks( card.data.lockouts, card._links ) } detailRender={ Detail } masterRender={ MasterRender }
 					mode="list" selectedId={ selectedId } select={ select } isSmall={ isSmall } />
 			}
@@ -91,7 +91,7 @@ function ActiveLockouts( { card, config, isQuerying, query, selectedId, releasin
 							aria-disabled={ releasingIds.includes( selectedId ) }
 							isBusy={ releasingIds.includes( selectedId ) }
 							onClick={ onRelease }>
-							{ __( 'Release Lockout', 'ithemes-security-pro' ) }
+							{ __( 'Release Lockout', 'it-l10n-ithemes-security-pro' ) }
 						</Button>
 					</span>
 				</Footer>

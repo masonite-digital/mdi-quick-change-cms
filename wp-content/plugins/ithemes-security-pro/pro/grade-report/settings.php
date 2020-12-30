@@ -8,7 +8,7 @@ class ITSEC_Grading_System_Active_Settings extends ITSEC_Settings {
 
 	public function get_defaults() {
 		return array(
-			'disabled_users' => array(),
+			'group' => array(),
 		);
 	}
 }

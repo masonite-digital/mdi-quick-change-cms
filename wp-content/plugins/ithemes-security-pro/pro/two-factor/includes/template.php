@@ -223,7 +223,7 @@
 
 			<ul class="itsec-backup-codes__code-list">
 				<# for ( var i = 0; i < data.m.config.codes.length; i++ ) { #>
-					<li>{{ data.m.config.codes[i] }}</li>
+					<li>{{ data.m.config.codes[i] }}&nbsp;</li>
 				<# } #>
 			</ul>
 		<# } else { #>
@@ -250,7 +250,7 @@
 			<div class="itsec-screen__actions-primary">
 
 				<# if ( data.d.enabled && data.m.config.codes.length ) { #>
-					<a href="data:text/plain;charset=utf-8,{{{ data.d.newlineCodes }}}" download="codes.txt" class="button itsec-screen__actions--download"
+					<a href="data:text/plain;charset=utf-8,{{{ data.d.newlineCodes }}}" download="<?php echo esc_attr( sanitize_title( parse_url( home_url(), PHP_URL_HOST ) ) ) ?>-codes.txt" class="button itsec-screen__actions--download"
 					   title="<?php esc_html_e( 'Download Codes', 'it-l10n-ithemes-security-pro' ) ?>">
 						<?php esc_html_e( 'Download', 'it-l10n-ithemes-security-pro' ); ?>
 					</a>

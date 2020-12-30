@@ -7,6 +7,11 @@
     height: 100%;
     position: relative;
 
+
+    & .itsec-component-master-detail {
+        border-bottom-left-radius: 10px;
+    }
+
     & .itsec-card-header {
         flex-grow: 0;
         flex-shrink: 0;

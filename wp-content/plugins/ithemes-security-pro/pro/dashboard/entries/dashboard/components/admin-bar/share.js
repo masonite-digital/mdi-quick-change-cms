@@ -6,7 +6,7 @@ import { get, find } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { Tooltip, Dropdown, Dashicon, IconButton } from '@wordpress/components';
+import { Tooltip, Dropdown, IconButton } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -51,10 +51,10 @@ function Share( { dashboard, dashboardId } ) {
 					className="itsec-admin-bar-share__add-share"
 					contentClassName="itsec-admin-bar-share__add-share-content"
 					position="bottom"
-					headerTitle={ __( 'Share with User', 'ithemes-security-pro' ) } expandOnMobile
+					headerTitle={ __( 'Share with User', 'it-l10n-ithemes-security-pro' ) } expandOnMobile
 					renderToggle={ ( { isOpen, onToggle } ) => (
-						<IconButton label={ __( 'Share Dashboard', 'ithemes-security-pro' ) } aria-pressed={ isOpen } onClick={ onToggle }
-							icon={ <Dashicon icon="plus-alt" size={ 40 } /> }
+						<IconButton label={ __( 'Share Dashboard', 'it-l10n-ithemes-security-pro' ) } aria-pressed={ isOpen } onClick={ onToggle }
+							icon="plus-alt" size={ 40 }
 						/>
 					) }
 					renderContent={ ( { onClose } ) => (

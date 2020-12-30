@@ -21,13 +21,17 @@ class ITSEC_Fingerprinting_Settings_Page extends ITSEC_Module_Settings_Page {
 	}
 
 	public function enqueue_scripts_and_styles() {
-		wp_enqueue_script( 'itsec-fingerprinting-script', plugins_url( 'js/settings-page.js', __FILE__ ), array( 'jquery', 'itsec-util' ), ITSEC_Core::get_plugin_build(), true );
-		wp_enqueue_style( 'itsec-fingerprinting-style', plugins_url( 'css/settings-page.css', __FILE__ ), array(), ITSEC_Core::get_plugin_build() );
+		wp_enqueue_script( 'itsec-fingerprinting-script', plugins_url( 'js/settings-page.js', __FILE__ ), array( 'jquery', 'itsec-util' ), 3, true );
+		wp_enqueue_style( 'itsec-fingerprinting-style', plugins_url( 'css/settings-page.css', __FILE__ ), array(), 3 );
 	}
 
 	public function handle_ajax_request( $data ) {
 		switch ( isset( $data['method'] ) ? $data['method'] : '' ) {
 			case 'download':
+				if ( ! empty( $data['key'] ) && $data['key'] !== ITSEC_Modules::get_setting( 'fingerprinting', 'maxmind_lite_key' ) ) {
+					ITSEC_Modules::set_setting( 'fingerprinting', 'maxmind_lite_key', $data['key'] );
+				}
+
 				require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-geolocation.php' );
 				require_once( dirname( dirname( __FILE__ ) ) . '/geolocation/geolocators/class-itsec-geolocator-maxmind-db.php' );
 				$response = ITSEC_Geolocator_MaxMind_DB::download();
@@ -64,8 +68,9 @@ class ITSEC_Fingerprinting_Settings_Page extends ITSEC_Module_Settings_Page {
 		require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-geolocation.php' );
 		require_once( dirname( dirname( __FILE__ ) ) . '/geolocation/geolocators/class-itsec-geolocator-maxmind-db.php' );
 
-		$maxmind = new ITSEC_Geolocator_MaxMind_DB();
-		$has_db  = $maxmind->is_available();
+		$maxmind      = new ITSEC_Geolocator_MaxMind_DB();
+		$has_db       = $maxmind->is_available();
+		$can_download = ITSEC_Modules::get_setting( 'fingerprinting', 'maxmind_lite_key' );
 
 		$notification_enabled = ITSEC_Core::get_notification_center()->is_notification_enabled( 'unrecognized-login' );
 		?>
@@ -73,11 +78,11 @@ class ITSEC_Fingerprinting_Settings_Page extends ITSEC_Module_Settings_Page {
 		<table class="form-table itsec-settings-section">
 			<tbody>
 			<tr>
-				<th><label for="itsec-fingerprinting-role"><?php esc_html_e( 'Minimum Role', 'it-l10n-ithemes-security-pro' ) ?></label></th>
+				<th><label for="itsec-fingerprinting-role"><?php esc_html_e( 'Enable', 'it-l10n-ithemes-security-pro' ) ?></label></th>
 				<td>
-					<?php $form->add_canonical_roles( 'role' ); ?>
+					<?php $form->add_user_groups( 'group', $this->id ); ?>
 					<p class="description">
-						<?php esc_html_e( 'Enable Trusted Devices for users with the selected minimum role.', 'it-l10n-ithemes-security-pro' ); ?>
+						<?php esc_html_e( 'Enable Trusted Devices for users in the selected groups.', 'it-l10n-ithemes-security-pro' ); ?>
 					</p>
 				</td>
 			</tr>
@@ -133,30 +138,48 @@ class ITSEC_Fingerprinting_Settings_Page extends ITSEC_Module_Settings_Page {
 			<?php esc_html_e( 'iThemes Security uses geolocation to improve the accuracy of Trusted Device identification. By default, a number of free GeoIP services are used. We strongly recommend enabling one of the MaxMind APIs.', 'it-l10n-ithemes-security-pro' ); ?>
 		</p>
 
-		<h5><?php esc_html_e( 'MaxMind DB', 'it-l10n-ithemes-security-pro' ); ?></h5>
-		<p><?php esc_html_e( 'The MaxMind DB is a free database provided by MaxMind that allows for Geolocation lookups without connecting to an external API.', 'it-l10n-ithemes-security-pro' ) ?></p>
-		<p><?php printf(
-				esc_html__( 'Click the button below to automatically download the database or %1$smanually download it%2$s and upload the entire zip\'s contents to the following directory via (S)FTP: %3$s. You may want to exclude this directory from your backups.', 'it-l10n-ithemes-security-pro' ),
-				'<a href="' . esc_url( ITSEC_Geolocator_MaxMind_DB::URL ) . '">',
-				'</a>',
+		<h5><?php esc_html_e( 'MaxMind GeoLite2', 'it-l10n-ithemes-security-pro' ); ?></h5>
+		<p><?php esc_html_e( 'The MaxMind Lite is a free database provided by MaxMind that allows for Geolocation lookups without connecting to an external API when geolocating IP addresses.', 'it-l10n-ithemes-security-pro' ) ?></p>
+		<p>
+			<?php printf(
+				esc_html__( '%1$sSign up%2$s for a free MaxMind GeoLite2 account, generate a license key and enter it below.', 'it-l10n-ithemes-security-pro' ),
+				'<a href="https://www.maxmind.com/en/geolite2/signup">',
+				'</a>'
+			); ?>
+			<?php printf(
+				esc_html__( '%1$sRead our documentation%2$s for detailed instructions.', 'it-l10n-ithemes-security-pro' ),
+				'<a href="https://ithemeshelp.zendesk.com/hc/en-us/articles/360041539513">',
+				'</a>'
+			); ?>
+		</p>
+		<p><?php esc_html_e( 'Click the button below to automatically download the database, or review the documentation for manual instructions.', 'it-l10n-ithemes-security-pro' ); ?></p>
+		<p>
+			<?php printf(
+				esc_html__( 'You may want to exclude the %s directory from your backups.', 'it-l10n-ithemes-security-pro' ),
 				'<code>' . ITSEC_Geolocator_MaxMind_DB::get_db_path() . '</code>'
 			); ?>
 		</p>
-		<p id="itsec-fingerprinting-maxmind-db-download-container" class="<?php $has_db and print( 'itsec-fingerprinting-maxmind-db-downloaded' ); ?>">
-			<button type="button" id="itsec-fingerprinting-download" class="button" <?php $has_db and print( 'disabled' ); ?>><?php esc_html_e( 'Download DB', 'it-l10n-ithemes-security-pro' ) ?></button>
-			<span class="description itsec-fingerprinting-maxmind-db-download-downloaded-message">
+		<div id="itsec-fingerprinting-maxmind-db-download-container" class="<?php $has_db and print( 'itsec-fingerprinting-maxmind-db-downloaded' ); ?>">
+			<div class="itsec-fingerprinting-maxmind-db-download-inputs">
+				<div class="itsec-fingerprinting-maxmind-db-download-key-container">
+					<label for="itsec-fingerprinting-maxmind_lite_key"><?php esc_html_e( 'License Key', 'it-l10n-ithemes-security-pro' ); ?></label>
+					<?php $form->add_text( 'maxmind_lite_key' ); ?>
+				</div>
+				<button type="button" id="itsec-fingerprinting-download" class="button" <?php ! $can_download and print( 'disabled' ); ?>><?php esc_html_e( 'Download DB', 'it-l10n-ithemes-security-pro' ) ?></button>
+			</div>
+			<p class="description itsec-fingerprinting-maxmind-db-download-downloaded-message">
 				<?php esc_html_e( 'The MaxMind DB has been downloaded.', 'it-l10n-ithemes-security-pro' ); ?>
-			</span>
-			<span class="description itsec-fingerprinting-maxmind-db-download-warning-message">
+			</p>
+			<p class="description itsec-fingerprinting-maxmind-db-download-warning-message">
 				<?php esc_html_e( 'The download may take a few moments (27MB).', 'it-l10n-ithemes-security-pro' ); ?>
-			</span>
-		</p>
+			</p>
+		</div>
 
 		<div id="itsec-fingerprinting-maxmind-db-status"></div>
 
 		<h5><?php esc_html_e( 'MaxMind API', 'it-l10n-ithemes-security-pro' ) ?></h5>
 		<p><?php printf(
-				esc_html__( 'Alternately, or for the highest degree of accuracy, sign up for a %1$sMaxMind GeoIP2 Precision: City%2$s account. Most users should find the lowest credit amount sufficient.', 'it-l10n-ithemes-security-pro' ),
+				esc_html__( 'For the highest degree of accuracy, sign up for a %1$sMaxMind GeoIP2 Precision: City%2$s account. Most users should find the lowest credit amount sufficient.', 'it-l10n-ithemes-security-pro' ),
 				'<a href="https://www.maxmind.com/en/geoip2-precision-city-service">',
 				'</a>'
 			); ?>

@@ -28,6 +28,18 @@ class Ithemes_Updater_API {
 		return self::get_response( 'deactivate_package', compact( 'username', 'password', 'packages' ), false );
 	}
 
+	public static function get_licensed_site_url() {
+		$packages = array();
+
+		return self::get_response( 'get_licensed_site_url', compact( 'packages' ), false );
+	}
+
+	public static function set_licensed_site_url( $username, $password, $site_url ) {
+		$packages = array();
+
+		return self::get_response( 'set_licensed_site_url', compact( 'username', 'password', 'site_url', 'packages' ), false );
+	}
+
 	public static function get_package_details( $cache = true ) {
 		$packages = array();
 
@@ -35,7 +47,11 @@ class Ithemes_Updater_API {
 	}
 
 	public static function get_package_changelog( $package, $cur_version = false ) {
-		$response = wp_remote_get( 'http://api.ithemes.com/product/changelog?package=' . urlencode( $package ) );
+		$response = wp_remote_get( 'https://api.ithemes.com/product/changelog?package=' . urlencode( $package ) );
+
+		if ( is_wp_error( $response ) && ( 'connect() timed out!' != $response->get_error_message() ) && defined( 'ITHEMES_ALLOW_HTTP_FALLBACK' ) && ITHEMES_ALLOW_HTTP_FALLBACK ) {
+			$response = wp_remote_get( 'http://api.ithemes.com/product/changelog?package=' . urlencode( $package ) );
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

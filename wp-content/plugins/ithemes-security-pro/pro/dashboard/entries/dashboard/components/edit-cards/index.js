@@ -3,20 +3,17 @@
  */
 import { sortBy } from 'lodash';
 import memize from 'memize';
-
 /**
  * WordPress dependencies
  */
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { withSelect, select as coreSelect } from '@wordpress/data';
-
+import { select as coreSelect, withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
 import AddCard from './add-card';
 import RemoveCard from './remove-card';
-import CloseButton from '../close-button';
 import { getCardTitle } from '../../utils';
 import './style.scss';
 
@@ -32,17 +29,15 @@ const sorted = memize( ( cards ) => sortBy( cards, [ ( card ) => {
  * @param {number} dashboardId
  * @param {Array<Object>} cards
  * @param {Array<Object>} availableCardLDOs
- * @param {Function} close
  * @return {*} React element.
  * @constructor
  */
-function EditCards( { dashboardId, cards, availableCardLDOs, close } ) {
+function EditCards( { dashboardId, cards, availableCardLDOs } ) {
 	return (
 		<div className="itsec-edit-cards">
-			<CloseButton close={ close } />
 			<header>
-				<h3>{ __( 'Edit Cards', 'ithemes-security-pro' ) }</h3>
-				<p>{ __( 'Add or remove cards on your dashboard.', 'ithemes-security-pro' ) }</p>
+				<h3>{ __( 'Edit Cards', 'it-l10n-ithemes-security-pro' ) }</h3>
+				<p>{ __( 'Add or remove cards on your dashboard.', 'it-l10n-ithemes-security-pro' ) }</p>
 			</header>
 			<section>
 				<ul className="itsec-edit-cards__card-choices">

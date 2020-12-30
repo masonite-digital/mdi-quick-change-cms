@@ -16,7 +16,7 @@ function AddCard( { ldo, cardAtLimit, isAdding, add } ) {
 		<li className="itsec-edit-cards__card-choice itsec-edit-cards__card-choice--add">
 			<span className="itsec-edit-cards__card-choice-title">{ ldo.title }</span>
 			<IconButton disabled={ isAdding } onClick={ () => add( ldo.href ) }
-				className="itsec-edit-cards__action itsec-edit-cards__action--add" label={ __( 'Add', 'ithemes-security-pro' ) }
+				className="itsec-edit-cards__action itsec-edit-cards__action--add" label={ __( 'Add', 'it-l10n-ithemes-security-pro' ) }
 				icon="plus" tooltip={ false } />
 		</li>
 	);

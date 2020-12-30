@@ -90,10 +90,7 @@ class ITSEC_Scheduler_Command extends WP_CLI_Command {
 	 * This will unregister all events and then re-register them.
 	 */
 	public function reset() {
-
-		ITSEC_Core::get_scheduler()->uninstall();
-		ITSEC_Core::get_scheduler()->register_events();
-
+		ITSEC_Core::get_scheduler()->reset();
 		WP_CLI::success( 'Scheduler reset.' );
 	}
 

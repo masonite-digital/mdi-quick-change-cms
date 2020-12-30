@@ -12,6 +12,8 @@ class ITSEC_Geolocation {
 		add_filter( 'itsec_geolocator', array( $this, 'persistent_cache' ) );
 		add_filter( 'itsec_geolocator_apis', array( $this, 'register_geolocator_apis' ) );
 		add_filter( 'itsec_static_map_apis', array( $this, 'register_static_map_apis' ) );
+		add_action( 'itsec_scheduler_register_events', array( $this, 'register_events' ) );
+		add_action( 'itsec_scheduled_geolocation-refresh', array( $this, 'on_refresh' ) );
 	}
 
 	/**
@@ -83,5 +85,24 @@ class ITSEC_Geolocation {
 		$apis[] = new ITSEC_Static_Map_API_Mapbox();
 
 		return $apis;
+	}
+
+	/**
+	 * Register the event to refresh any geolocation databases.
+	 *
+	 * @param ITSEC_Scheduler $scheduler
+	 */
+	public function register_events( ITSEC_Scheduler $scheduler ) {
+		$scheduler->schedule( ITSEC_Scheduler::S_WEEKLY, 'geolocation-refresh' );
+	}
+
+	public function on_refresh( ITSEC_Job $job ) {
+		if ( ! ITSEC_Modules::get_setting( 'fingerprinting', 'maxmind_lite_key' ) ) {
+			return;
+		}
+
+		ITSEC_Lib::load( 'geolocation' );
+		require_once( dirname( __FILE__ ) . '/geolocators/class-itsec-geolocator-maxmind-db.php' );
+		ITSEC_Geolocator_MaxMind_DB::download();
 	}
 }

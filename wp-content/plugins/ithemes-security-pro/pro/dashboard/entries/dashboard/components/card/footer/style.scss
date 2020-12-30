@@ -20,6 +20,10 @@
         }
     }
 
+    &:empty {
+        display: none;
+    }
+
     /*& .itsec-card-footer__action::after {
         content: '|';
         color: $light-gray-500;

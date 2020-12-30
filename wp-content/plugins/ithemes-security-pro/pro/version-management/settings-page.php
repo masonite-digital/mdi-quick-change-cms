@@ -86,7 +86,7 @@ final class ITSEC_Version_Management_Settings_Page extends ITSEC_Module_Settings
 				<?php $form->add_select( 'plugin_automatic_updates', $validator->get_update_types() ); ?>
 				<p class="description">
 					<?php esc_html_e( 'Automatically install the latest plugin updates.', 'it-l10n-ithemes-security-pro' ); ?>
-					<?php esc_html_e( 'This should be enabled unless you actively maintain this site on a daily basis and install the updates manually shortly after they are released.', 'it-l10n-ithemes-security-pro' ); ?>
+					<?php esc_html_e( 'Enabling this setting will disable the WordPress auto-update plugins feature to prevent conflicts.', 'it-l10n-ithemes-security-pro' ); ?>
 				</p>
 			</td>
 		</tr>
@@ -97,7 +97,7 @@ final class ITSEC_Version_Management_Settings_Page extends ITSEC_Module_Settings
 				<?php $form->add_select( 'theme_automatic_updates', $validator->get_update_types() ); ?>
 				<p class="description">
 					<?php esc_html_e( 'Automatically install the latest theme updates.', 'it-l10n-ithemes-security-pro' ); ?>
-					<?php esc_html_e( 'This should be enabled unless your theme has file customizations.', 'it-l10n-ithemes-security-pro' ); ?>
+					<?php esc_html_e( 'Enabling this setting will disable the WordPress auto-update theme feature to prevent conflicts.', 'it-l10n-ithemes-security-pro' ); ?>
 				</p>
 			</td>
 		</tr>
@@ -125,6 +125,15 @@ final class ITSEC_Version_Management_Settings_Page extends ITSEC_Module_Settings
 					<?php $form->add_checkbox( 'scan_for_old_wordpress_sites' ); ?>
 					<label for="itsec-version-management-scan_for_old_wordpress_sites"><?php esc_html_e( 'Run a daily scan of the hosting account for old WordPress sites that could allow an attacker to compromise the server.', 'it-l10n-ithemes-security-pro' ); ?></label>
 					<?php $this->render_tooltip( __( 'This feature will check for outdated WordPress installs on your hosting account. A single outdated WordPress site with a vulnerability could allow attackers to compromise all the other sites on the same hosting account.', 'it-l10n-ithemes-security-pro' ) ); ?>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<th scope="row"><label for="itsec-version-management-update_if_vulnerable"><?php esc_html_e( 'Auto Update If Fixes Vulnerability', 'it-l10n-ithemes-security-pro' ); ?></label></th>
+			<td>
+				<p>
+					<?php $form->add_checkbox( 'update_if_vulnerable' ); ?>
+					<label for="itsec-version-management-update_if_vulnerable"><?php esc_html_e( 'Automatically update a plugin or theme if it fixes a vulnerability that was found by the Site Scanner.', 'it-l10n-ithemes-security-pro' ); ?></label>
 				</p>
 			</td>
 		</tr>

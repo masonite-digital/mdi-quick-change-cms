@@ -157,6 +157,7 @@ module.exports = {
 				Void: 'void',
 			},
 			requireParamDescription: false,
+			requireReturnDescription: false,
 			requireReturn: false,
 		} ],
 		'valid-typeof': 'error',

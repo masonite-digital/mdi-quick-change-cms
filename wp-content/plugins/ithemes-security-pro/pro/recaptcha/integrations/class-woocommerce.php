@@ -11,9 +11,7 @@
  */
 final class ITSEC_Recaptcha_Integration_WooCommerce {
 
-	/**
-	 * @var ITSEC_Recaptcha
-	 */
+	/** @var ITSEC_Recaptcha */
 	private $recaptcha;
 
 	/** @var array */
@@ -56,6 +54,10 @@ final class ITSEC_Recaptcha_Integration_WooCommerce {
 			add_filter( 'woocommerce_process_registration_errors', array( $this, 'validate_register_form' ) );
 			add_filter( 'woocommerce_registration_errors', array( $this, 'validate_register_form' ) );
 		}
+
+		if ( $this->settings['reset_pass'] ) {
+			add_action( 'woocommerce_lostpassword_form', [ $this, 'add_to_reset_pass_form' ] );
+		}
 	}
 
 	/**
@@ -90,5 +92,12 @@ final class ITSEC_Recaptcha_Integration_WooCommerce {
 		}
 
 		return $error;
+	}
+
+	/**
+	 * Adds the recaptcha to the reset password form.
+	 */
+	public function add_to_reset_pass_form() {
+		$this->recaptcha->show_recaptcha( array( 'action' => ITSEC_Recaptcha::A_RESET_PASS ) );
 	}
 }

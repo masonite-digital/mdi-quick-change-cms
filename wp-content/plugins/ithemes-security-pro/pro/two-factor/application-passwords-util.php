@@ -1,5 +1,8 @@
 <?php
 
+use iThemesSecurity\User_Groups\Matcher;
+use iThemesSecurity\User_Groups;
+
 final class ITSEC_Application_Passwords_Util {
 	const USERMETA_KEY_APPLICATION_PASSWORDS = '_application_passwords';
 
@@ -351,22 +354,16 @@ final class ITSEC_Application_Passwords_Util {
 	 * @return bool
 	 */
 	public static function available_for_user( $user ) {
-
-		$type = ITSEC_Modules::get_setting( 'two-factor', 'application_passwords_type' );
-
-		if ( 'enabled' === $type ) {
-			return true;
-		}
-
-		if ( 'disabled' === $type ) {
+		if ( ! $user = ITSEC_Lib::get_user( $user ) ) {
 			return false;
 		}
 
-		require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-canonical-roles.php' );
+		/** @var User_Groups\Matcher $matcher */
+		$matcher = ITSEC_Modules::get_container()->get( Matcher::class );
 
-		$roles = ITSEC_Modules::get_setting( 'two-factor', 'application_passwords_roles' );
-		$role = ITSEC_Lib_Canonical_Roles::get_user_role( $user );
-
-		return in_array( $role, $roles, true );
+		return $matcher->matches(
+			User_Groups\Match_Target::for_user( $user ),
+			ITSEC_Modules::get_setting( 'two-factor', 'application_passwords_group' )
+		);
 	}
 }

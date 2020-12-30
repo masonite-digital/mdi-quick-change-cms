@@ -48,6 +48,10 @@ class Two_Factor_Email extends Two_Factor_Provider implements ITSEC_Two_Factor_P
 		return _x( 'Email', 'Provider Label', 'it-l10n-ithemes-security-pro' );
 	}
 
+	public function can_resend_code() {
+		return true;
+	}
+
 	/**
 	 * Generate the user token.
 	 *
@@ -58,7 +62,10 @@ class Two_Factor_Email extends Two_Factor_Provider implements ITSEC_Two_Factor_P
 	 */
 	public function generate_token( $user_id ) {
 		$token = $this->get_code();
-		update_user_meta( $user_id, self::TOKEN_META_KEY, wp_hash( $token ) );
+		add_user_meta( $user_id, self::TOKEN_META_KEY, [
+			'hash' => wp_hash( $token ),
+			'time' => time(),
+		] );
 		return $token;
 	}
 
@@ -72,12 +79,30 @@ class Two_Factor_Email extends Two_Factor_Provider implements ITSEC_Two_Factor_P
 	 * @return boolean
 	 */
 	public function validate_token( $user_id, $token ) {
-		$hashed_token = get_user_meta( $user_id, self::TOKEN_META_KEY, true );
-		if ( wp_hash( $token ) !== $hashed_token ) {
-			$this->delete_token( $user_id );
-			return false;
+		$hashed = wp_hash( $token );
+		$tokens = get_user_meta( $user_id, self::TOKEN_META_KEY );
+
+		foreach ( $tokens as $row ) {
+			if ( ! is_array( $row ) ) {
+				delete_user_meta( $user_id, self::TOKEN_META_KEY, $row );
+
+				continue;
+			}
+
+			if ( $row['time'] + ( 15 * 60 ) < time() ) {
+				delete_user_meta( $user_id, self::TOKEN_META_KEY, $row );
+
+				continue;
+			}
+
+			if ( hash_equals( $hashed, $row['hash'] ) ) {
+				$this->delete_token( $user_id );
+
+				return true;
+			}
 		}
-		return true;
+
+		return false;
 	}
 
 	/**

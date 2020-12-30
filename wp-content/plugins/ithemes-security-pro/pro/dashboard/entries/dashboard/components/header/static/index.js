@@ -13,7 +13,7 @@ import { withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { shortenNumber } from 'packages/utils/src';
+import { shortenNumber } from '@ithemes/security-utils';
 import { getConfigValue } from '../../../utils';
 import IconActivitiesBlocked from './icons/activities-blocked.svg';
 import IconActivitiesDetected from './icons/activities-detected.svg';
@@ -25,22 +25,22 @@ const getStats = once( () => ( [
 	getConfigValue( 'db_logs' ) && {
 		key: 'events',
 		Icon: IconActivitiesMonitored,
-		label: __( 'Events Tracked', 'ithemes-security-pro' ),
+		label: __( 'Events Tracked', 'it-l10n-ithemes-security-pro' ),
 	},
 	{
 		key: 'suspicious',
 		Icon: IconActivitiesDetected,
-		label: __( 'Suspicious Activities', 'ithemes-security-pro' ),
+		label: __( 'Suspicious Activities', 'it-l10n-ithemes-security-pro' ),
 	},
 	{
 		key: 'blocked',
 		Icon: IconActivitiesBlocked,
-		label: __( 'Activities Blocked', 'ithemes-security-pro' ),
+		label: __( 'Activities Blocked', 'it-l10n-ithemes-security-pro' ),
 	},
 	getConfigValue( 'db_logs' ) && {
 		key: 'ips',
 		Icon: IconIPMonitored,
-		label: __( 'IPs Monitored', 'ithemes-security-pro' ),
+		label: __( 'IPs Monitored', 'it-l10n-ithemes-security-pro' ),
 	},
 ] ) );
 

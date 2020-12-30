@@ -15,7 +15,7 @@ import { withDispatch } from '@wordpress/data';
  */
 import Header, { Title } from '../../components/card/header';
 import { FooterSchemaActions } from '../../components/card/footer';
-import { shortenNumber } from 'packages/utils/src';
+import { shortenNumber } from '@ithemes/security-utils';
 import './style.scss';
 
 function DatabaseBackup( { card, config, addNotice } ) {
@@ -46,23 +46,23 @@ function DatabaseBackup( { card, config, addNotice } ) {
 					{ shortenNumber( card.data.total ) }
 					{ card.data.total === 100 && <sup>+</sup> }
 				</span>
-				<span className="itsec-card-database-backup__total-label">{ __( 'Backups', 'ithemes-security-pro' ) }</span>
+				<span className="itsec-card-database-backup__total-label">{ __( 'Backups', 'it-l10n-ithemes-security-pro' ) }</span>
 			</section>
 			{ card.data.backups.length > 0 && (
-				<section className="itsec-card-database-backup__recent-backups-section" aria-label={ __( 'Recent Backups', 'ithemes-security-pro' ) }>
+				<section className="itsec-card-database-backup__recent-backups-section" aria-label={ __( 'Recent Backups', 'it-l10n-ithemes-security-pro' ) }>
 					<table className="itsec-card-database-backup__recent-backups">
 						<thead>
 							<tr>
 								<th scope="column" className="itsec-card-database-backup__col-date">
-									{ __( 'Date', 'ithemes-security-pro' ) }
+									{ __( 'Date', 'it-l10n-ithemes-security-pro' ) }
 								</th>
 								<th scope="column" className="itsec-card-database-backup__col-size">
-									{ __( 'Size', 'ithemes-security-pro' ) }
+									{ __( 'Size', 'it-l10n-ithemes-security-pro' ) }
 								</th>
 								{ card.data.source === 'files' && (
 									<th scope="column" className="itsec-card-database-backup__col-actions">
 										<span className="screen-reader-text">
-											{ __( 'Download', 'ithemes-security-pro' ) }
+											{ __( 'Download', 'it-l10n-ithemes-security-pro' ) }
 										</span>
 									</th>
 								) }
@@ -84,7 +84,7 @@ function DatabaseBackup( { card, config, addNotice } ) {
 									</td>
 									{ card.data.source === 'files' && (
 										<td className="itsec-card-database-backup__col-actions">
-											{ backup.url && <a href={ backup.url } download>{ __( 'Download', 'ithemes-security-pro' ) }</a> }
+											{ backup.url && <a href={ backup.url } download>{ __( 'Download', 'it-l10n-ithemes-security-pro' ) }</a> }
 										</td>
 									) }
 								</tr>

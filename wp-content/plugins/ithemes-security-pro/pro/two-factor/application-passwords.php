@@ -27,7 +27,9 @@ final class ITSEC_Application_Passwords {
 			return $input_user;
 		}
 
+		remove_filter( 'determine_current_user', array( __CLASS__, 'filter_current_user' ), 20 );
 		$user = self::authenticate( $input_user, $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'] );
+		add_filter( 'determine_current_user', array( __CLASS__, 'filter_current_user' ), 20 );
 
 		if ( is_a( $user, 'WP_User' ) ) {
 			return $user->ID;
@@ -38,9 +40,9 @@ final class ITSEC_Application_Passwords {
 	}
 
 	public static function authenticate( $input_user, $username, $password ) {
-		$xml_rpc_request = ITSEC_Core::is_xmlrpc_request();
+		$xml_rpc_request  = ITSEC_Core::is_xmlrpc_request();
 		$rest_api_request = ITSEC_Core::is_rest_api_request();
-		$api_request = apply_filters( 'application_password_is_api_request', $xml_rpc_request || $rest_api_request );
+		$api_request      = apply_filters( 'application_password_is_api_request', $xml_rpc_request || $rest_api_request );
 
 		if ( ! $api_request ) {
 			return $input_user;
@@ -68,20 +70,14 @@ final class ITSEC_Application_Passwords {
 
 		foreach ( $application_passwords as $key => $item ) {
 			if ( $rest_api_request ) {
-				if ( isset( $_GET['_method'] ) ) {
-					$method = $_GET['_method'];
-				} elseif ( isset( $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ) ) {
-					$method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
-				} else {
-					$method = $_SERVER['REQUEST_METHOD'];
-				}
+				$method = ITSEC_Lib_REST::get_http_method();
 
 				if ( ! in_array( 'rest-api', $item['enabled_for'] ) ) {
 					continue;
-				} else if ( ( 'read' === $item['rest_api_permissions'] ) && ( ! in_array( strtoupper( $method ), array( 'GET', 'HEAD' ), true ) ) ) {
+				} elseif ( ( 'read' === $item['rest_api_permissions'] ) && ( ! in_array( $method, array( 'GET', 'HEAD' ), true ) ) ) {
 					continue;
 				}
-			} else if ( $xml_rpc_request && ! in_array( 'xml-rpc', $item['enabled_for'] ) ) {
+			} elseif ( $xml_rpc_request && ! in_array( 'xml-rpc', $item['enabled_for'] ) ) {
 				continue;
 			} else {
 				// All custom API requests due to the application_password_is_api_request filter returning true are checked
@@ -89,9 +85,9 @@ final class ITSEC_Application_Passwords {
 			}
 
 			if ( wp_check_password( $password, $item['password'], $user->ID ) ) {
-				$item['last_used'] = time();
-				$item['last_ip'] = $_SERVER['REMOTE_ADDR'];
-				$application_passwords[$key] = $item;
+				$item['last_used']             = time();
+				$item['last_ip']               = $_SERVER['REMOTE_ADDR'];
+				$application_passwords[ $key ] = $item;
 
 				ITSEC_Application_Passwords_Util::set( $user->ID, $application_passwords );
 

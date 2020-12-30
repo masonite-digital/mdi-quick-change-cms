@@ -13,18 +13,14 @@ final class ITSEC_Two_Factor_Settings extends ITSEC_Settings {
 				'Two_Factor_Email',
 				'Two_Factor_Backup_Codes',
 			),
-			'protect_user_type'           => 'disabled',
-			'protect_user_type_roles'     => array(),
+			'protect_user_group'          => array(),
 			'protect_vulnerable_users'    => false,
 			'protect_vulnerable_site'     => false,
 			'disable_first_login'         => false,
-			'application_passwords_type'  => 'enabled',
-			'application_passwords_roles' => array(),
+			'application_passwords_group' => ITSEC_Modules::get_settings_obj( 'user-groups' )->get_groups_for_all_users(),
 			'on_board_welcome'            => '',
-			'exclude_type'                => 'disabled',
-			'exclude_roles'               => array(),
-			'allow_remember'              => 'none',
-			'allow_remember_roles'        => array(),
+			'exclude_group'               => [],
+			'remember_group'              => [],
 		);
 	}
 

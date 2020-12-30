@@ -28,7 +28,7 @@ function itsecInvisibleRecaptchaLoad() {
 			$form.off( 'submit.itsecRecaptcha' );
 			$form.off( 'click.itsecRecaptcha' );
 
-			jQuery( 'textarea[name="g-recaptcha-response"]', $form ).val( token );
+			jQuery( ':input[name="g-recaptcha-response"]', $form ).val( token );
 
 			// Properly submit forms that have an input with a name of "submit".
 			if ( jQuery( ':input[name="submit"]', $form ).length ) {

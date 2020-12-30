@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ErrorBoundary } from 'react-error-boundary';
-import { omit, toInteger, mapValues } from 'lodash';
+import { toInteger, mapValues } from 'lodash';
 import classnames from 'classnames';
 
 /**
@@ -17,10 +17,10 @@ import { withSelect } from '@wordpress/data';
 import { getCardElementQueries, getCardRenderer } from '../../cards';
 import CardUnknown from '../empty-states/card-unknown';
 import CardCrash from '../empty-states/card-crash';
-import { withProps } from 'packages/hocs/src';
+import { withProps } from '@ithemes/security-hocs';
 import './style.scss';
 
-function calculateElementQueryProps( config, style ) {
+function calculateElementQueryProps( config, style, gridWidth ) {
 	const queries = getCardElementQueries( config );
 
 	if ( ! queries ) {
@@ -29,8 +29,13 @@ function calculateElementQueryProps( config, style ) {
 
 	const size = {
 		height: style.height ? toInteger( style.height.replace( 'px', '' ) ) : 0,
-		width: style.width ? toInteger( style.width.replace( 'px', '' ) ) : 0,
 	};
+
+	if ( style.width && style.width.endsWith( '%' ) ) {
+		size.width = ( toInteger( style.width.replace( '%', '' ) ) * gridWidth ) / 100;
+	} else {
+		size.width = style.width ? toInteger( style.width.replace( 'px', '' ) ) : 0;
+	}
 
 	const props = {};
 
@@ -61,8 +66,7 @@ function calculateElementQueryProps( config, style ) {
 }
 
 function Card( props ) {
-	const { card, config, dashboardId, className } = props,
-		rest = omit( props, [ 'card', 'config', 'dashboardId', 'className' ] );
+	const { card, config, dashboardId, className, gridWidth, ...rest } = props;
 
 	if ( card.card === 'unknown' ) {
 		return (
@@ -82,7 +86,7 @@ function Card( props ) {
 		);
 	}
 
-	const eqProps = calculateElementQueryProps( config, rest.style );
+	const eqProps = calculateElementQueryProps( config, rest.style, gridWidth );
 
 	return (
 		<article className={ classnames( className, 'itsec-card' ) } id={ `itsec-card-${ card.id }` } { ...rest } { ...eqProps }>

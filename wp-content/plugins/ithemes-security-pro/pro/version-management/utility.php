@@ -2,6 +2,7 @@
 
 final class ITSEC_VM_Utility {
 	private static $wordpress_release_dates = false;
+	private static $version_cache = array();
 
 	public static function get_email_addresses() {
 
@@ -42,10 +43,10 @@ final class ITSEC_VM_Utility {
 		uksort( $release_dates, 'version_compare' );
 
 		$latest_timestamp = end( $release_dates );
-		$latest_version = key( $release_dates );
+		$latest_version   = key( $release_dates );
 
 		$previous_timestamp = prev( $release_dates );
-		$previous_version = key( $release_dates );
+		$previous_version   = key( $release_dates );
 
 		// If this version is the previous release version and the latest release version has been out for less than a
 		// month, do not list this version as outdated.
@@ -53,8 +54,8 @@ final class ITSEC_VM_Utility {
 			return false;
 		}
 
-		if ( ! isset( $release_dates[$version] ) ) {
-			$latest_major_version = self::get_major_version( $latest_version );
+		if ( ! isset( $release_dates[ $version ] ) ) {
+			$latest_major_version  = self::get_major_version( $latest_version );
 			$current_major_version = self::get_major_version( $version );
 
 			if ( $latest_major_version === $current_major_version && version_compare( $version, $latest_version, '>=' ) ) {
@@ -86,8 +87,8 @@ final class ITSEC_VM_Utility {
 			return false;
 		}
 
-		$current_version_timestamp = $release_dates[$version];
-		$timestamp_diff = $latest_timestamp - $current_version_timestamp;
+		$current_version_timestamp = $release_dates[ $version ];
+		$timestamp_diff            = $latest_timestamp - $current_version_timestamp;
 
 		if ( $timestamp_diff >= MONTH_IN_SECONDS ) {
 			// If a month or more of time spans between the release of this version and the latest version, this version
@@ -99,9 +100,9 @@ final class ITSEC_VM_Utility {
 
 		// Tests when the version is an older major version.
 		if ( false !== $latest_major_version && version_compare( $version, $latest_major_version, '<' ) ) {
-			if ( isset( $release_dates[$latest_major_version] ) ) {
-				$latest_major_timestamp = $release_dates[$latest_major_version];
-			} else if ( isset( $release_dates["$latest_major_version.0"] ) ) {
+			if ( isset( $release_dates[ $latest_major_version ] ) ) {
+				$latest_major_timestamp = $release_dates[ $latest_major_version ];
+			} elseif ( isset( $release_dates["$latest_major_version.0"] ) ) {
 				$latest_major_timestamp = $release_dates["$latest_major_version.0"];
 			}
 
@@ -178,6 +179,7 @@ final class ITSEC_VM_Utility {
 
 		if ( is_array( $data ) && isset( $data['expires'] ) && $data['expires'] > time() && isset( $data['dates'] ) ) {
 			self::$wordpress_release_dates = $data['dates'];
+
 			return $data['dates'];
 		}
 
@@ -186,16 +188,8 @@ final class ITSEC_VM_Utility {
 			'dates'   => isset( $data['dates'] ) ? $data['dates'] : array(),
 		);
 
-		$https_url = 'https://s3.amazonaws.com/downloads.ithemes.com/public/wordpress-release-dates.json';
-		$http_url = 'http://downloads.ithemes.com/public/wordpress-release-dates.json';
-
-		if ( wp_http_supports( array( 'ssl' ) ) ) {
-			$response = wp_remote_get( $https_url );
-		}
-
-		if ( ! isset( $response ) || is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			$response = wp_remote_get( $http_url );
-		}
+		$url      = 'https://s3.amazonaws.com/downloads.ithemes.com/public/wordpress-release-dates.json';
+		$response = wp_remote_get( $url );
 
 		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
 			$dates = json_decode( $response['body'], true );
@@ -264,10 +258,10 @@ final class ITSEC_VM_Utility {
 		WP_Upgrader::release_lock( 'auto_updater' );
 
 
-		$statuses['all'] = $errors;
-		$statuses['core'] = self::get_automatic_update_status_for_type( 'core', ABSPATH );
-		$statuses['plugin'] = self::get_automatic_update_status_for_type( 'plugin', WP_PLUGIN_DIR );
-		$statuses['theme'] = array();
+		$statuses['all']         = $errors;
+		$statuses['core']        = self::get_automatic_update_status_for_type( 'core', ABSPATH );
+		$statuses['plugin']      = self::get_automatic_update_status_for_type( 'plugin', WP_PLUGIN_DIR );
+		$statuses['theme']       = array();
 		$statuses['translation'] = self::get_automatic_update_status_for_type( 'translation', WP_CONTENT_DIR );
 
 		foreach ( $wp_theme_directories as $directory ) {
@@ -281,7 +275,7 @@ final class ITSEC_VM_Utility {
 	private static function get_automatic_update_status_for_type( $type, $context ) {
 		global $wp_version, $wpdb;
 
-		$skin = new Automatic_Upgrader_Skin();
+		$skin     = new Automatic_Upgrader_Skin();
 		$upgrader = new WP_Automatic_Updater();
 
 		$errors = array();
@@ -306,7 +300,7 @@ final class ITSEC_VM_Utility {
 				'new_bundled'     => '4.7',
 				'partial_version' => false,
 			);
-		} else if ( 'plugin' === $type ) {
+		} elseif ( 'plugin' === $type ) {
 			$item = (object) array(
 				'id'          => 'w.org/plugins/hello-dolly',
 				'slug'        => 'hello-dolly',
@@ -315,14 +309,14 @@ final class ITSEC_VM_Utility {
 				'url'         => 'https://wordpress.org/plugins/hello-dolly/',
 				'package'     => 'https://downloads.wordpress.org/plugin/hello-dolly.1.6.zip',
 			);
-		} else if ( 'theme' === $type ) {
+		} elseif ( 'theme' === $type ) {
 			$item = (object) array(
 				'theme'       => 'twentyfifteen',
 				'new_version' => '1.7',
 				'url'         => 'https://wordpress.org/themes/twentyfifteen/',
 				'package'     => 'https://downloads.wordpress.org/theme/twentyfifteen.1.7.zip',
 			);
-		} else if ( 'translation' === $type ) {
+		} elseif ( 'translation' === $type ) {
 			$item = (object) array(
 				'type'     => 'theme',
 				'slug'     => 'twentyfifteen',
@@ -405,10 +399,14 @@ final class ITSEC_VM_Utility {
 
 	private static function should_auto_update_package( $type, $file, $version ) {
 
+		if ( ITSEC_Modules::get_setting( 'version-management', 'update_if_vulnerable' ) && self::update_fixes_vulnerability( $type, $file, $version ) ) {
+			return true;
+		}
+
 		$global = ITSEC_Modules::get_setting( 'version-management', "{$type}_automatic_updates" );
 
 		if ( 'none' === $global ) {
-			return false;
+			return null;
 		}
 
 		if ( 'all' === $global ) {
@@ -418,7 +416,7 @@ final class ITSEC_VM_Utility {
 		$packages = ITSEC_Modules::get_setting( 'version-management', 'packages' );
 
 		if ( ! isset( $packages["{$type}:{$file}"] ) ) {
-			return false;
+			return null;
 		}
 
 		$config = $packages["{$type}:{$file}"];
@@ -440,5 +438,94 @@ final class ITSEC_VM_Utility {
 		$seconds_available = ITSEC_Core::get_current_time_gmt() - $first_seen[ $type ][ $file ][ $version ];
 
 		return $seconds_available > DAY_IN_SECONDS * $config['delay'];
+	}
+
+	/**
+	 * Check if the given update fixes a software vulnerability.
+	 *
+	 * @param string $type
+	 * @param string $file
+	 * @param string $version
+	 *
+	 * @return bool
+	 */
+	private static function update_fixes_vulnerability( $type, $file, $version ) {
+
+		$slug = dirname( $file );
+
+		$vulnerabilities = ITSEC_Modules::get_setting( 'site-scanner', 'vulnerabilities' );
+
+		foreach ( $vulnerabilities as $vulnerability ) {
+			if ( $vulnerability['type'] !== $type ) {
+				continue;
+			}
+
+			if ( ! isset( $vulnerability['software'] ) || $vulnerability['software']['slug'] !== $slug ) {
+				continue;
+			}
+
+			foreach ( $vulnerability['issues'] as $issue ) {
+				if ( empty( $issue['fixed_in'] ) ) {
+					continue;
+				}
+
+				$current = self::get_current_version( $type, $file );
+
+				if ( version_compare( $current, $issue['fixed_in'], '<' ) && version_compare( $version, $issue['fixed_in'], '>=' ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the currently installed version of a plugin or theme.
+	 *
+	 * @param string $type
+	 * @param string $file
+	 *
+	 * @return string|false
+	 */
+	private static function get_current_version( $type, $file ) {
+		if ( isset( self::$version_cache[ $type ][ $file ] ) ) {
+			return self::$version_cache[ $type ][ $file ];
+		}
+
+		switch ( $type ) {
+			case 'plugin':
+				$path = WP_PLUGIN_DIR . '/' . $file;
+
+				if ( ! file_exists( $path ) ) {
+					$version = false;
+					break;
+				}
+
+				$data = get_file_data( $path, array(
+					'Version' => 'Version'
+				) );
+
+				if ( ! is_array( $data ) || ! isset( $data['Version'] ) ) {
+					$version = false;
+					break;
+				}
+
+				$version = $data['Version'];
+				break;
+			case 'theme':
+				$version = wp_get_theme( $file )->get( 'Version' );
+
+				if ( ! $version ) {
+					$version = false;
+				}
+				break;
+			default:
+				return false;
+		}
+
+		self::$version_cache[ $type ][ $file ] = $version;
+
+		return $version;
 	}
 }

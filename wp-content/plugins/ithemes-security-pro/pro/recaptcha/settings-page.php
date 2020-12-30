@@ -109,6 +109,13 @@ final class ITSEC_Recaptcha_Settings_Page extends ITSEC_Module_Settings_Page {
 			</td>
 		</tr>
 		<tr>
+			<th scope="row"><label for="itsec-recaptcha-reset_pass"><?php _e( 'Use on Reset Password', 'it-l10n-ithemes-security-pro' ); ?></label></th>
+			<td>
+				<?php $form->add_checkbox( 'reset_pass' ); ?>
+				<label for="itsec-recaptcha-reset_pass"><?php _e( 'Use reCAPTCHA for password resets.', 'it-l10n-ithemes-security-pro' ); ?></label>
+			</td>
+		</tr>
+		<tr>
 			<th scope="row"><label for="itsec-recaptcha-comments"><?php _e( 'Use on Comments', 'it-l10n-ithemes-security-pro' ); ?></label></th>
 			<td>
 				<?php $form->add_checkbox( 'comments' ); ?>

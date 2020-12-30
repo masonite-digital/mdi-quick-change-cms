@@ -11,7 +11,7 @@ function EmptyState( { openEditCards } ) {
 		<div className="itsec-card-grid-empty-state">
 			<Button onClick={ openEditCards }>
 				<Dashicon icon="plus-alt" size={ 60 } />
-				<span>{ __( 'Add Security Cards', 'ithemes-security-pro' ) }</span>
+				<span>{ __( 'Add Security Cards', 'it-l10n-ithemes-security-pro' ) }</span>
 			</Button>
 		</div>
 	);

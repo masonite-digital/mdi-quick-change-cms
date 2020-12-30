@@ -12,8 +12,8 @@ import { Fragment } from '@wordpress/element';
  * Internal dependencies
  */
 import Header, { Title, Date } from '../../../components/card/header';
-import { shortenNumber } from 'packages/utils/src';
-import { PRIMARYS } from 'packages/style-guide/src/colors';
+import { shortenNumber } from '@ithemes/security-utils';
+import { PRIMARYS } from '@ithemes/security-style-guide';
 import { CardNoData } from '../../../components/empty-states';
 import './style.scss';
 

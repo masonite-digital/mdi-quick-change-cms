@@ -136,14 +136,14 @@ export function* addDashboard( dashboard, context ) {
 		created = yield persistDashboard( dashboard );
 	} catch ( e ) {
 		yield failedAddDashboard( dashboard, context, e );
-		yield createNotice( 'error', sprintf( __( 'Error when creating dashboard: %s', 'ithemes-security-pro' ), e.message ) );
+		yield createNotice( 'error', sprintf( __( 'Error when creating dashboard: %s', 'it-l10n-ithemes-security-pro' ), e.message ) );
 
 		return;
 	}
 
 	yield receiveDashboard( created );
 	yield finishAddDashboard( dashboard, created, context );
-	yield createNotice( 'success', __( 'Dashboard Created', 'ithemes-security-pro' ), { autoDismiss: 10000 } );
+	yield createNotice( 'success', __( 'Dashboard Created', 'it-l10n-ithemes-security-pro' ), { autoDismiss: 10000 } );
 }
 
 /**
@@ -162,7 +162,7 @@ export function* saveDashboard( dashboard ) {
 		updatedRecord = yield persistDashboard( dashboard );
 	} catch ( e ) {
 		yield failedSaveDashboard( dashboard.id, e );
-		yield createNotice( 'error', sprintf( __( 'Error when saving dashboard: %s', 'ithemes-security-pro' ), e.message ) );
+		yield createNotice( 'error', sprintf( __( 'Error when saving dashboard: %s', 'it-l10n-ithemes-security-pro' ), e.message ) );
 
 		return e;
 	}
@@ -225,7 +225,7 @@ export function* deleteDashboard( dashboardId ) {
 		} );
 	} catch ( e ) {
 		yield failedDeleteDashboard( dashboardId, e );
-		yield createNotice( 'error', sprintf( __( 'Error when deleting dashboard: %s', 'ithemes-security-pro' ), e.message ) );
+		yield createNotice( 'error', sprintf( __( 'Error when deleting dashboard: %s', 'it-l10n-ithemes-security-pro' ), e.message ) );
 
 		return e;
 	}

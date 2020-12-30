@@ -1,8 +1,12 @@
 <?php
 
-final class ITSEC_Grading_System_Active {
-	private static $instance = false;
+use iThemesSecurity\User_Groups\Matcher;
+use iThemesSecurity\User_Groups;
 
+final class ITSEC_Grading_System_Active {
+	const VIEW_CAP = 'itsec_view_grade_report';
+
+	private static $instance = false;
 
 	private function __construct() {
 		$this->add_hooks();
@@ -17,10 +21,12 @@ final class ITSEC_Grading_System_Active {
 	}
 
 	private function add_hooks() {
+		add_filter( 'user_has_cap', [ $this, 'add_cap_dynamically' ], 10, 4 );
 		add_action( 'init', array( $this, 'redirect_from_grading' ) );
 		add_action( 'wp_ajax_itsec_grade_report_page', array( $this, 'handle_ajax_request' ) );
 		add_filter( 'itsec-admin-page-file-path-grade-report', array( $this, 'get_admin_page_file' ) );
 		add_filter( 'itsec-admin-page-refs', array( $this, 'filter_admin_page_refs' ), 10, 3 );
+		add_action( 'itsec_register_user_group_settings', [ $this, 'register_group_setting' ], 2 );
 		add_filter( 'itsec_notifications', array( $this, 'register_notification' ) );
 		add_filter( 'itsec_grade-report-change_notification_strings', array( $this, 'notification_strings' ) );
 		add_action( 'itsec_scheduler_register_events', array( $this, 'register_events' ) );
@@ -31,9 +37,35 @@ final class ITSEC_Grading_System_Active {
 		add_filter( 'itsec_security_digest_include_security_check', '__return_false' );
 	}
 
+	/**
+	 * Dynamically add the grade report capability if the user is in the required user group.
+	 *
+	 * @param array   $allcaps
+	 * @param array   $requested_caps
+	 * @param array   $args
+	 * @param WP_User $user
+	 *
+	 * @return array
+	 */
+	public function add_cap_dynamically( $allcaps, $requested_caps, $args, $user ) {
+		if ( ! in_array( self::VIEW_CAP, $requested_caps, true ) ) {
+			return $allcaps;
+		}
+
+		if ( isset( $allcaps[ self::VIEW_CAP ] ) ) {
+			return $allcaps;
+		}
+
+		if ( $this->can_user_access( $user ) ) {
+			$allcaps[ self::VIEW_CAP ] = true;
+		}
+
+		return $allcaps;
+	}
+
 	public function redirect_from_grading() {
 		if ( is_admin() && isset( $_GET['page'] ) && 'itsec-grade-report' === $_GET['page'] ) {
-			if ( ITSEC_Core::current_user_can_manage() && in_array( get_current_user_id(), ITSEC_Modules::get_setting( 'grade-report', 'disabled_users' ), false ) ) {
+			if ( ITSEC_Core::current_user_can_manage() && ! $this->can_user_access() ) {
 				wp_redirect( ITSEC_Core::get_settings_page_url() );
 				die;
 			}
@@ -45,11 +77,8 @@ final class ITSEC_Grading_System_Active {
 	}
 
 	public function filter_admin_page_refs( $page_refs, $capability, $callback ) {
-
-		$users = ITSEC_Modules::get_setting( 'grade-report', 'disabled_users' );
-
-		if ( ! in_array( get_current_user_id(), $users, false ) ) {
-			$page_refs[] = add_submenu_page( 'itsec', '', __( 'Grade Report', 'it-l10n-ithemes-security-pro' ), $capability, 'itsec-grade-report', $callback );
+		if ( $this->can_user_access() ) {
+			$page_refs[] = add_submenu_page( 'itsec', '', __( 'Grade Report', 'it-l10n-ithemes-security-pro' ), self::VIEW_CAP, 'itsec-grade-report', $callback );
 		}
 
 		return $page_refs;
@@ -57,6 +86,15 @@ final class ITSEC_Grading_System_Active {
 
 	public function handle_ajax_request() {
 		do_action( 'wp_ajax_itsec_settings_page' );
+	}
+
+	public function register_group_setting( User_Groups\Settings_Registry $registry ) {
+		$registry->register( new User_Groups\Settings_Registration( 'grade-report', 'group', User_Groups\Settings_Registration::T_MULTIPLE, static function () {
+			return [
+				'title'       => __( 'Enable', 'it-l10n-ithemes-security-pro' ),
+				'description' => __( 'Select the group of users who can view the Grade Report.', 'it-l10n-ithemes-security-pro' ),
+			];
+		} ) );
 	}
 
 	/**
@@ -293,7 +331,7 @@ final class ITSEC_Grading_System_Active {
 			return $content;
 		}
 
-		if ( $recipient && ( $user = get_user_by( 'email', $recipient ) ) && in_array( $user->ID, ITSEC_Modules::get_setting( 'grade-report', 'disabled_users' ), false ) ) {
+		if ( $recipient && ( $user = get_user_by( 'email', $recipient ) ) && ! $this->can_user_access( $user ) ) {
 			return $content;
 		}
 
@@ -376,6 +414,14 @@ final class ITSEC_Grading_System_Active {
 			'<a href="' . esc_attr( ITSEC_Mail::filter_admin_page_url( network_admin_url( 'admin.php?page=itsec-grade-report' ) ) ) . '">',
 			'</a>'
 		);
+	}
+
+	private function can_user_access( WP_User $user = null ) {
+		/** @var User_Groups\Matcher $matcher */
+		$matcher = ITSEC_Modules::get_container()->get( Matcher::class );
+		$group   = ITSEC_Modules::get_setting( 'grade-report', 'group' );
+
+		return $matcher->matches( User_Groups\Match_Target::for_user( $user ?: wp_get_current_user() ), $group );
 	}
 }
 

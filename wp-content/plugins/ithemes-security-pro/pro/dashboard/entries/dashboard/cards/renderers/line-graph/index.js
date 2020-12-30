@@ -14,7 +14,7 @@ import { withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { PRIMARYS } from 'packages/style-guide/src/colors';
+import { PRIMARYS } from '@ithemes/security-style-guide';
 import Header, { Title, Date } from '../../../components/card/header';
 import { CardNoData } from '../../../components/empty-states';
 import './style.scss';

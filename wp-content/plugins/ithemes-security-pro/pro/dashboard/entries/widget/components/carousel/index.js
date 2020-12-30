@@ -14,10 +14,10 @@ import { withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { withWidth } from 'packages/hocs/src';
+import { withWidth } from '@ithemes/security-hocs';
 import Card from 'pro/dashboard/entries/dashboard/components/card';
 import { sortCardsToMatchApiLayout } from 'pro/dashboard/entries/dashboard/utils';
-import Loader from 'packages/components/src/loader';
+import { Loader } from '@ithemes/security-components';
 import './style.scss';
 
 class Carousel extends Component {

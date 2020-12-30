@@ -12,6 +12,7 @@ final class ITSEC_Recaptcha_Settings extends ITSEC_Settings {
 			'secret_key'          => '',
 			'login'               => false,
 			'register'            => false,
+			'reset_pass'          => false,
 			'comments'            => false,
 			'language'            => '',
 			'theme'               => false,

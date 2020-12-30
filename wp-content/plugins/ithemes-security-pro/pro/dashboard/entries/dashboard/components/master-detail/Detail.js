@@ -3,13 +3,13 @@
  */
 import { compose, pure } from '@wordpress/compose';
 
-function Detail( { master, idProp, parentInstanceId, isSelected, DetailRender } ) {
+function Detail( { master, getId, parentInstanceId, isSelected, DetailRender } ) {
 	return (
 		<section
-			key={ master[ idProp ] }
+			key={ getId( master ) }
 			role="tabpanel"
 			className="itsec-component-master-detail__detail-container"
-			id={ `itsec-component-master-detail-${ parentInstanceId }__detail--${ master[ idProp ] }` }
+			id={ `itsec-component-master-detail-${ parentInstanceId }__detail--${ getId( master ) }` }
 			style={ isSelected ? {} : { display: 'none' } }
 		>
 			<DetailRender master={ master } isVisible={ isSelected } />

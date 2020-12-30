@@ -1,5 +1,7 @@
 <?php
 
+use iThemesSecurity\User_Groups;
+
 /**
  * Class ITSEC_Fingerprinting
  */
@@ -29,6 +31,7 @@ class ITSEC_Fingerprinting {
 	public function run() {
 
 		add_filter( 'itsec_fingerprint_sources', array( $this, 'register_sources' ) );
+		add_action( 'itsec_register_user_group_settings', [ $this, 'register_group_setting' ] );
 		add_action( 'itsec_fingerprint_denied', array( $this, 'rescue_account' ) );
 		add_action( 'deleted_user', array( $this, 'clear_fingerprints_on_user_delete' ) );
 
@@ -66,6 +69,10 @@ class ITSEC_Fingerprinting {
 		add_action( 'edit_user_profile', array( $this, 'render_user_profile_manager' ) );
 		add_action( 'personal_options_update', array( $this, 'save_user_profile_manager' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'save_user_profile_manager' ) );
+
+		// Login Interstitials
+		add_action( 'itsec_login_interstitial_initialize_same_browser', array( $this, 'login_interstitial_initialize_same_browser' ) );
+		add_action( 'itsec_login_interstitial_async_action_confirmation_before_confirm', array( $this, 'login_interstitial_async_action_confirmation' ) );
 
 		// Logging
 		add_action( 'itsec_fingerprint_created', array( $this, 'log_create' ), 10, 3 );
@@ -137,6 +144,15 @@ class ITSEC_Fingerprinting {
 		return $sources;
 	}
 
+	public function register_group_setting( User_Groups\Settings_Registry $registry ) {
+		$registry->register( new User_Groups\Settings_Registration( 'fingerprinting', 'group', User_Groups\Settings_Registration::T_MULTIPLE, static function () {
+			return [
+				'title'       => __( 'Enable', 'it-l10n-ithemes-security-pro' ),
+				'description' => __( 'Enable Trusted Devices for users in this group.', 'it-l10n-ithemes-security-pro' ),
+			];
+		} ) );
+	}
+
 	/**
 	 * Check for an unrecognized login attempt.
 	 *
@@ -174,6 +190,9 @@ class ITSEC_Fingerprinting {
 	 * @return array
 	 */
 	public function attach_fingerprint_to_session( $info, $user_id ) {
+		if ( ! is_int( $user_id ) ) {
+			$user_id = (int) $user_id; // Handle plugins that pass numeric strings for user ids.
+		}
 
 		require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-fingerprinting.php' );
 
@@ -418,7 +437,7 @@ class ITSEC_Fingerprinting {
 		$error = is_wp_error( $user_or_error ) ? $user_or_error : new WP_Error();
 		$error->add(
 			'itsec-fingerprinting-authenticate-denied-fingerprint',
-			__( 'This device is blacklisted from logging in to this account.', 'it-l10n-ithemes-security-pro' )
+			__( 'This device is blocked from logging in to this account.', 'it-l10n-ithemes-security-pro' )
 		);
 
 		return $error;
@@ -814,7 +833,7 @@ class ITSEC_Fingerprinting {
 			'id'     => 'itsec-fingerprinting',
 			'title'  => sprintf(
 				esc_html__( 'Login Alerts %s', 'it-l10n-ithemes-security-pro' ),
-				"<span class='itsec-login-alert-bubble itsec-login-alert-bubble--level-{$level}'{$hidden}}><span class='itsec-login-alert-bubble__count'>{$count}</span></span>"
+				"<span class='itsec-login-alert-bubble itsec-login-alert-bubble--level-{$level}'{$hidden}><span class='itsec-login-alert-bubble__count'>{$count}</span></span>"
 			),
 		) );
 		$admin_bar->add_menu( array(
@@ -1112,6 +1131,92 @@ class ITSEC_Fingerprinting {
 	}
 
 	/**
+	 * Record the fingerprint of the session that initialized the same browser status.
+	 *
+	 * @param ITSEC_Login_Interstitial_Session $session
+	 */
+	public function login_interstitial_initialize_same_browser( ITSEC_Login_Interstitial_Session $session ) {
+		ITSEC_Lib::load( 'fingerprinting' );
+		$fingerprint = ITSEC_Lib_Fingerprinting::calculate_fingerprint_from_global_state( $session->get_user() );
+
+		$session->set_state( array_merge( $session->get_state(), array( 'fingerprint' => wp_json_encode( $fingerprint ) ) ) );
+		$session->save();
+	}
+
+	/**
+	 * Display a summary of the fingerprint that will be logged in on the async action confirmation.
+	 *
+	 * @param ITSEC_Login_Interstitial_Session $session
+	 */
+	public function login_interstitial_async_action_confirmation( ITSEC_Login_Interstitial_Session $session ) {
+		$state = $session->get_state();
+
+		if ( ! isset( $state['fingerprint'] ) ) {
+			return;
+		}
+
+		ITSEC_Lib::load( 'fingerprinting' );
+
+		if ( ! $fingerprint = ITSEC_Fingerprint::from_json( $state['fingerprint'] ) ) {
+			return;
+		}
+
+		$info     = $this->get_fingerprint_info( $fingerprint, array( 'maps' => array( 'small' ) ) );
+		$rows     = array();
+		$location = '';
+
+		if ( $info['ip'] ) {
+			require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-geolocation.php' );
+			$headers[] = esc_html__( 'Location', 'it-l10n-ithemes-security-pro' );
+
+			if ( $info['location'] ) {
+				$rows[] = array(
+					esc_html__( 'Location', 'it-l10n-ithemes-security-pro'),
+					$location = $info['location'] . " ({$info['ip']})"
+				);
+			} else {
+				$rows[] = array(
+					esc_html__( 'Location', 'it-l10n-ithemes-security-pro' ),
+					$location = $info['ip']
+				);
+			}
+		}
+
+		if ( ITSEC_Lib_Browser::BROWSER_UNKNOWN !== $info['browser'] ) {
+			$rows[] = array(
+				esc_html__( 'Browser', 'it-l10n-ithemes-security-pro' ),
+				$info['browser'],
+			);
+		}
+
+		if ( ITSEC_Lib_Browser::PLATFORM_UNKNOWN !== $info['platform'] ) {
+			$rows[] = array(
+				esc_html__( 'Platform', 'it-l10n-ithemes-security-pro' ),
+				$info['platform'],
+			);
+		}
+
+		if ( $info['map-small'] ) {
+			if ( $location ) {
+				$alt = esc_attr( sprintf( __( 'Map of %s', 'it-l10n-ithemes-security-pro' ), $location ) );
+			} else {
+				$alt = esc_attr__( 'Map of login location', 'it-l10n-ithemes-security-pro' );
+			}
+
+			echo "<img src=\"{$info['map-small']}\" alt='{$alt}' style='width: 100%'>";
+		}
+
+		if ( $rows ) {
+			echo '<dl style="grid-template: auto / min-content 1fr;grid-gap: .25em .5em;display: grid;margin: 1em 0;">';
+			foreach ( $rows as list( $label, $value ) ) {
+				echo '<dt style="color: #606A73;">' . $label . '</dt>';
+				echo '<dd style="color: #7E8993;">' . esc_html( $value ) . '</dd>';
+			}
+			echo '</dl>';
+		}
+	}
+
+	/**
 	 * Send the unrecognized login email.
 	 *
 	 * @param ITSEC_Fingerprint $fingerprint
@@ -1334,8 +1439,10 @@ class ITSEC_Fingerprinting {
 					$html   .= '<p class="description">' . esc_html__( 'Are you sure you want to do this action?', 'it-l10n-ithemes-security-pro' ) . '</p>';
 				}
 
-				$html .= '<form action="' . esc_url( wp_login_url() ) . '" method="POST">';
-				foreach ( array( 'itsec_user', 'itsec_uuid', 'itsec_hash', 'action' ) as $field ) {
+				$login_url = ITSEC_Lib::get_login_url( $_REQUEST['action'], '', 'login_post' );
+
+				$html .= '<form action="' . esc_url( $login_url ) . '" method="POST">';
+				foreach ( array( 'itsec_user', 'itsec_uuid', 'itsec_hash' ) as $field ) {
 					$value = isset( $_REQUEST[ $field ] ) ? $_REQUEST[ $field ] : '';
 					$html  .= '<input type="hidden" name="' . esc_attr( $field ) . '" value="' . esc_attr( $value ) . '"/>';
 				}
@@ -1414,11 +1521,10 @@ class ITSEC_Fingerprinting {
 	 */
 	private function get_reset_pass_url( $user ) {
 		return add_query_arg( array(
-			'action'                 => 'rp',
 			'key'                    => get_password_reset_key( $user ),
 			'login'                  => rawurlencode( $user->user_login ),
 			'itsec_from_fingerprint' => true,
-		), wp_login_url() );
+		), ITSEC_Lib::get_login_url( 'rp' ) );
 	}
 
 	/**
@@ -1431,11 +1537,10 @@ class ITSEC_Fingerprinting {
 	 */
 	private function get_fingerprint_action_link( ITSEC_Fingerprint $fingerprint, $action ) {
 		return add_query_arg( array(
-			'action'     => "itsec-{$action}-fingerprint",
 			'itsec_user' => $fingerprint->get_user()->ID,
 			'itsec_uuid' => $fingerprint->get_uuid(),
 			'itsec_hash' => hash_hmac( ITSEC_Lib::get_hash_algo(), "{$fingerprint->get_uuid()}|{$fingerprint->get_user()->ID}", wp_salt() ),
-		), wp_login_url() );
+		), ITSEC_Lib::get_login_url( "itsec-{$action}-fingerprint" ) );
 	}
 
 	/**

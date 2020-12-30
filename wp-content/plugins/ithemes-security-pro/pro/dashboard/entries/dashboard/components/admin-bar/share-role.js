@@ -1,24 +1,21 @@
 /**
  * External dependencies
  */
-import { get, find } from 'lodash';
+import { find, get } from 'lodash';
 import contrast from 'contrast';
-
 /**
  * WordPress dependencies
  */
 import { Button, Dropdown, Tooltip } from '@wordpress/components';
 import { compose, withState } from '@wordpress/compose';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
-import { withSelect, withDispatch } from '@wordpress/data';
-
+import { withDispatch, withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import CloseButton from '../../components/close-button';
 import { getConfigValue } from '../../utils';
-import { PRIMARYS } from 'packages/style-guide/src/colors';
+import { PRIMARYS } from '@ithemes/security-style-guide';
 
 const sumChars = ( str ) => {
 	let sum = 0;
@@ -48,7 +45,8 @@ function ShareRole( { role, remove } ) {
 		<Dropdown
 			className="itsec-admin-bar-share__recipient itsec-admin-bar-share__recipient--role"
 			contentClassName="itsec-admin-bar-share__recipient-content itsec-admin-bar-share__recipient-content--role"
-			headerTitle={ sprintf( __( 'Share Settings for %s', 'ithemes-security-pro' ), label ) }
+			headerTitle={ sprintf( __( 'Share Settings for %s', 'it-l10n-ithemes-security-pro' ), label ) }
+			focusOnMount="container"
 			expandOnMobile
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Tooltip text={ label }>
@@ -63,15 +61,14 @@ function ShareRole( { role, remove } ) {
 					</Button>
 				</Tooltip>
 			) }
-			renderContent={ ( { onClose } ) => (
+			renderContent={ () => (
 				<Fragment>
 					<header>
 						<h3>{ label }</h3>
-						<CloseButton close={ onClose } />
 					</header>
 					<footer>
 						<Button isLink onClick={ remove }>
-							{ __( 'Remove', 'ithemes-security-pro' ) }
+							{ __( 'Remove', 'it-l10n-ithemes-security-pro' ) }
 						</Button>
 					</footer>
 				</Fragment>

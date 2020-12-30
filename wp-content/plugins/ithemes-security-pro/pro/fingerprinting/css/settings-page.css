@@ -42,9 +42,19 @@
 	display: none;
 }
 
-#itsec-fingerprinting-maxmind-db-download-container {
+.itsec-fingerprinting-maxmind-db-download-inputs {
 	display: flex;
-	align-items: center;
+	align-items: flex-end;
+}
+
+.itsec-fingerprinting-maxmind-db-download-key-container {
+	margin-right: 2px;
+}
+
+.itsec-fingerprinting-maxmind-db-download-key-container label {
+	display: block;
+	font-weight: bold;
+	font-size: 14px;
 }
 
 #itsec-fingerprinting-download {
