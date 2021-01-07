@@ -1535,7 +1535,7 @@ echo ob_get_clean();
      */
     protected function eael_infobox_after()
     {
-        $settings = $this->get_settings();
+        $settings = $this->get_settings_for_display();
         ob_start(); ?></div><?php
 if ('yes' == $settings['eael_show_infobox_clickable']): ?></a><?php endif;
         echo ob_get_clean();
@@ -1548,7 +1548,7 @@ if ('yes' == $settings['eael_show_infobox_clickable']): ?></a><?php endif;
      */
     protected function render_infobox_icon()
     {
-        $settings = $this->get_settings();
+        $settings = $this->get_settings_for_display();
 
         if ('none' == $settings['eael_infobox_img_or_icon']) {
             return;
@@ -1586,7 +1586,7 @@ if ('yes' == $settings['eael_show_infobox_clickable']): ?></a><?php endif;
         }
 
         if ($infobox_icon_is_new || $infobox_icon_migrated) {
-            $icon = $settings['eael_infobox_icon_new']['value'];
+            $icon = $this->get_settings('eael_infobox_icon_new')['value'];
 
             if (isset($icon['url'])) {
                 $this->add_render_attribute('icon_or_image', [
@@ -1629,7 +1629,7 @@ echo ob_get_clean();
 
     protected function render_infobox_content()
     {
-        $settings = $this->get_settings();
+        $settings = $this->get_settings_for_display();
 
         $this->add_render_attribute('infobox_content', 'class', 'infobox-content');
         if ('icon' == $settings['eael_infobox_img_or_icon']) {
@@ -1665,7 +1665,7 @@ echo ob_get_clean();
      */
     protected function render_infobox_button()
     {
-        $settings = $this->get_settings();
+        $settings = $this->get_settings_for_display();
         if ('yes' == $settings['eael_show_infobox_clickable'] || 'yes' != $settings['eael_show_infobox_button']) {
             return;
         }

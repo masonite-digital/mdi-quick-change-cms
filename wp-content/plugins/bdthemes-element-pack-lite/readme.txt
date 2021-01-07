@@ -3,9 +3,9 @@ Contributors: bdthemes, selimmw, mohammaadfarid, wpboffinstech
 Donate link: http://bdthemes.com/
 Tags: elementor, elementor addon, pack, addons, widget, ultimate, essential, element, bdthemes, addons for elementor, live copy, template library
 Requires at least: 4.7.0
-Tested up to: 5.5.3
+Tested up to: 5.6
 Requires PHP: 5.6.0
-Stable tag: 2.5.0
+Stable tag: 2.6.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -52,6 +52,7 @@ Check, how to use the template library?
 0. [Panel Slider](https://elementpack.pro/demo/element/panel-slider/) - Panel Slider examples with Infinite No Example, Button Background Example, Title, Text, And Button Color Example Shadow Mode Example & other options
 0. [Progress Pie](https://elementpack.pro/demo/element/progress-pie/) - After Before Middle Text Example, Line Width Example, Delay Example, Duration Example, Background Example with element pack pro plugin. 
 0. [Pricing List](https://elementpack.pro/demo/element/price-list/) - Pricing list with some different examples like Item With Image Example, Pricing Background Color Example, Border Radius Example, List Style Different Color
+0. [Reading Progress](https://elementpack.pro/demo/element/reading-progress/) - Attract your visitors to read your content with more consciously, that can help you your bounce rate to decrease. And your readers feel more comfortable.
 0. [Simple Contact Form](https://elementpack.pro/demo/element/simple-contact-form/) - Simple Contact Form widget with element pack pro can give your website a much more dynamic way and interactive way to contact
 0. [Slider](https://elementpack.pro/demo/element/slider/) - Slider to make your website more versatile, sometimes you need a slider, with basic functions, modification, and customization
 0. [Scroll Button](https://elementpack.pro/demo/element/scroll-button/) - With examples like -Scroll Down Example,Scroll Up Example,Duration Example,Offset Example (50px),Before Icon Position Example and others 
@@ -169,7 +170,6 @@ More widgets are coming soon...
 0. [Portfolio List](https://elementpack.pro/demo/element/portfolio-list) - Element pack brings the Portfolio List widget that makes amazingly beautiful portfolios for products, services, and persons.
 0. [QR Code](https://elementpack.pro/demo/element/qr-code/) - Background Color and Shadow Example, Border Example, Fill, and Font Color Example, Corner Radius Example with other options with QR Code widgets. 
 0. [QuForm](https://elementpack.pro/demo/element/quform/) - Quform is an advanced WordPress plugin that allows you to quickly and easily build multiple forms. And it's compatible with element pack pro
-0. [Reading Progress](https://elementpack.pro/demo/element/reading-progress/) - Attract your visitors to read your content with more consciously, that can help you your bounce rate to decrease. And your readers feel more comfortable.
 0. [Revolution Slider](https://elementpack.pro/demo/element/revolution-slider/) - Slider Revolution is an innovative, responsive jQuery Slider Plugin. And it works great with elementor page builder in a beautiful way.
 0. [Single Post](https://elementpack.pro/demo/element/single-post/) - Single Post Example, Single Post Title and Excerpt Example, Category & Date Hide Example to make up your websites and give it a masterstroke.
 0. [Scroll Image](https://elementpack.pro/demo/element/scroll-image/) - Height With Badge Example,Image Caption Example,Lightbox Icon Position Example,External Link Example with element pack pro
@@ -252,6 +252,11 @@ e.g.
 14. Step Flow Example
 
 == Changelog ==
+
+= 2.6.0 =
+
+* Added: Reading Progress widget unlock from pro
+* Added: Icon Some style control options added in Accordion Widget
 
 = 2.5.0 =
 

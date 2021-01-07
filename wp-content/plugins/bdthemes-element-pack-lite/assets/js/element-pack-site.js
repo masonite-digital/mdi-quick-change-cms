@@ -4572,12 +4572,12 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
         var $section   = $scope;
 
         //sticky fixes for inner section.
-        $.each($section, function( index ) {
-            var $sticky      = $(this),
+        jQuery($section).each(function( index ) {
+            var $sticky      = jQuery(this),
                 $stickyFound = $sticky.find('.elementor-inner-section.bdt-sticky');
                 
             if ($stickyFound.length) {
-                $($stickyFound).wrap('<div class="bdt-sticky-wrapper"></div>');
+                jQuery($stickyFound).wrap('<div class="bdt-sticky-wrapper"></div>');
             }
         });
 
@@ -5559,7 +5559,7 @@ jQuery(window).on('elementor/frontend/init', function() {
 
 /**
  * Start image expand widget script
- */
+ */ 
 
 (function ($, elementor) {
 

@@ -3,19 +3,19 @@
  * Plugin Name: Element Pack Lite - Addon for Elementor
  * Plugin URI: http://elementpack.pro/
  * Description: Element Pack is a packed of elementor widget. This plugin gives you extra widgets features for elementor page builder plugin.
- * Version: 2.5.0
+ * Version: 2.6.0
  * Author: BdThemes
  * Author URI: https://bdthemes.com/
  * Text Domain: bdthemes-element-pack-lite
  * Domain Path: /languages
  * License: GPL3
  * Elementor requires at least: 2.9.0
- * Elementor tested up to: 3.0.14
+ * Elementor tested up to: 3.0.15
  */
     
-    use ElementPack\Notices;
-    
-    if ( ! function_exists( 'element_pack_pro_installed' ) ) {
+use ElementPack\Notices;
+
+if ( ! function_exists( 'element_pack_pro_installed' ) ) {
 
 	function element_pack_pro_installed() {
 
@@ -33,7 +33,7 @@
 
 if ( ! element_pack_pro_installed() ) {
 	// Some pre define value for easy use
-	define( 'BDTEP_VER', '2.5.0' );
+	define( 'BDTEP_VER', '2.6.0' );
 	define( 'BDTEP__FILE__', __FILE__ );
 	define( 'BDTEP_PNAME', basename( dirname(BDTEP__FILE__) ) );
 	define( 'BDTEP_PBNAME', plugin_basename(BDTEP__FILE__) );
@@ -114,8 +114,8 @@ function rate_the_element_pack() {
             'id'               => 'rate-the-element-pack',
             'type'             => 'success',
             'dismissible'      => true,
-            'dismissible-time' => 604800,
-            'message'          => __('<b>Win Element Pack Pro License</b> by give us an honest review. Please go to <a href="https://wordpress.org/plugins/bdthemes-element-pack-lite/">Element Pack</a> WordPress repository and submit your review. We will select one random user from review page every month.', 'bdthemes-element-pack'),
+            'dismissible-time' => 1209600,
+            'message'          => __('<b>Win Element Pack Pro Lifetime License</b> by give us an honest review. Please go to <a href="https://wordpress.org/plugins/bdthemes-element-pack-lite/">Element Pack</a> WordPress repository and submit your review.  We will select one random user from the review page every month. When you complete your review just fill-up <a href="https://bdthemes.com/giveaway-form/">this form</a> to join our giveaway program.', 'bdthemes-element-pack'),
         ]
     );
 }
