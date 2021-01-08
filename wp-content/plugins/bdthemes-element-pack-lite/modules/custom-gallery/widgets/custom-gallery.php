@@ -695,7 +695,7 @@ class Custom_Gallery extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'item_border_radius',
 			[
 				'label'      => esc_html__( 'Border Radius', 'bdthemes-element-pack' ),
@@ -710,7 +710,7 @@ class Custom_Gallery extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'item_skin_border_radius',
 			[
 				'label'      => esc_html__( 'Border Radius', 'bdthemes-element-pack' ),
@@ -766,7 +766,7 @@ class Custom_Gallery extends Module_Base {
 				],
 				'condition' => [
 					'show_title' => 'yes',
-					'_skin'      => '',
+					// '_skin'      => '',
 				],
 			]
 		);
@@ -775,12 +775,10 @@ class Custom_Gallery extends Module_Base {
 			Group_Control_Typography::get_type(),
 			[
 				'name'      => 'title_typography',
-				'label'     => esc_html__( 'Typography', 'bdthemes-element-pack' ),
-				//'scheme'    => Schemes\Typography::TYPOGRAPHY_1,
-				'selector'  => '{{WRAPPER}} .bdt-gallery-item .bdt-gallery-item-title',
+				'selector'  => '{{WRAPPER}} .bdt-custom-gallery .bdt-gallery-item .bdt-gallery-item-title',
 				'condition' => [
 					'show_title' => 'yes',
-					'_skin'      => '',
+					// '_skin'      => '',
 				],
 			]
 		);
@@ -803,8 +801,6 @@ class Custom_Gallery extends Module_Base {
 			Group_Control_Typography::get_type(),
 			[
 				'name'      => 'text_typography',
-				'label'     => esc_html__( 'Typography', 'bdthemes-element-pack' ),
-				//'scheme'    => Schemes\Typography::TYPOGRAPHY_1,
 				'selector'  => '{{WRAPPER}} .bdt-gallery-item .bdt-gallery-item-text',
 				'condition' => [
 					'show_text' => 'yes',
@@ -905,8 +901,6 @@ class Custom_Gallery extends Module_Base {
 			Group_Control_Typography::get_type(),
 			[
 				'name'      => 'typography',
-				'label'     => esc_html__( 'Typography', 'bdthemes-element-pack' ),
-				//'scheme'    => Schemes\Typography::TYPOGRAPHY_4,
 				'selector'  => '{{WRAPPER}} .bdt-custom-gallery .bdt-gallery-item-link span.bdt-text, {{WRAPPER}} .bdt-custom-gallery .bdt-gallery-item-link span.bdt-icon',
 				'condition' => [
 					'show_lightbox' => 'yes',

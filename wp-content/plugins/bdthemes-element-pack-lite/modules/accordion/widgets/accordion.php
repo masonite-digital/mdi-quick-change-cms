@@ -56,7 +56,6 @@ class Accordion extends Module_Base {
             ]
         );
 
-
         $repeater = new Repeater();
 
         $repeater->add_control(
@@ -123,7 +122,7 @@ class Accordion extends Module_Base {
         $this->add_control(
             'tabs',
             [
-                'label'       => __('Accordion Items', 'bdthemes-element-pack'),
+                'label'       => __('Items', 'bdthemes-element-pack'),
                 'type'        => Controls_Manager::REPEATER,
                 'fields'      => $repeater->get_controls(),
                 'default'     => [
@@ -300,21 +299,6 @@ class Accordion extends Module_Base {
                     'active_hash'      => 'yes',
                     'active_scrollspy' => 'yes',
                 ],
-                // 'conditions' => [
-                // 	'relation' => 'and',
-                // 	'terms'    => [
-                // 		[
-                // 			'name'     => 'active_hash',
-                // 			'operator' => '==',
-                // 			'value'    => 'yes'
-                // 		],
-                // 		[
-                // 			'name'     => 'active_scrollspy',
-                // 			'operator' => '==',
-                // 			'value'    => 'yes'
-                // 		],
-                // 	]
-                // ],
             ]
         );
 
@@ -349,32 +333,6 @@ class Accordion extends Module_Base {
             [
                 'label' => __('Item', 'bdthemes-element-pack'),
                 'tab'   => Controls_Manager::TAB_STYLE,
-            ]
-        );
-
-        $this->add_responsive_control(
-            'align',
-            [
-                'label'     => __('Alignment', 'bdthemes-element-pack'),
-                'type'      => Controls_Manager::CHOOSE,
-                'options'   => [
-                    'left'   => [
-                        'title' => __('Left', 'bdthemes-element-pack'),
-                        'icon'  => 'fas fa-align-left',
-                    ],
-                    'center' => [
-                        'title' => __('Center', 'bdthemes-element-pack'),
-                        'icon'  => 'fas fa-align-center',
-                    ],
-                    'right'  => [
-                        'title' => __('Right', 'bdthemes-element-pack'),
-                        'icon'  => 'fas fa-align-right',
-                    ],
-                ],
-                'selectors' => [
-                    '{{WRAPPER}} .bdt-accordion .bdt-accordion-title'   => 'text-align: {{VALUE}};',
-                    '{{WRAPPER}} .bdt-accordion .bdt-accordion-content' => 'text-align: {{VALUE}};',
-                ],
             ]
         );
 
@@ -417,16 +375,6 @@ class Accordion extends Module_Base {
             ]
         );
 
-        $this->add_group_control(
-            Group_Control_Background::get_type(),
-            [
-                'name'      => 'title_background',
-                'types'     => ['classic', 'gradient'],
-                'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-title',
-                'separator' => 'after',
-            ]
-        );
-
         $this->add_control(
             'title_color',
             [
@@ -440,10 +388,32 @@ class Accordion extends Module_Base {
         );
 
         $this->add_group_control(
-            Group_Control_Box_Shadow::get_type(),
+            Group_Control_Background::get_type(),
             [
-                'name'     => 'title_shadow',
-                'selector' => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item .bdt-accordion-title',
+                'name'      => 'title_background',
+                'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-title',
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Border::get_type(),
+            [
+                'name'        => 'title_border',
+                'placeholder' => '1px',
+                'default'     => '1px',
+                'selector'    => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item .bdt-accordion-title',
+            ]
+        );
+
+        $this->add_responsive_control(
+            'title_radius',
+            [
+                'label'      => __('Border Radius', 'bdthemes-element-pack'),
+                'type'       => Controls_Manager::DIMENSIONS,
+                'size_units' => ['px', '%'],
+                'selectors'  => [
+                    '{{WRAPPER}} .bdt-accordion .bdt-accordion-item .bdt-accordion-title' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; overflow: hidden;',
+                ],
             ]
         );
 
@@ -460,24 +430,10 @@ class Accordion extends Module_Base {
         );
 
         $this->add_group_control(
-            Group_Control_Border::get_type(),
+            Group_Control_Box_Shadow::get_type(),
             [
-                'name'        => 'title_border',
-                'placeholder' => '1px',
-                'default'     => '1px',
-                'selector'    => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item .bdt-accordion-title',
-            ]
-        );
-
-        $this->add_control(
-            'title_radius',
-            [
-                'label'      => __('Border Radius', 'bdthemes-element-pack'),
-                'type'       => Controls_Manager::DIMENSIONS,
-                'size_units' => ['px', '%'],
-                'selectors'  => [
-                    '{{WRAPPER}} .bdt-accordion .bdt-accordion-item .bdt-accordion-title' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; overflow: hidden;',
-                ],
+                'name'     => 'title_shadow',
+                'selector' => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item .bdt-accordion-title',
             ]
         );
 
@@ -486,7 +442,6 @@ class Accordion extends Module_Base {
             [
                 'name'     => 'title_typography',
                 'selector' => '{{WRAPPER}} .bdt-accordion .bdt-accordion-title',
-                //'scheme'   => Schemes\Typography::TYPOGRAPHY_1,
             ]
         );
 
@@ -499,16 +454,6 @@ class Accordion extends Module_Base {
             ]
         );
 
-        $this->add_group_control(
-            Group_Control_Background::get_type(),
-            [
-                'name'      => 'hover_title_background',
-                'types'     => ['classic', 'gradient'],
-                'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item:hover .bdt-accordion-title',
-                'separator' => 'after',
-            ]
-        );
-
         $this->add_control(
             'hover_title_color',
             [
@@ -517,7 +462,14 @@ class Accordion extends Module_Base {
                 'selectors' => [
                     '{{WRAPPER}} .bdt-accordion .bdt-accordion-item:hover .bdt-accordion-title' => 'color: {{VALUE}};',
                 ],
-                'separator' => 'before',
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Background::get_type(),
+            [
+                'name'      => 'hover_title_background',
+                'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item:hover .bdt-accordion-title',
             ]
         );
 
@@ -530,16 +482,6 @@ class Accordion extends Module_Base {
             ]
         );
 
-        $this->add_group_control(
-            Group_Control_Background::get_type(),
-            [
-                'name'      => 'active_title_background',
-                'types'     => ['classic', 'gradient'],
-                'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item.bdt-open .bdt-accordion-title',
-                'separator' => 'after',
-            ]
-        );
-
         $this->add_control(
             'active_title_color',
             [
@@ -548,7 +490,14 @@ class Accordion extends Module_Base {
                 'selectors' => [
                     '{{WRAPPER}} .bdt-accordion .bdt-accordion-item.bdt-open .bdt-accordion-title' => 'color: {{VALUE}};',
                 ],
-                'separator' => 'before',
+            ]
+        );
+
+        $this->add_group_control(
+            Group_Control_Background::get_type(),
+            [
+                'name'      => 'active_title_background',
+                'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item.bdt-open .bdt-accordion-title',
             ]
         );
 
@@ -570,7 +519,7 @@ class Accordion extends Module_Base {
             ]
         );
 
-        $this->add_control(
+        $this->add_responsive_control(
             'active_title_radius',
             [
                 'label'      => __('Border Radius', 'bdthemes-element-pack'),
@@ -599,15 +548,6 @@ class Accordion extends Module_Base {
             ]
         );
 
-        $this->start_controls_tabs('tabs_icon_style');
-
-        $this->start_controls_tab(
-            'tab_icon_normal',
-            [
-                'label' => __('Normal', 'bdthemes-element-pack'),
-            ]
-        );
-
         $this->add_control(
             'icon_align',
             [
@@ -629,6 +569,15 @@ class Accordion extends Module_Base {
             ]
         );
 
+        $this->start_controls_tabs('tabs_icon_style');
+
+        $this->start_controls_tab(
+            'tab_icon_normal',
+            [
+                'label' => __('Normal', 'bdthemes-element-pack'),
+            ]
+        );
+
         $this->add_control(
             'icon_color',
             [
@@ -639,6 +588,46 @@ class Accordion extends Module_Base {
                     '{{WRAPPER}} .bdt-accordion .bdt-accordion-title .bdt-accordion-icon svg' => 'fill: {{VALUE}};',
                 ],
             ]
+        );
+
+        $this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'      => 'icon_background_color',
+				'selector'  => '{{WRAPPER}} .bdt-accordion-container .bdt-accordion .bdt-accordion-title .bdt-accordion-icon'
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[
+				'name'        => 'icon_border',
+				'selector'    => '{{WRAPPER}} .bdt-accordion-container .bdt-accordion .bdt-accordion-title .bdt-accordion-icon',
+			]
+		);
+
+		$this->add_responsive_control(
+			'icon_border_radius',
+			[
+				'label'      => esc_html__( 'Border Radius', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-accordion-container .bdt-accordion .bdt-accordion-title .bdt-accordion-icon' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'icon_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', 'em', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-accordion-container .bdt-accordion .bdt-accordion-title .bdt-accordion-icon' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
         );
 
         $this->add_responsive_control(
@@ -658,6 +647,31 @@ class Accordion extends Module_Base {
                 ],
             ]
         );
+
+        $this->add_responsive_control(
+            'icon_size',
+            [
+                'label'     => __('Icon Size', 'bdthemes-element-pack'),
+                'type'      => Controls_Manager::SLIDER,
+                'range'     => [
+                    'px' => [
+                        'min' => 10,
+                        'max' => 100,
+                    ],
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .bdt-accordion .bdt-accordion-title .bdt-accordion-icon' => 'font-size: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'icon_box_shadow',
+				'selector' => '{{WRAPPER}} .bdt-accordion-container .bdt-accordion .bdt-accordion-title .bdt-accordion-icon',
+			]
+		);
 
         $this->end_controls_tab();
 
@@ -680,6 +694,28 @@ class Accordion extends Module_Base {
             ]
         );
 
+        $this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'      => 'icon_hover_background_color',
+				'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item:hover .bdt-accordion-icon'
+			]
+		);
+
+        $this->add_control(
+			'icon_hover_border_color',
+			[
+				'label'     => esc_html__( 'Border Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'condition' => [
+					'icon_border_border!' => '',
+				],
+				'selectors' => [
+					'{{WRAPPER}} .bdt-accordion .bdt-accordion-item:hover .bdt-accordion-icon' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
         $this->end_controls_tab();
 
         $this->start_controls_tab(
@@ -701,24 +737,29 @@ class Accordion extends Module_Base {
             ]
         );
 
-        $this->end_controls_tab();
+        $this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'      => 'icon_active_background_color',
+				'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-item.bdt-open .bdt-accordion-icon'
+			]
+		);
 
-        $this->add_responsive_control(
-            'icon_size',
-            [
-                'label'     => __('Icon Size', 'bdthemes-element-pack'),
-                'type'      => Controls_Manager::SLIDER,
-                'range'     => [
-                    'px' => [
-                        'min' => 10,
-                        'max' => 100,
-                    ],
-                ],
-                'selectors' => [
-                    '{{WRAPPER}} .bdt-accordion .bdt-accordion-title .bdt-accordion-icon' => 'font-size: {{SIZE}}{{UNIT}};',
-                ],
-            ]
-        );
+        $this->add_control(
+			'icon_active_border_color',
+			[
+				'label'     => esc_html__( 'Border Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'condition' => [
+					'icon_border_border!' => '',
+				],
+				'selectors' => [
+					'{{WRAPPER}} .bdt-accordion .bdt-accordion-item.bdt-open .bdt-accordion-icon' => 'border-color: {{VALUE}};',
+				],
+			]
+		);
+
+        $this->end_controls_tab();
 
         $this->end_controls_tabs();
 
@@ -732,16 +773,6 @@ class Accordion extends Module_Base {
             ]
         );
 
-        $this->add_group_control(
-            Group_Control_Background::get_type(),
-            [
-                'name'      => 'content_background_color',
-                'types'     => ['classic', 'gradient'],
-                'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-content',
-                'separator' => 'after',
-            ]
-        );
-
         $this->add_control(
             'content_color',
             [
@@ -749,12 +780,19 @@ class Accordion extends Module_Base {
                 'type'      => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .bdt-accordion .bdt-accordion-content' => 'color: {{VALUE}};',
-                    'separator'                                         => 'before',
                 ],
             ]
         );
 
-        $this->add_control(
+        $this->add_group_control(
+            Group_Control_Background::get_type(),
+            [
+                'name'      => 'content_background_color',
+                'selector'  => '{{WRAPPER}} .bdt-accordion .bdt-accordion-content',
+            ]
+        );
+
+        $this->add_responsive_control(
             'content_radius',
             [
                 'label'      => __('Border Radius', 'bdthemes-element-pack'),
@@ -778,7 +816,7 @@ class Accordion extends Module_Base {
             ]
         );
 
-        $this->add_control(
+        $this->add_responsive_control(
             'content_spacing',
             [
                 'label'     => __('Spacing', 'bdthemes-element-pack'),
@@ -800,7 +838,32 @@ class Accordion extends Module_Base {
             [
                 'name'     => 'content_typography',
                 'selector' => '{{WRAPPER}} .bdt-accordion .bdt-accordion-content',
-                //'scheme'   => Schemes\Typography::TYPOGRAPHY_3,
+            ]
+        );
+
+        $this->add_responsive_control(
+            'align',
+            [
+                'label'     => __('Alignment', 'bdthemes-element-pack'),
+                'type'      => Controls_Manager::CHOOSE,
+                'options'   => [
+                    'left'   => [
+                        'title' => __('Left', 'bdthemes-element-pack'),
+                        'icon'  => 'fas fa-align-left',
+                    ],
+                    'center' => [
+                        'title' => __('Center', 'bdthemes-element-pack'),
+                        'icon'  => 'fas fa-align-center',
+                    ],
+                    'right'  => [
+                        'title' => __('Right', 'bdthemes-element-pack'),
+                        'icon'  => 'fas fa-align-right',
+                    ],
+                ],
+                'selectors' => [
+                    // '{{WRAPPER}} .bdt-accordion .bdt-accordion-title'   => 'text-align: {{VALUE}};',
+                    '{{WRAPPER}} .bdt-accordion .bdt-accordion-content' => 'text-align: {{VALUE}};',
+                ],
             ]
         );
 

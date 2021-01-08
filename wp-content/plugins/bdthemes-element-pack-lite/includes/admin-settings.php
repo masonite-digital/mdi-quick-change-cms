@@ -961,7 +961,7 @@ class ElementPack_Admin_Settings {
                     'label'        => esc_html__('Reading Progress', 'bdthemes-element-pack'),
                     'type'         => 'checkbox',
                     'default'      => "off",
-                    'widget_type'  => 'pro',
+                    'widget_type'  => 'free',
                     'content_type' => 'others',
                     'demo_url'     => 'https://elementpack.pro/demo/element/reading-progress/',
                     'video_url'    => 'https://youtu.be/cODL1E2f9FI',
