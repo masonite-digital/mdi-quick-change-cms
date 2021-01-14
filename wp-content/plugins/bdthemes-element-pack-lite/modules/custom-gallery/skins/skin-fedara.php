@@ -68,7 +68,7 @@ class Skin_Fedara extends Elementor_Skin_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'fedara_item_border_radius',
 			[
 				'label'      => esc_html__( 'Border Radius', 'bdthemes-element-pack' ),
@@ -80,7 +80,7 @@ class Skin_Fedara extends Elementor_Skin_Base {
 			]
 		); 
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'desc_alignment',
 			[
 				'label'       => __( 'Alignment', 'bdthemes-element-pack' ),

@@ -1,6 +1,12 @@
 <?php
 use ElementPack\Element_Pack_Loader;
 
+
+
+if ( !defined('BDTEP_NC') ) {
+    define('BDTEP_NC', '<span class="bdt-ep-new-control"></span>');
+} // if you have any custom style
+
 /**
  * Show any alert by this function
  * @param  mixed  $message [description]

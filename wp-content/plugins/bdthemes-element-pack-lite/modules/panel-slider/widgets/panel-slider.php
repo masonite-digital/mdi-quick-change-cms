@@ -371,6 +371,7 @@ class Panel_Slider extends Module_Base {
 				'label'     => esc_html__( 'Button', 'bdthemes-element-pack' ),
 				'condition' => [
 					'button' => 'yes',
+					'_skin' => ''
 				],
 			]
 		);

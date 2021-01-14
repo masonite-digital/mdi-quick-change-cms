@@ -1,10 +1,10 @@
 === Essential Addons for Elementor ===
 Contributors: wpdevteam, Codetic, re_enter_rupok, Asif2BD, priyomukul, mahfuz01, nazsabuz, manzurahammed
 Tags: elementor, elements, addons, elementor addon, elementor widget, elementor form, woocommerce elementor, page builder, builder, visual editor, wordpress page builder
-Requires at least: 4.0
-Tested up to: 5.5
-Requires PHP: 5.4
-Stable tag: 4.3.7
+Requires at least: 5.0
+Tested up to: 5.6
+Requires PHP: 5.6
+Stable tag: 4.3.10
 License: GPLv3
 License URI: https://opensource.org/licenses/GPL-3.0
 
@@ -223,6 +223,29 @@ Your existing elements/content will work with premium version. So you won't lose
 
 
 == Changelog ==
+
+= 4.3.10 - 07/01/2021 =
+- Fixed: EA Info Box | Throwing PHP Notice when Image option is enabled
+- Fixed: EA Filterable Gallery | Dropdown menu not disappearing on Safari
+- Fixed: EA Woo Checkout | Added String Controller for returning customers
+- Fixed: EA Gravity Forms | removed extra padding
+- Fixed: EA Data Table | Throwing PHP Notice
+- Few minor bug fix and improvements
+
+= 4.3.9 - 23/12/2020 =
+- Fixed: Custom JS not working after first reload
+- Fixed: EA Advanced Data Table | sorting not working for nested elements in table header
+- Fixed: Missing Background color option for EA Testimonial
+- Fixed: EA Pricing Table | Style 5 Ribbon Text color not changing
+- Fixed: EA Info box | Dynamic tags not working
+- Few minor bug fix and improvements
+
+= 4.3.8 - 10/12/2020 =
+- Fixed: EA Fancy Text & Adv. Data Table  | not working on WordPress 5.6
+- Fixed: EA Product Grid | Rating controller not working with Default Style
+- Fixed: EA Flip Box | Button icon not displaying
+- Added: EA Event Calendar | 24 Hours format option
+- Few minor bug fix and improvements
 
 = 4.3.7 - 19/11/2020 =
 - Fixed: Broken style if Object Cache is enabled
