@@ -1,32 +1,39 @@
-var $ = jQuery;
+let $ = jQuery;
 $(window).load(function() {
-    var $ = jQuery;
+    let $ = jQuery;
 
-    var cartNumber = window.sessionStorage.getItem('numberOfItemsInCart');
+    let loggedIn = $('#loggedIn');
+    let loggedOut = $('#loggedOut');
+    let isAuthenticated = window.sessionStorage.getItem('isAuthenticated');
+    let cartNumber = window.sessionStorage.getItem('numberOfItemsInCart');
 
-    if (cartNumber != '0') {
+    const isTrueAuth = (isAuthenticated === 'true');
+    const intCartNum = parseInt(cartNumber);
+
+    // append the cart number from the session storage numberOfItemsInCart to cart icon
+    if (intCartNum != 0) {
         $('#cartNumber .cn').append(cartNumber);
-    } 
+    } else {
+        $('#cartNumber .cn').css('display','none');
+    }
 
-    // User Login Authentication
-    const loggedIn = $('#loggedIn');
-    const loggedOut = $('#loggedOut');
-    // const setAuthenticated = window.sessionStorage.setItem('isAuthenticated',false);
-    const isAuthenticated = window.sessionStorage.getItem('isAuthenticated');
-    // console.log( isAuthenticated );
-
-    if (isAuthenticated != 'true') {
-        // show login btn
+    // show login btn if session storage isAuthenticated is true
+    if (isTrueAuth != true) {
         loggedIn.hide();
         loggedOut.show();
-        console.log('not authenticated');
+        $('.log-out-interior-door-tab').attr('data-test', 'logged-out-interior-doors-tab');
+        $('.log-out-how-to-tab').attr('data-test', 'logged-out-how-to-tab');
+        $('.log-out-support-tab').attr('data-test', 'logged-out-support-tab');
     } else {
+        $('.login-interior-door-tab').attr('data-test', 'logged-in-interior-door-tab');
+        $('.login-how-to-tab').attr('data-test', 'logged-in-how-to-tab');
+        $('.login-support-tab').attr('data-test', 'logged-in-support-tab');
+        $('.cart-icon').attr('data-test', 'logged-in-shopping-cart-icon');
+        $('.account-icon').attr('data-test', 'logged-in-account-icon');
         loggedOut.hide();
         loggedIn.show();
         loggedIn.css('position','inherit');
-        console.log('authenticated');
     }
-    // END User Login Authentication
 
     // Navigation Attributes
     $('.nav-account-link').attr('data-test','nav-account-link');
@@ -34,9 +41,6 @@ $(window).load(function() {
     $('.nav-login-link').attr('data-test','nav-login-link');
     $('.logo-element').attr('data-test','desktop-nav-logo');
     $('.mobile-logo-element').attr('data-test','mobile-nav-logo');
-    $('.interior-door-tab').attr('data-test', 'interior-doors-tab');
-    $('.how-to-tab').attr('data-test', 'how-to-tab');
-    $('.support-tab').attr('data-test', 'support-tab');
     // Footer nav attributes
     $('.interior-door-footer-link').attr('data-test','interior-door-footer-link');
     $('.how-to-footer-link').attr('data-test','how-to-footer-link');
