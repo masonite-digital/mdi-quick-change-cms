@@ -44,8 +44,8 @@
     }
 }/* End custom CSS */
 /* Start custom CSS for section, class: .elementor-element-e430a21 */#loggedIn {
-    /*position: absolute;*/
-    /*top: -300px;*/
+    position: absolute;
+    top: -300px;
 }
 
 #cartNumber { 

@@ -39,6 +39,7 @@ $(window).load(function() {
     $('.nav-account-link').attr('data-test','nav-account-link');
     $('.nav-cart-link').attr('data-test','nav-cart-link');
     $('.nav-login-link').attr('data-test','nav-login-link');
+    $('.logo-element-login').attr('data-test','logged-in-desktop-nav-logo');
     $('.logo-element').attr('data-test','desktop-nav-logo');
     $('.mobile-logo-element').attr('data-test','mobile-nav-logo');
     // Footer nav attributes
