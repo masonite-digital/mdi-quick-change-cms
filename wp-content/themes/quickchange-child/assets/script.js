@@ -39,6 +39,7 @@ $(window).load(function() {
     $('.nav-account-link').attr('data-test','nav-account-link');
     $('.nav-cart-link').attr('data-test','nav-cart-link');
     $('.nav-login-link').attr('data-test','nav-login-link');
+    $('.logo-element-login').attr('data-test','logged-in-desktop-nav-logo');
     $('.logo-element').attr('data-test','desktop-nav-logo');
     $('.mobile-logo-element').attr('data-test','mobile-nav-logo');
     // Footer nav attributes
@@ -90,12 +91,12 @@ $(window).load(function() {
     // -----
     // Single Post page
         // post custom order buttons
-        $('.interior-door-custom-order-220').attr('data-test','two-panel-square-custom-order-button') // 2 panel square
-        $('.interior-door-custom-order-291').attr('data-test','six-panel-square-custom-order-button') // 6 panel square
-        $('.interior-door-custom-order-292').attr('data-test','livingston-custom-order-button') // livingston
-        $('.interior-door-custom-order-293').attr('data-test','lincoln-park-custom-order-button') // lincoln park
-        $('.interior-door-custom-order-927').attr('data-test','logan-custom-order-button') // logan
-        $('.interior-door-custom-order-928').attr('data-test','winslow-custom-order-button')// winslow
+        $('#custom-order-220-btn').attr('data-test','two-panel-square-custom-order-button') // 2 panel square
+        $('#custom-order-291-btn').attr('data-test','six-panel-square-custom-order-button') // 6 panel square
+        $('#custom-order-292-btn').attr('data-test','livingston-custom-order-button') // livingston
+        $('#custom-order-293-btn').attr('data-test','lincoln-park-custom-order-button') // lincoln park
+        $('#custom-order-927-btn').attr('data-test','logan-custom-order-button') // logan
+        $('#custom-order-928-btn').attr('data-test','winslow-custom-order-button')// winslow
         // other products section images
         $('.post-winslow-view-details-img').attr('data-test','winslow-view-details-image')
         $('.post-logan-view-details-img').attr('data-test','logan-view-details-image')
