@@ -7,9 +7,31 @@ if (!defined('ABSPATH')) {
 } // Exit if accessed directly
 
 use \Elementor\Controls_Manager;
+use \Elementor\Utils;
+use Elementor\Plugin;
 
 class Helper
 {
+
+
+	const EAEL_ALLOWED_HTML_TAGS = [
+		'article',
+		'aside',
+		'div',
+		'footer',
+		'h1',
+		'h2',
+		'h3',
+		'h4',
+		'h5',
+		'h6',
+		'header',
+		'main',
+		'nav',
+		'p',
+		'section',
+		'span',
+	];
 
     /**
      * Include a file with variables
@@ -122,7 +144,7 @@ class Helper
         } else {
             $args['post_type'] = $settings['post_type'];
 
-            if ($args['post_type'] !== 'page') {
+            //if ($args['post_type'] !== 'page') {
                 $args['tax_query'] = [];
 
                 $taxonomies = get_object_taxonomies($settings['post_type'], 'objects');
@@ -142,7 +164,7 @@ class Helper
                 if (!empty($args['tax_query'])) {
                     $args['tax_query']['relation'] = 'AND';
                 }
-            }
+            //}
         }
 
         if (!empty($settings['authors'])) {
@@ -176,7 +198,7 @@ class Helper
                 'type' => Controls_Manager::CHOOSE,
                 'options' => [
                     '1' => [
-                        'title' => __('', 'essential-addons-for-elementor-lite'),
+                        'title' => '',
                         'icon' => 'fa fa-unlock-alt',
                     ],
                 ],
@@ -612,6 +634,25 @@ class Helper
 
     }
 
+	/**
+	 * Returns product categories list
+	 *
+	 * @return string
+	 */
+	public function get_product_categories_list() {
+		global $product;
+
+		if ( ! is_a( $product, 'WC_Product' ) ) {
+			return;
+		}
+
+		$separator = '';
+		$before    = '<ul class="eael-product-cats"><li>';
+		$after     = '</li></ul>';
+
+		return get_the_term_list( $product->get_id(), 'product_cat', $before, $separator, $after );
+	}
+
     /**
      * This function is responsible for counting doc post under a category.
      *
@@ -633,28 +674,42 @@ class Helper
     public static function get_dynamic_args(array $settings, array $args)
     {
         if ($settings['post_type'] === 'source_dynamic' && is_archive()) {
-
             $data = get_queried_object();
+
             if (isset($data->post_type)) {
                 $args['post_type'] = $data->post_type;
-
                 $args['tax_query'] = [];
-
-                if ($data->taxonomy) {
-                    $args['tax_query'][] = [
-                        'taxonomy' => $data->taxonomy,
-                        'field' => 'term_id',
-                        'terms' => $data->term_id,
-                    ];
-                }
             } else {
                 global $wp_query;
-
                 $args['post_type'] = $wp_query->query_vars['post_type'];
+                if(!empty($wp_query->query_vars['s'])){
+                    $args['s'] = $wp_query->query_vars['s'];
+                    $args['offset'] = 0;
+                }
+            }
+
+            if ( isset( $data->taxonomy ) ) {
+                $args[ 'tax_query' ][] = [
+                    'taxonomy' => $data->taxonomy,
+                    'field'    => 'term_id',
+                    'terms'    => $data->term_id,
+                ];
+            }
+
+            if ( isset($data->taxonomy) ) {
+                $args[ 'tax_query' ][] = [
+                    'taxonomy' => $data->taxonomy,
+                    'field'    => 'term_id',
+                    'terms'    => $data->term_id,
+                ];
             }
 
             if (get_query_var('author') > 0) {
                 $args['author__in'] = get_query_var('author');
+            }
+
+            if (get_query_var('s')!='') {
+                $args['s'] = get_query_var('s');
             }
 
             if (get_query_var('year') || get_query_var('monthnum') || get_query_var('day')) {
@@ -749,6 +804,48 @@ class Helper
         return $data;
     }
 
+    public static function eael_get_widget_settings( $page_id, $widget_id ) {
+        $document = Plugin::$instance->documents->get( $page_id );
+        $settings = [];
+        if ( $document ) {
+            $elements    = Plugin::instance()->documents->get( $page_id )->get_elements_data();
+            $widget_data = self::find_element_recursive( $elements, $widget_id );
+            if (!empty($widget_data) && is_array($widget_data)) {
+                $widget      = Plugin::instance()->elements_manager->create_element_instance( $widget_data );
+            }
+            if ( !empty($widget) ) {
+                $settings    = $widget->get_settings_for_display();
+            }
+        }
+        return $settings;
+    }
+
+    /**
+     * Get Widget data.
+     *
+     * @param array  $elements Element array.
+     * @param string $form_id  Element ID.
+     *
+     * @return bool|array
+     */
+    public static function find_element_recursive( $elements, $form_id ) {
+
+        foreach ( $elements as $element ) {
+            if ( $form_id === $element['id'] ) {
+                return $element;
+            }
+
+            if ( ! empty( $element['elements'] ) ) {
+                $element = self::find_element_recursive( $element['elements'], $form_id );
+
+                if ( $element ) {
+                    return $element;
+                }
+            }
+        }
+
+        return false;
+    }
 	/**
 	 * Product grid
 	 */
@@ -813,7 +910,12 @@ class Helper
 		}
 	}
 
-	public static function eael_product_quick_view ($product, $settings, $widget_id) { ?>
+	public static function eael_product_quick_view ($product, $settings, $widget_id) {
+		$sale_badge_align = isset( $settings['eael_product_sale_badge_alignment'] ) ? $settings['eael_product_sale_badge_alignment'] : '';
+		$sale_badge_preset = isset($settings['eael_product_sale_badge_preset']) ? $settings['eael_product_sale_badge_preset'] : '';
+		$sale_text = !empty($settings['eael_product_carousel_sale_text']) ? $settings['eael_product_carousel_sale_text'] : 'Sale!';
+		$stockout_text = !empty($settings['eael_product_carousel_stockout_text']) ? $settings['eael_product_carousel_stockout_text'] : 'Stock Out';
+	    ?>
 		<div id="eaproduct<?php echo $widget_id.$product->get_id(); ?>" class="eael-product-popup
 		eael-product-zoom-in woocommerce">
 			<div class="eael-product-modal-bg"></div>
@@ -821,8 +923,7 @@ class Helper
 				<div id="product-<?php the_ID(); ?>" <?php post_class( 'product' ); ?>>
 					<div class="eael-product-image-wrap">
 						<?php
-						echo ($product->is_on_sale() ? '<span class="eael-onsale '.$settings['eael_product_sale_badge_preset'].'">' . __('Sale!',
-								'essential-addons-for-elementor-lite') . '</span>' : '');
+						echo ( ! $product->managing_stock() && ! $product->is_in_stock() ? '<span class="eael-onsale outofstock '.$sale_badge_preset.' '.$sale_badge_align.'">'. $stockout_text .'</span>' : ($product->is_on_sale() ? '<span class="eael-onsale '.$sale_badge_preset.' '.$sale_badge_align.'">' . $sale_text . '</span>' : '') );
 						do_action( 'eael_woo_single_product_image' );
 						?>
 					</div>
@@ -846,4 +947,31 @@ class Helper
 		add_action( 'eael_woo_before_product_loop', 'woocommerce_output_all_notices', 30 );
 
 	}
+
+    public static function get_local_plugin_data( $basename = '' ) {
+        if ( empty( $basename ) ) {
+            return false;
+        }
+
+        if ( !function_exists( 'get_plugins' ) ) {
+            include_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        $plugins = get_plugins();
+
+        if ( !isset( $plugins[ $basename ] ) ) {
+            return false;
+        }
+
+        return $plugins[ $basename ];
+    }
+
+	/**
+	 * eael_validate_html_tag
+	 * @param $tag
+	 * @return mixed|string
+	 */
+    public static function eael_validate_html_tag( $tag ){
+	    return in_array( strtolower( $tag ), self::EAEL_ALLOWED_HTML_TAGS ) ? $tag : 'div';
+    }
 }

@@ -9,6 +9,7 @@ use Elementor\Group_Control_Image_Size;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Icons_Manager;
 use Elementor\Repeater;
+use ElementPack\Utils;
 
 use ElementPack\Modules\PanelSlider\Skins;
 
@@ -99,10 +100,15 @@ class Panel_Slider extends Module_Base {
 				'tablet_default' => '2',
 				'mobile_default' => '2',
 				'options'        => [
+					'1' => '1',
 					'2' => '2',
+					'3' => '3',
 					'4' => '4',
+					'5' => '5',
 					'6' => '6',
+					'7' => '7',
 					'8' => '8',
+					'9' => '9',
 					'10' => '10',
 				],
 				'condition' => [
@@ -392,6 +398,8 @@ class Panel_Slider extends Module_Base {
 				'label'       => esc_html__( 'Icon', 'bdthemes-element-pack' ),
 				'type'             => Controls_Manager::ICONS,
 				'fa4compatibility' => 'icon',
+				'label_block' => false,
+				'skin' => 'inline'
 			]
 		);
 
@@ -402,8 +410,8 @@ class Panel_Slider extends Module_Base {
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'right',
 				'options' => [
-					'left' => esc_html__( 'Before', 'bdthemes-element-pack' ),
-					'right' => esc_html__( 'After', 'bdthemes-element-pack' ),
+					'left' => esc_html__( 'Left', 'bdthemes-element-pack' ),
+					'right' => esc_html__( 'Right', 'bdthemes-element-pack' ),
 				],
 				'condition' => [
 					'panel_slider_icon[value]!' => '',
@@ -428,8 +436,8 @@ class Panel_Slider extends Module_Base {
 					'panel_slider_icon[value]!' => '',
 				],
 				'selectors' => [
-					'{{WRAPPER}} .bdt-panel-slider .bdt-button-icon-align-right' => 'margin-left: {{SIZE}}{{UNIT}};',
-					'{{WRAPPER}} .bdt-panel-slider .bdt-button-icon-align-left' => 'margin-right: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-panel-slider .bdt-button-icon-align-right' => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-panel-slider .bdt-button-icon-align-left' => is_rtl() ? 'margin-left: {{SIZE}}{{UNIT}};' : 'margin-right: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);
@@ -536,8 +544,22 @@ class Panel_Slider extends Module_Base {
 				'label'     => esc_html__( 'Overlay Color', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .bdt-panel-slide-item:before' => 'background-color: {{VALUE}};',
+					'{{WRAPPER}} .bdt-panel-slide-item:before' => 'background-color: {{VALUE}}; transition: all .3s ease;',
 				],
+			]
+		);
+
+		$this->add_control(
+			'slider_active_overlay_color',
+			[
+				'label'     => esc_html__( 'Active Overlay Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-panel-slide-item.swiper-slide-active:before' => 'background-color: {{VALUE}};',
+				],
+				// 'condition'   => [
+				// 	'_skin' => 'bdt-middle'
+				// ]
 			]
 		);
 
@@ -670,6 +692,17 @@ class Panel_Slider extends Module_Base {
 			]
 		);
 
+		$this->add_responsive_control(
+            'btn_spacing',
+            [
+                'label'     => __('Spacing', 'bdthemes-element-pack') . BDTEP_NC,
+                'type'      => Controls_Manager::SLIDER,
+                'selectors' => [
+                    '{{WRAPPER}} .bdt-panel-slide-item .bdt-panel-slide-link' => 'margin-bottom: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+
 		$this->end_controls_tab();
 
 		$this->start_controls_tab(
@@ -778,7 +811,6 @@ class Panel_Slider extends Module_Base {
 			[
 				'name'     => 'typography',
 				'label'    => esc_html__( 'Typography', 'bdthemes-element-pack' ),
-				//'scheme'   => Schemes\Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}} .bdt-panel-slide-item .bdt-panel-slide-link',
 			]
 		);
@@ -797,12 +829,21 @@ class Panel_Slider extends Module_Base {
 		);
 
 		$this->add_control(
+			'show_text_stroke',
+			[
+				'label'   => esc_html__('Text Stroke', 'bdthemes-prime-slider') . BDTEP_NC,
+				'type'    => Controls_Manager::SWITCHER,
+				'prefix_class' => 'bdt-text-stroke--',
+			]
+		);
+
+		$this->add_control(
 			'title_color',
 			[
 				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .bdt-panel-slide-item .bdt-panel-slide-title' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .bdt-panel-slide-item .bdt-panel-slide-title' => 'color: {{VALUE}}; -webkit-text-stroke-color: {{VALUE}};',
 				],
 			]
 		);
@@ -812,7 +853,6 @@ class Panel_Slider extends Module_Base {
 			[
 				'name'     => 'title_typography',
 				'label'    => esc_html__( 'Typography', 'bdthemes-element-pack' ),
-				//'scheme'   => Schemes\Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}} .bdt-panel-slide-item .bdt-panel-slide-title',
 			]
 		);
@@ -843,10 +883,20 @@ class Panel_Slider extends Module_Base {
 			[
 				'name'     => 'text_typography',
 				'label'    => esc_html__( 'Typography', 'bdthemes-element-pack' ),
-				//'scheme'   => Schemes\Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}} .bdt-panel-slide-item .bdt-panel-slide-text',
 			]
 		);
+
+		$this->add_responsive_control(
+            'text_top_spacing',
+            [
+                'label'     => __('Spacing', 'bdthemes-element-pack') . BDTEP_NC,
+                'type'      => Controls_Manager::SLIDER,
+                'selectors' => [
+                    '{{WRAPPER}} .bdt-panel-slide-item .bdt-panel-slide-text' => 'margin-top: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
 
 		$this->end_controls_section();
 
@@ -1122,7 +1172,7 @@ class Panel_Slider extends Module_Base {
 						wp_json_encode(array_filter([
 							"autoplay"       => $settings["autoplay"] ? [ "delay" => $settings["autoplay_speed"] ] : false,
 							"loop"           => $settings["loop"] ? true : false,
-							"speed"          => $settings["speed"]["size"],
+							"speed"          => $settings["speed"],
 							"pauseOnHover"   => $settings["pauseonhover"] ? true : false,
 							"slidesPerView"  => (int) $columns_mobile,
 							"observer"       => $settings["observer"] ? true : false,
@@ -1259,7 +1309,7 @@ class Panel_Slider extends Module_Base {
 						<?php endif; ?>
 
 						<?php if ( 'yes' == $settings['show_title'] ) : ?>
-							<<?php echo esc_html($settings['title_tags']); ?> <?php echo $this->get_render_attribute_string('panel-slide-item-title'); ?>><?php echo esc_html($item['tab_title']); ?></<?php echo esc_html($settings['title_tags']); ?>>
+							<<?php echo Utils::get_valid_html_tag($settings['title_tags']); ?> <?php echo $this->get_render_attribute_string('panel-slide-item-title'); ?>><?php echo esc_html($item['tab_title']); ?></<?php echo Utils::get_valid_html_tag($settings['title_tags']); ?>>
 						<?php endif; ?>
 
 						<?php if ( '' !== $item['tab_content'] ) : ?>

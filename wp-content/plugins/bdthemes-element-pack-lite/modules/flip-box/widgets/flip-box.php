@@ -1,7 +1,7 @@
 <?php
 namespace ElementPack\Modules\FlipBox\Widgets;
 
-use Elementor\Utils;
+use ElementPack\Utils;
 use ElementPack\Base\Module_Base;
 use Elementor\Controls_Manager;
 use Elementor\Core\Schemes;
@@ -11,6 +11,7 @@ use Elementor\Group_Control_Image_Size;
 use Elementor\Group_Control_Typography;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Icons_Manager;
+ 
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -393,7 +394,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'border_radius',
 			[
 				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
@@ -557,7 +558,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'icon_spacing',
 			[
 				'label' => __( 'Spacing', 'bdthemes-element-pack' ),
@@ -586,7 +587,7 @@ class Flip_Box extends Module_Base {
 				'selectors' => [
 					'{{WRAPPER}} .elementor-view-stacked .elementor-icon' => 'background-color: {{VALUE}}',
 					'{{WRAPPER}} .elementor-view-framed .elementor-icon, {{WRAPPER}} .elementor-view-default .elementor-icon' => 'color: {{VALUE}}; border-color: {{VALUE}}',
-					'{{WRAPPER}} .elementor-view-framed .elementor-icon svg, .elementor-view-default .elementor-icon svg' => 'fill: {{VALUE}};',
+					'{{WRAPPER}} .elementor-view-framed .elementor-icon svg *, .elementor-view-default .elementor-icon svg *' => 'fill: {{VALUE}};',
 				],
 				'condition' => [
 					'graphic_element' => 'icon',
@@ -648,7 +649,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'icon_size',
 			[
 				'label' => __( 'Icon Size', 'bdthemes-element-pack' ),
@@ -668,7 +669,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'icon_padding',
 			[
 				'label' => __( 'Icon Padding', 'bdthemes-element-pack' ),
@@ -723,7 +724,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'icon_border_radius',
 			[
 				'label' => __( 'Border Radius', 'bdthemes-element-pack' ),
@@ -752,7 +753,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'image_spacing',
 			[
 				'label' => __( 'Spacing', 'bdthemes-element-pack' ),
@@ -834,7 +835,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'image_border_radius',
 			[
 				'label' => __( 'Border Radius', 'bdthemes-element-pack' ),
@@ -866,7 +867,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'front_title_spacing',
 			[
 				'label' => __( 'Spacing', 'bdthemes-element-pack' ),
@@ -1051,7 +1052,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'back_title_spacing',
 			[
 				'label' => __( 'Spacing', 'bdthemes-element-pack' ),
@@ -1111,7 +1112,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'back_description_spacing',
 			[
 				'label' => __( 'Spacing', 'bdthemes-element-pack' ),
@@ -1229,7 +1230,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'button_border_radius',
 			[
 				'label'      => esc_html__( 'Border Radius', 'bdthemes-element-pack' ),
@@ -1241,7 +1242,7 @@ class Flip_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'button_text_padding',
 			[
 				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
@@ -1258,7 +1259,6 @@ class Flip_Box extends Module_Base {
 			[
 				'name'     => 'button_typography',
 				'label'    => esc_html__( 'Typography', 'bdthemes-element-pack' ),
-				//'scheme'   => Schemes\Typography::TYPOGRAPHY_4,
 				'selector' => '{{WRAPPER}} .bdt-flip-box-button',
 			]
 		);
@@ -1405,9 +1405,9 @@ class Flip_Box extends Module_Base {
 						<?php endif; ?>
 
 						<?php if ( ! empty( $settings['front_title_text'] ) ) : ?>
-							<<?php echo esc_html($settings['front_title_tags']); ?> <?php echo $this->get_render_attribute_string('box_front_title_tags'); ?>>
+							<<?php echo Utils::get_valid_html_tag($settings['front_title_tags']); ?> <?php echo $this->get_render_attribute_string('box_front_title_tags'); ?>>
 								<?php echo wp_kses( $settings['front_title_text'], element_pack_allow_tags('title') ); ?>
-							</<?php echo esc_html($settings['front_title_tags']); ?>>
+							</<?php echo Utils::get_valid_html_tag($settings['front_title_tags']); ?>>
 						<?php endif; ?>
 
 						<?php if ( ! empty( $settings['front_description_text'] ) ) : ?>
@@ -1422,9 +1422,9 @@ class Flip_Box extends Module_Base {
 				<div class="bdt-flip-box-layer-overlay">
 					<div class="bdt-flip-box-layer-inner">
 						<?php if ( ! empty( $settings['back_title_text'] ) ) : ?>
-							<<?php echo esc_html($settings['back_title_tags']); ?> <?php echo $this->get_render_attribute_string('box_front_title_tags'); ?>>
+							<<?php echo Utils::get_valid_html_tag($settings['back_title_tags']); ?> <?php echo $this->get_render_attribute_string('box_front_title_tags'); ?>>
 								<?php echo wp_kses( $settings['back_title_text'], element_pack_allow_tags('title') ); ?>
-							</<?php echo esc_html($settings['back_title_tags']); ?>>
+							</<?php echo Utils::get_valid_html_tag($settings['back_title_tags']); ?>>
 						<?php endif; ?>
 
 						<?php if ( ! empty( $settings['back_description_text'] ) ) : ?>
@@ -1508,7 +1508,7 @@ class Flip_Box extends Module_Base {
 						<# } #>
 
 						<# if ( settings.front_title_text ) { #>
-							<{{{ settings.front_title_tags }}} {{{ view.getRenderAttributeString( 'box_front_title_tags' ) }}}>{{{ settings.front_title_text }}}</{{{ settings.front_title_tags }}}>
+							<{{{ elementor.helpers.validateHTMLTag(settings.front_title_tags) }}} {{{ view.getRenderAttributeString( 'box_front_title_tags' ) }}}>{{{ settings.front_title_text }}}</{{{ elementor.helpers.validateHTMLTag(settings.front_title_tags) }}}>
 						<# } #>
 
 						<# if ( settings.front_description_text ) { #>
@@ -1521,7 +1521,7 @@ class Flip_Box extends Module_Base {
 				<div class="bdt-flip-box-layer-overlay">
 					<div class="bdt-flip-box-layer-inner">
 						<# if ( settings.back_title_text ) { #>
-							<{{{ settings.back_title_tags }}} {{{ view.getRenderAttributeString( 'box_front_title_tags' ) }}}>{{{ settings.back_title_text }}}</{{{ settings.back_title_tags }}}>
+							<{{{ elementor.helpers.validateHTMLTag(settings.back_title_tags) }}} {{{ view.getRenderAttributeString( 'box_front_title_tags' ) }}}>{{{ settings.back_title_text }}}</{{{ elementor.helpers.validateHTMLTag(settings.back_title_tags) }}}>
 						<# } #>
 
 						<# if ( settings.back_description_text ) { #>

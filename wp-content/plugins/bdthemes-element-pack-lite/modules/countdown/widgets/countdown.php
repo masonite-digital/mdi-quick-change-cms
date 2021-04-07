@@ -5,10 +5,11 @@ use ElementPack\Base\Module_Base;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Typography;
+use Elementor\Group_Control_Background;
 use Elementor\Group_Control_Box_Shadow;
-use Elementor\Core\Schemes;
-use Elementor\Utils;
-use Elementor\Schemes\Color;
+use Elementor\Group_Control_Text_Shadow;
+use Elementor\Group_Control_Image_Size;
+use ElementPack\Utils;
 
 use ElementPack\Modules\Countdown\Skins;
 
@@ -37,12 +38,12 @@ class Countdown extends Module_Base {
 	}
 
 	public function get_style_depends() {
-        if ($this->ep_is_edit_mode()) {
-            return ['ep-all-styles'];
-        } else {
-            return [ 'ep-countdown' ];
-        }
-    }
+		if ($this->ep_is_edit_mode()) {
+			return ['ep-all-styles'];
+		} else {
+			return [ 'ep-countdown' ];
+		}
+	}
 
 	public function get_custom_help_url() {
 		return 'https://youtu.be/HtsshsQxqEA';
@@ -81,6 +82,27 @@ class Countdown extends Module_Base {
 			'section_content_count',
 			[
 				'label' => esc_html__( 'Count Layout', 'bdthemes-element-pack' ),
+			]
+		);
+
+		$this->add_responsive_control(
+			'count_column',
+			[
+				'label'          => esc_html__( 'Count Column', 'bdthemes-element-pack' ),
+				'type'           => Controls_Manager::SELECT,
+				'default'        => '4',
+				'tablet_default' => '2',
+				'mobile_default' => '2',
+				'options'        => [
+					''  => esc_html__( 'Default', 'bdthemes-element-pack' ),
+					'1' => esc_html__( '1 Columns', 'bdthemes-element-pack' ),
+					'2' => esc_html__( '2 Columns', 'bdthemes-element-pack' ),
+					'3' => esc_html__( '3 Column', 'bdthemes-element-pack' ),
+					'4' => esc_html__( '4 Columns', 'bdthemes-element-pack' ),
+				],
+				'condition' => [
+					'_skin' => '',
+				]
 			]
 		);
 
@@ -203,6 +225,8 @@ class Countdown extends Module_Base {
 				'condition' => [
 					'_skin!' => 'bdt-tiny-countdown'
 				],
+				'prefix_class' => 'bdt-countdown--align-',
+				'render_type' => 'template'
 			]
 		);
 
@@ -243,7 +267,7 @@ class Countdown extends Module_Base {
 				'type'    => Controls_Manager::SLIDER,
 				'default' => [
 					'unit' => '%',
-					'size' => 70,
+					// 'size' => 70,
 				],
 				'tablet_default' => [
 					'unit' => '%',
@@ -292,27 +316,6 @@ class Countdown extends Module_Base {
 				'condition' => [
 					'_skin!' => 'bdt-tiny-countdown'
 				],
-			]
-		);
-
-		$this->add_responsive_control(
-			'count_column',
-			[
-				'label'          => esc_html__( 'Count Column', 'bdthemes-element-pack' ),
-				'type'           => Controls_Manager::SELECT,
-				'default'        => '4',
-				'tablet_default' => '2',
-				'mobile_default' => '2',
-				'options'        => [
-					''  => esc_html__( 'Default', 'bdthemes-element-pack' ),
-					'1' => esc_html__( '1 Columns', 'bdthemes-element-pack' ),
-					'2' => esc_html__( '2 Columns', 'bdthemes-element-pack' ),
-					'3' => esc_html__( '3 Column', 'bdthemes-element-pack' ),
-					'4' => esc_html__( '4 Columns', 'bdthemes-element-pack' ),
-				],
-				'condition' => [
-					'_skin' => '',
-				]
 			]
 		);
 
@@ -366,7 +369,7 @@ class Countdown extends Module_Base {
 				'label'   => esc_html__( 'Minutes', 'bdthemes-element-pack' ),
 				'type'    => Controls_Manager::SWITCHER,
 				'default' => 'yes',
-				]
+			]
 		);
 
 		$this->add_control(
@@ -459,8 +462,105 @@ class Countdown extends Module_Base {
 			]
 		);
 
+		$this->add_control(
+			'show_separator',
+			[
+				'label' => esc_html__('Show Separator', 'bdthemes-element-pack') . BDTEP_NC,
+				'type' => Controls_Manager::SWITCHER,
+				'separator' => 'before',
+			]
+		);
+
+		$this->add_control(
+			'separator',
+			[
+				'label' => __('Symbol', 'bdthemes-element-pack'),
+				'type' => Controls_Manager::TEXT,
+				'default' => ':',
+				'condition' => [
+					'show_separator' => 'yes',
+				],
+			]
+		);
+
 		$this->end_controls_section();
 
+		$this->start_controls_section(
+			'section_end_action',
+			[
+				'label' => __('End Action', 'bdthemes-element-pack') . BDTEP_NC,
+				'tab'   => Controls_Manager::TAB_CONTENT,
+			]
+		);
+
+		$this->add_control(
+			'end_action_type',
+			[
+				'label'       => esc_html__('Type', 'bdthemes-element-pack'),
+				'type'        => Controls_Manager::SELECT,
+				'options'     => [
+					'none'    => esc_html__('None', 'bdthemes-element-pack'),
+					'message' => esc_html__('Message', 'bdthemes-element-pack'),
+					'url'     => esc_html__('Redirection Link', 'bdthemes-element-pack'),
+				],
+				'default' => 'none'
+			]
+		);
+
+		$this->add_control(
+			'end_action_note',
+			[
+				'type' => Controls_Manager::RAW_HTML,
+				'raw' => __( 'Choose which action you want to at the end of countdown.', 'bdthemes-element-pack' ),
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
+			]
+		);
+
+		$this->add_control(
+			'end_message',
+			[
+				'label'       => __('End Message', 'bdthemes-element-pack'),
+				'type'        => Controls_Manager::WYSIWYG,
+				'default'     => __('Countdown End!', 'bdthemes-element-pack'),
+				'placeholder' => __('Type your message here', 'bdthemes-element-pack'),
+				'condition'   => [
+					'end_action_type' => 'message'
+				],
+			]
+		);
+
+		$this->add_control(
+			'end_redirect_link',
+			[
+				'label' => __('Redirection Link', 'bdthemes-element-pack'),
+				'type' => Controls_Manager::TEXT,
+				'placeholder' => __('https://elementpack.pro/', 'bdthemes-element-pack'),
+				'condition' => [
+					'end_action_type' => 'url'
+				],
+			]
+		);
+
+		$this->add_control(
+			'link_redirect_delay',
+			[
+				'label' => __('Redirection Delay (s)', 'bdthemes-element-pack'),
+				'type' => Controls_Manager::SLIDER,
+				'range'      => [
+                    'px' => [
+                        'min' => 0,
+                        'max' => 10,
+                    ],
+                ],
+				'condition' => [
+					'end_action_type' => 'url'
+				],
+			]
+		);
+
+		$this->end_controls_section();
+
+		//Style
 		$this->start_controls_section(
 			'section_count_style',
 			[
@@ -470,13 +570,44 @@ class Countdown extends Module_Base {
 		);
 
 		$this->add_control(
-			'count_background_color',
-			[
-				'label'     => esc_html__( 'Background Color', 'bdthemes-element-pack' ),
-				'type'      => Controls_Manager::COLOR,
-				'selectors' => [
-					'{{WRAPPER}} .bdt-countdown-item' => 'background-color: {{VALUE}};',
+            'glassmorphism_effect',
+            [
+                'label' => esc_html__('Glassmorphism', 'bdthemes-element-pack') . BDTEP_NC,
+				'type'  => Controls_Manager::SWITCHER,
+				'description' => sprintf( __( 'This feature will not work in the Firefox browser untill you enable browser compatibility so please %1s look here %2s', 'bdthemes-element-pack' ), '<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter#Browser_compatibility" target="_blank">', '</a>' ),
+            
+            ]
+		);
+		
+		$this->add_control(
+            'glassmorphism_blur_level',
+            [
+                'label'       => __('Blur Level', 'bdthemes-element-pack'),
+                'type'        => Controls_Manager::SLIDER,
+                'range'       => [
+                    'px' => [
+                        'min'  => 0,
+                        'step' => 1,
+                        'max'  => 50,
+                    ]
+                ],
+                'default'     => [
+                    'size' => 5
+                ],
+                'selectors'   => [
+                    '{{WRAPPER}} .bdt-countdown-item' => 'backdrop-filter: blur({{SIZE}}px); -webkit-backdrop-filter: blur({{SIZE}}px);'
 				],
+				'condition' => [
+					'glassmorphism_effect' => 'yes',
+				]
+            ]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'      => 'count_background_color',
+				'selector'  => '{{WRAPPER}} .bdt-countdown-item',
 			]
 		);
 
@@ -486,26 +617,19 @@ class Countdown extends Module_Base {
 				'name'     => 'count_border',
 				'label'    => esc_html__( 'Border', 'bdthemes-element-pack' ),
 				'selector' => '{{WRAPPER}} .bdt-countdown-item',
+				'separator' => 'before'
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'count_border_radius',
 			[
 				'label'      => esc_html__( 'Border Radius', 'bdthemes-element-pack' ),
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => [ 'px', '%' ],
 				'selectors'  => [
-					'{{WRAPPER}} .bdt-countdown-item' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; overflow: hidden;',
+					'{{WRAPPER}} .bdt-countdown-item' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
-			]
-		);
-
-		$this->add_group_control(
-			Group_Control_Box_Shadow::get_type(),
-			[
-				'name'     => 'count_shadow',
-				'selector' => '{{WRAPPER}} .bdt-countdown-item',
 			]
 		);
 
@@ -521,6 +645,14 @@ class Countdown extends Module_Base {
 			]
 		);
 
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'count_shadow',
+				'selector' => '{{WRAPPER}} .bdt-countdown-item',
+			]
+		);
+
 		$this->end_controls_section();
 
 		$this->start_controls_section(
@@ -528,21 +660,6 @@ class Countdown extends Module_Base {
 			[
 				'label' => esc_html__( 'Number', 'bdthemes-element-pack' ),
 				'tab'   => Controls_Manager::TAB_STYLE,
-			]
-		);
-
-		$this->add_control(
-			'number_background',
-			[
-				'label'     => esc_html__( 'Background Color', 'bdthemes-element-pack' ),
-				'type'      => Controls_Manager::COLOR,
-				// 'scheme' => [
-				// 	'type'  => Schemes\Color::get_type(),
-				// 	'value' => Schemes\Color::COLOR_4,
-				// ],
-				'selectors' => [
-					'{{WRAPPER}} .bdt-countdown-number' => 'background-color: {{VALUE}};',
-				],
 			]
 		);
 
@@ -558,10 +675,33 @@ class Countdown extends Module_Base {
 		);
 
 		$this->add_group_control(
-			Group_Control_Box_Shadow::get_type(),
+			Group_Control_Background::get_type(),
 			[
-				'name'     => 'number_box_shadow',
-				'selector' => '{{WRAPPER}} .bdt-countdown-number',
+				'name'      => 'number_background',
+				'selector'  => '{{WRAPPER}} .bdt-countdown-number',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[
+				'name'        => 'number_border',
+				'placeholder' => '1px',
+				'default'     => '1px',
+				'selector'    => '{{WRAPPER}} .bdt-countdown-number',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_responsive_control(
+			'number_border_radius',
+			[
+				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-number' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
 			]
 		);
 
@@ -578,24 +718,19 @@ class Countdown extends Module_Base {
 		);
 
 		$this->add_group_control(
-			Group_Control_Border::get_type(),
+			Group_Control_Text_Shadow::get_type(),
 			[
-				'name'        => 'number_border',
-				'placeholder' => '1px',
-				'default'     => '1px',
-				'selector'    => '{{WRAPPER}} .bdt-countdown-number',
+				'name' => 'text_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'selector' => '{{WRAPPER}} .bdt-countdown-number',
 			]
 		);
 
-		$this->add_responsive_control(
-			'number_border_radius',
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
 			[
-				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
-				'type'       => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', '%' ],
-				'selectors'  => [
-					'{{WRAPPER}} .bdt-countdown-number' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; overflow: hidden;',
-				],
+				'name'     => 'number_box_shadow',
+				'selector' => '{{WRAPPER}} .bdt-countdown-number',
 			]
 		);
 
@@ -604,7 +739,6 @@ class Countdown extends Module_Base {
 			[
 				'name'     => 'number_typography',
 				'selector' => '{{WRAPPER}} .bdt-countdown-number',
-				//'scheme'   => Schemes\Typography::TYPOGRAPHY_3,
 			]
 		);
 
@@ -622,17 +756,6 @@ class Countdown extends Module_Base {
 		);
 
 		$this->add_control(
-			'label_background',
-			[
-				'label'     => esc_html__( 'Background Color', 'bdthemes-element-pack' ),
-				'type'      => Controls_Manager::COLOR,
-				'selectors' => [
-					'{{WRAPPER}} .bdt-countdown-label' => 'background-color: {{VALUE}};',
-				],
-			]
-		);
-
-		$this->add_control(
 			'label_color',
 			[
 				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
@@ -644,10 +767,33 @@ class Countdown extends Module_Base {
 		);
 
 		$this->add_group_control(
-			Group_Control_Box_Shadow::get_type(),
+			Group_Control_Background::get_type(),
 			[
-				'name'     => 'label_box_shadow',
-				'selector' => '{{WRAPPER}} .bdt-countdown-label',
+				'name'      => 'label_background',
+				'selector'  => '{{WRAPPER}} .bdt-countdown-label',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[
+				'name'        => 'label_border',
+				'placeholder' => '1px',
+				'default'     => '1px',
+				'selector'    => '{{WRAPPER}} .bdt-countdown-label',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_responsive_control(
+			'label_border_radius',
+			[
+				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-label' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
 			]
 		);
 
@@ -664,24 +810,19 @@ class Countdown extends Module_Base {
 		);
 
 		$this->add_group_control(
-			Group_Control_Border::get_type(),
+			Group_Control_Text_Shadow::get_type(),
 			[
-				'name'        => 'label_border',
-				'placeholder' => '1px',
-				'default'     => '1px',
-				'selector'    => '{{WRAPPER}} .bdt-countdown-label',
+				'name' => 'label_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'selector' => '{{WRAPPER}} .bdt-countdown-label',
 			]
 		);
 
-		$this->add_responsive_control(
-			'label_border_radius',
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
 			[
-				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
-				'type'       => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', '%' ],
-				'selectors'  => [
-					'{{WRAPPER}} .bdt-countdown-label' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; overflow: hidden;',
-				],
+				'name'     => 'label_box_shadow',
+				'selector' => '{{WRAPPER}} .bdt-countdown-label',
 			]
 		);
 
@@ -690,7 +831,876 @@ class Countdown extends Module_Base {
 			[
 				'name'     => 'label_typography',
 				'selector' => '{{WRAPPER}} .bdt-countdown-label',
-				//'scheme'   => Schemes\Typography::TYPOGRAPHY_3,
+			]
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_days_style',
+			[
+				'label'     => esc_html__( 'Days Style', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'tab'       => Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'show_days' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'      => 'days_background',
+				'selector'  => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-days-wrapper',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[
+				'name'        => 'days_border',
+				'selector'    => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-days-wrapper',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_responsive_control(
+			'days_border_radius',
+			[
+				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-days-wrapper' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'days_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-days-wrapper' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'days_box_shadow',
+				'selector' => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-days-wrapper',
+			]
+		);
+
+		$this->add_control(
+			'days_number_divider',
+			[
+				'type'       => Controls_Manager::DIVIDER,
+			]
+		);
+
+		$this->add_control(
+			'days_number_heading',
+			[
+				'label'      => esc_html__( 'Number', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::HEADING,
+			]
+		);
+
+		$this->add_control(
+			'days_number_color',
+			[
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-days-wrapper .bdt-countdown-number' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'days_number_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ),
+				'selector' => '{{WRAPPER}} .bdt-days-wrapper .bdt-countdown-number',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'days_number_typography',
+				'selector' => '{{WRAPPER}} .bdt-days-wrapper .bdt-countdown-number',
+			]
+		);
+
+		$this->add_control(
+			'days_label_divider',
+			[
+				'type'       => Controls_Manager::DIVIDER,
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'days_Label_heading',
+			[
+				'label'      => esc_html__( 'Label', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::HEADING,
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'days_label_color',
+			[
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-days-wrapper .bdt-countdown-label' => 'color: {{VALUE}};',
+				],
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'days_label_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ),
+				'selector' => '{{WRAPPER}} .bdt-days-wrapper .bdt-countdown-label',
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'days_label_typography',
+				'selector' => '{{WRAPPER}} .bdt-days-wrapper .bdt-countdown-label',
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_hours_style',
+			[
+				'label'     => esc_html__( 'Hours Style', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'tab'       => Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'show_hours' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'      => 'hours_background',
+				'selector'  => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-hours-wrapper',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[
+				'name'        => 'hours_border',
+				'selector'    => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-hours-wrapper',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_responsive_control(
+			'hours_border_radius',
+			[
+				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-hours-wrapper' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'hours_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-hours-wrapper' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'hours_box_shadow',
+				'selector' => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-hours-wrapper',
+			]
+		);
+
+		$this->add_control(
+			'hours_number_divider',
+			[
+				'type'       => Controls_Manager::DIVIDER,
+			]
+		);
+
+		$this->add_control(
+			'hours_number_heading',
+			[
+				'label'      => esc_html__( 'Number', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::HEADING,
+			]
+		);
+
+		$this->add_control(
+			'hours_number_color',
+			[
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-hours-wrapper .bdt-countdown-number' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'hours_number_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ),
+				'selector' => '{{WRAPPER}} .bdt-hours-wrapper .bdt-countdown-number',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'hours_number_typography',
+				'selector' => '{{WRAPPER}} .bdt-hours-wrapper .bdt-countdown-number',
+			]
+		);
+
+		$this->add_control(
+			'hours_label_divider',
+			[
+				'type'       => Controls_Manager::DIVIDER,
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'hours_Label_heading',
+			[
+				'label'      => esc_html__( 'Label', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::HEADING,
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'hours_label_color',
+			[
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-hours-wrapper .bdt-countdown-label' => 'color: {{VALUE}};',
+				],
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'hours_label_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ),
+				'selector' => '{{WRAPPER}} .bdt-hours-wrapper .bdt-countdown-label',
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'hours_label_typography',
+				'selector' => '{{WRAPPER}} .bdt-hours-wrapper .bdt-countdown-label',
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_minutes_style',
+			[
+				'label'     => esc_html__( 'Minutes Style', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'tab'       => Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'show_minutes' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'      => 'minutes_background',
+				'selector'  => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-minutes-wrapper',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[
+				'name'        => 'minutes_border',
+				'selector'    => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-minutes-wrapper',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_responsive_control(
+			'minutes_border_radius',
+			[
+				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-minutes-wrapper' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'minutes_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-minutes-wrapper' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'minutes_box_shadow',
+				'selector' => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-minutes-wrapper',
+			]
+		);
+
+		$this->add_control(
+			'minutes_number_divider',
+			[
+				'type'       => Controls_Manager::DIVIDER,
+			]
+		);
+
+		$this->add_control(
+			'minutes_number_heading',
+			[
+				'label'      => esc_html__( 'Number', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::HEADING,
+			]
+		);
+
+		$this->add_control(
+			'minutes_number_color',
+			[
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-minutes-wrapper .bdt-countdown-number' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'minutes_number_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ),
+				'selector' => '{{WRAPPER}} .bdt-minutes-wrapper .bdt-countdown-number',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'minutes_number_typography',
+				'selector' => '{{WRAPPER}} .bdt-minutes-wrapper .bdt-countdown-number',
+			]
+		);
+
+		$this->add_control(
+			'minutes_label_divider',
+			[
+				'type'       => Controls_Manager::DIVIDER,
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'minutes_Label_heading',
+			[
+				'label'      => esc_html__( 'Label', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::HEADING,
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'minutes_label_color',
+			[
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-minutes-wrapper .bdt-countdown-label' => 'color: {{VALUE}};',
+				],
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'minutes_label_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ),
+				'selector' => '{{WRAPPER}} .bdt-minutes-wrapper .bdt-countdown-label',
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'minutes_label_typography',
+				'selector' => '{{WRAPPER}} .bdt-minutes-wrapper .bdt-countdown-label',
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_seconds_style',
+			[
+				'label'     => esc_html__( 'Seconds Style', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'tab'       => Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'show_seconds' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'      => 'seconds_background',
+				'selector'  => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-seconds-wrapper',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[
+				'name'        => 'seconds_border',
+				'selector'    => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-seconds-wrapper',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_responsive_control(
+			'seconds_border_radius',
+			[
+				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-seconds-wrapper' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'seconds_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-seconds-wrapper' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'seconds_box_shadow',
+				'selector' => '{{WRAPPER}} .bdt-countdown-item-wrapper .bdt-seconds-wrapper',
+			]
+		);
+
+		$this->add_control(
+			'seconds_number_divider',
+			[
+				'type'       => Controls_Manager::DIVIDER,
+			]
+		);
+
+		$this->add_control(
+			'seconds_number_heading',
+			[
+				'label'      => esc_html__( 'Number', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::HEADING,
+			]
+		);
+
+		$this->add_control(
+			'seconds_number_color',
+			[
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-seconds-wrapper .bdt-countdown-number' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'seconds_number_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ),
+				'selector' => '{{WRAPPER}} .bdt-seconds-wrapper .bdt-countdown-number',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'seconds_number_typography',
+				'selector' => '{{WRAPPER}} .bdt-seconds-wrapper .bdt-countdown-number',
+			]
+		);
+
+		$this->add_control(
+			'seconds_label_divider',
+			[
+				'type'       => Controls_Manager::DIVIDER,
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'seconds_Label_heading',
+			[
+				'label'      => esc_html__( 'Label', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::HEADING,
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'seconds_label_color',
+			[
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-seconds-wrapper .bdt-countdown-label' => 'color: {{VALUE}};',
+				],
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'seconds_label_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ),
+				'selector' => '{{WRAPPER}} .bdt-seconds-wrapper .bdt-countdown-label',
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'seconds_label_typography',
+				'selector' => '{{WRAPPER}} .bdt-seconds-wrapper .bdt-countdown-label',
+				'condition' => [
+					'show_labels' => 'yes',
+				],
+			]
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_separator_style',
+			[
+				'label'     => esc_html__( 'Separator', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'tab'       => Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'show_separator' => 'yes',
+				],
+			]
+		);
+
+		$this->add_control(
+			'separator_color',
+			[
+				'label' => __('Color', 'bdthemes-element-pack'),
+				'type' => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-countdown-wrapper .bdt-countdown-divider' => 'color: {{VALUE}}',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'separator_size',
+			[
+				'label' => __('Size', 'bdthemes-element-pack'),
+				'type' => Controls_Manager::SLIDER,
+				'size_units' => ['px'],
+				'selectors' => [
+					'{{WRAPPER}} .bdt-countdown-wrapper .bdt-countdown-divider' => 'font-size: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'divider_offset_popover',
+			[
+				'label'        => esc_html__('Offset', 'bdthemes-element-pack'),
+				'type'         => Controls_Manager::POPOVER_TOGGLE,
+				'render_type'  => 'ui',
+				'return_value' => 'yes',
+			]
+		);
+
+		$this->start_popover();
+
+		$this->add_responsive_control(
+			'divider_horizontal_offset',
+			[
+				'label' => __( 'Horizontal', 'bdthemes-element-pack' ),
+				'type'  => Controls_Manager::SLIDER,
+				'range' => [
+					'px' => [
+						'min' => -100,
+						'max' => 100,
+					],
+				],
+				'condition' => [
+					'divider_offset_popover' => 'yes',
+				],
+				'selectors' => [
+					'{{WRAPPER}}' => '--ep-countdown-separator-h-offset: {{SIZE}}px;'
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'divider_vertical_offset',
+			[
+				'label' => __( 'Vertical', 'bdthemes-element-pack' ),
+				'type'  => Controls_Manager::SLIDER,
+				'range' => [
+					'px' => [
+						'min' => -100,
+						'max' => 100,
+					],
+				],
+				'selectors' => [
+					'{{WRAPPER}}' => '--ep-countdown-separator-v-offset: {{SIZE}}px;'
+				],
+				'condition' => [
+					'divider_offset_popover' => 'yes',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'divider_rotate',
+			[
+				'label'   => esc_html__( 'Rotate', 'bdthemes-element-pack' ),
+				'type'    => Controls_Manager::SLIDER,
+				'range' => [
+					'px' => [
+						'min' => -360,
+						'max' => 360,
+					],
+				],
+				'selectors' => [
+					'{{WRAPPER}}' => '--ep-countdown-separator-rotate: {{SIZE}}deg;'
+				],
+				'condition' => [
+					'divider_offset_popover' => 'yes',
+				],
+			]
+		);
+		
+		$this->end_popover();
+		
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_end_message_style',
+			[
+				'label' => esc_html__( 'End Message', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'tab'   => Controls_Manager::TAB_STYLE,
+				'condition' => [
+					'end_action_type' => 'message',
+				],
+			]
+		);
+
+		$this->add_control(
+			'end_message_color',
+			[
+				'label'  => esc_html__( 'Color', 'bdthemes-element-pack' ),
+				'type'   => Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-countdown-end-message' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Background::get_type(),
+			[
+				'name'      => 'end_message_background',
+				'selector'  => '{{WRAPPER}} .bdt-countdown-end-message',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			[
+				'name'        => 'end_message_border',
+				'selector'    => '{{WRAPPER}} .bdt-countdown-end-message',
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_responsive_control(
+			'end_message_border_radius',
+			[
+				'label'      => __( 'Border Radius', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-end-message' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'end_message_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-end-message' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			[
+				'name'     => 'end_message_box_shadow',
+				'selector' => '{{WRAPPER}} .bdt-countdown-end-message',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'end_message_typography',
+				'selector' => '{{WRAPPER}} .bdt-countdown-end-message',
+			]
+		);
+
+		$this->add_responsive_control(
+			'end_message_alignment',
+			[
+				'label'        => __( 'Alignment', 'bdthemes-element-pack' ),
+				'type'         => Controls_Manager::CHOOSE,
+				'options'      => [
+					'left'   => [
+						'title' => __( 'Left', 'bdthemes-element-pack' ),
+						'icon'  => 'fas fa-align-left',
+					],
+					'center' => [
+						'title' => __( 'Center', 'bdthemes-element-pack' ),
+						'icon'  => 'fas fa-align-center',
+					],
+					'right'  => [
+						'title' => __( 'Right', 'bdthemes-element-pack' ),
+						'icon'  => 'fas fa-align-right',
+					],
+				],
+				'default'      => 'center',
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-countdown-end-message' => 'text-align: {{VALUE}};',
+				],
+				'render_type' => 'template'
 			]
 		);
 
@@ -700,16 +1710,16 @@ class Countdown extends Module_Base {
 	public function get_strftime( $settings ) {
 		$string = '';
 		if ( $settings['show_days'] ) {
-			$string .= $this->render_countdown_item( $settings, 'label_days', 'bdt-countdown-days' );
+			$string .= $this->render_countdown_item( $settings, 'label_days', 'bdt-days-wrapper', 'bdt-countdown-days' );
 		}
 		if ( $settings['show_hours'] ) {
-			$string .= $this->render_countdown_item( $settings, 'label_hours', 'bdt-countdown-hours' );
+			$string .= $this->render_countdown_item( $settings, 'label_hours', 'bdt-hours-wrapper', 'bdt-countdown-hours' );
 		}
 		if ( $settings['show_minutes'] ) {
-			$string .= $this->render_countdown_item( $settings, 'label_minutes', 'bdt-countdown-minutes' );
+			$string .= $this->render_countdown_item( $settings, 'label_minutes', 'bdt-minutes-wrapper', 'bdt-countdown-minutes' );
 		}
 		if ( $settings['show_seconds'] ) {
-			$string .= $this->render_countdown_item( $settings, 'label_seconds', 'bdt-countdown-seconds' );
+			$string .= $this->render_countdown_item( $settings, 'label_seconds', 'bdt-seconds-wrapper', 'bdt-countdown-seconds' );
 		}
 
 		return $string;
@@ -736,34 +1746,40 @@ class Countdown extends Module_Base {
 		return $this->_default_countdown_labels;
 	}
 
-	private function render_countdown_item( $settings, $label, $part_class ) {
+	private function render_countdown_item( $settings, $label, $wrapper_class, $part_class ) {
 		$string  = '<div class="bdt-countdown-item-wrapper">';
-			$string .= '<div class="bdt-countdown-item">';
-				$string .= '<span class="bdt-countdown-number ' . $part_class . ' bdt-text-'.esc_attr($this->get_settings('alignment')).'"></span>';
+		$string .= '<div class="bdt-countdown-item ' . $wrapper_class . '">';
+		$string .= '<span class="bdt-countdown-number ' . $part_class . ' bdt-text-'.esc_attr($this->get_settings('alignment')).'"></span>';
 
-				if ( $settings['show_labels'] ) {
-					$default_labels = $this->get_default_countdown_labels();
-					$label          = ( $settings['custom_labels'] ) ? $settings[ $label ] : $default_labels[ $label ];
-					$string        .= ' <span class="bdt-countdown-label bdt-text-'.esc_attr($this->get_settings('alignment')).'">' . $label . '</span>';
-				}
-			$string .= '</div>';
+		if ( $settings['show_labels'] ) {
+			$default_labels = $this->get_default_countdown_labels();
+			$label          = ( $settings['custom_labels'] ) ? $settings[ $label ] : $default_labels[ $label ];
+			$string        .= ' <span class="bdt-countdown-label bdt-text-'.esc_attr($this->get_settings('alignment')).'">' . $label . '</span>';
+		}
+
+		if ('yes' == $settings['show_separator'] ) {
+			$string .= '<span class="bdt-countdown-divider">'. esc_attr($settings['separator']) .'</span>';
+		}
+
+		$string .= '</div>';
 		$string .= '</div>';
 
 		return $string;
 	}
 
-	protected function render() {
+	protected function render() { 
 		$settings      = $this->get_settings_for_display();
 		$due_date      = $settings['due_date'];
 		$string        = $this->get_strftime( $settings );
 		
-		$with_gmt_time = date( 'Y-m-d H:i', strtotime( $due_date ) + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );		
+		$with_gmt_time = date( 'Y-m-d H:i', strtotime( $due_date ) - ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );		
 		$datetime      = new \DateTime($with_gmt_time);
 		$final_time    = $datetime->format('c');
 
 		$this->add_render_attribute(
 			[
 				'countdown' => [
+					'id' 	=> 'bdt-countdown-' . $this->get_id() . '-timer',
 					'class' => [
 						'bdt-grid',
 						$settings['count_gap'] ? 'bdt-grid-' . $settings['count_gap'] : '',
@@ -779,12 +1795,43 @@ class Countdown extends Module_Base {
 			]
 		);
 
+		$end_time = strtotime($final_time);
+
+		$this->add_render_attribute(
+			[
+				'countdown_wrapper' => [
+					'class' => 'bdt-countdown-wrapper bdt-countdown-skin-default',
+					'data-settings' => [
+						wp_json_encode([
+							"id"             => '#bdt-countdown-' . $this->get_id(), 
+							'adminAjaxUrl'   => admin_url("admin-ajax.php"),
+							'endActionType'	 => $settings['end_action_type'],
+							'redirectUrl'	 => $settings['end_redirect_link'],
+							'redirectDelay'	 => (empty($settings['link_redirect_delay']['size'])) ? 1000 : ($settings['link_redirect_delay']['size']) * 1000,
+							'endTime'		 => $end_time
+						]),
+					],
+				],
+			]
+		);
+
+
 		?>
-		<div class="bdt-countdown-wrapper bdt-countdown-skin-default">
+
+
+		<div <?php echo $this->get_render_attribute_string('countdown_wrapper'); ?>>
 			<div <?php echo $this->get_render_attribute_string( 'countdown' ); ?>>
 				<?php echo wp_kses_post($string); ?>
 			</div>
+
+			<?php if ($settings['end_action_type'] == 'message') : ?>
+			<div id="<?php echo 'bdt-countdown-' . $this->get_id() . '-msg'; ?>" class="bdt-countdown-end-message">
+				<?php echo esc_html($settings['end_message']); ?>
+			</div>
+			<?php endif; ?>
+
 		</div>
+
 		<?php
 	}
 }

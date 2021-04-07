@@ -10,7 +10,8 @@
     use Elementor\Group_Control_Background;
     use Elementor\Group_Control_Css_Filter;
     use Elementor\Icons_Manager;
-    use Elementor\Utils;
+    use ElementPack\Utils;
+ 
     
     if (!defined('ABSPATH')) exit; // Exit if accessed directly
     
@@ -336,10 +337,11 @@
                     'label' => __('Icon', 'bdthemes-element-pack'),
                     'type' => Controls_Manager::ICONS,
                     'separator' => 'before',
-                    'label_block' => true,
+                    'label_block' => false,
                     'condition' => [
                         'readmore' => 'yes'
-                    ]
+                    ],
+                    'skin' => 'inline'
                 ]
             );
             
@@ -377,8 +379,8 @@
                         'readmore_text!' => '',
                     ],
                     'selectors' => [
-                        '{{WRAPPER}} .bdt-step-flow-readmore .bdt-button-icon-align-right' => 'margin-left: {{SIZE}}{{UNIT}};',
-                        '{{WRAPPER}} .bdt-step-flow-readmore .bdt-button-icon-align-left' => 'margin-right: {{SIZE}}{{UNIT}};',
+                        '{{WRAPPER}} .bdt-step-flow-readmore .bdt-button-icon-align-right' => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+                        '{{WRAPPER}} .bdt-step-flow-readmore .bdt-button-icon-align-left' => is_rtl() ? 'margin-left: {{SIZE}}{{UNIT}};' : 'margin-right: {{SIZE}}{{UNIT}};',
                     ],
                 ]
             );
@@ -2215,11 +2217,11 @@
             ?>
             
             <?php if ($settings['title_text']) : ?>
-            <<?php echo esc_html($settings['title_size']) . ' '; ?><?php echo $this->get_render_attribute_string('step-flow-title'); ?>>
+            <<?php echo Utils::get_valid_html_tag($settings['title_size']) . ' '; ?><?php echo $this->get_render_attribute_string('step-flow-title'); ?>>
             <span <?php echo $this->get_render_attribute_string('title_text'); ?>>
                 <?php echo wp_kses($settings['title_text'], element_pack_allow_tags('title')); ?>
             </span>
-            </<?php echo esc_html($settings['title_size']); ?>>
+            </<?php echo Utils::get_valid_html_tag($settings['title_size']); ?>>
             <?php endif; ?>
             
             <?php

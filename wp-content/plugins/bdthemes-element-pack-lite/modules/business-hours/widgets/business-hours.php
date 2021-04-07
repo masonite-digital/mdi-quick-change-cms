@@ -6,9 +6,7 @@ use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
 use Elementor\Group_Control_Background;
 use Elementor\Group_Control_Text_Shadow;
-use Elementor\Core\Schemes;
 use Elementor\Repeater;
-use Elementor\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -365,13 +363,13 @@ class Business_Hours extends Module_Base {
                 'type'    => Controls_Manager::SELECT,
                 'default' => 'Monday',
                 'options' => [
-                    'Sunday'    => 'Sunday',
-                    'Monday'    => 'Monday',
-                    'Tuesday'   => 'Tuesday',
-                    'Wednesday' => 'Wednesday',
-                    'Thursday'  => 'Thursday',
-                    'Friday'    => 'Friday',
-                    'Saturday'  => 'Saturday',
+                    'Monday'    => esc_html__( 'Monday', 'bdthemes-element-pack' ),
+                    'Tuesday'   => esc_html__( 'Tuesday', 'bdthemes-element-pack' ),
+                    'Wednesday' => esc_html__( 'Wednesday', 'bdthemes-element-pack' ),
+                    'Thursday'  => esc_html__( 'Thursday', 'bdthemes-element-pack' ),
+                    'Friday'    => esc_html__( 'Friday', 'bdthemes-element-pack' ),
+                    'Saturday'  => esc_html__( 'Saturday', 'bdthemes-element-pack' ),
+                    'Sunday'    => esc_html__( 'Sunday', 'bdthemes-element-pack' ),
                 ],
             ]
         );
@@ -429,7 +427,7 @@ class Business_Hours extends Module_Base {
             [
                 'label'       => esc_html__( 'Close Level', 'bdthemes-element-pack' ),
                 'type'        => Controls_Manager::TEXT,
-                'default'     => 'Closed',
+                'default'     => __( 'Closed', 'bdthemes-element-pack' ),
                 'dynamic'     => [ 'active' => true, ],
                 'condition'	  => [
                     'dynamic_close_this' => 'yes',
@@ -462,10 +460,6 @@ class Business_Hours extends Module_Base {
             [
                 'label'     => esc_html__( 'Day Color', 'bdthemes-element-pack' ),
                 'type'      => Controls_Manager::COLOR,
-                //'scheme'    => [
-                    //'type'  => Schemes\Color::get_type(),
-                    //'value' => Schemes\Color::COLOR_2,
-                //],
                 'default'   => '#db6159',
                 'selectors' => [
                     '{{WRAPPER}} {{CURRENT_ITEM}} .bdt-business-day-off' => 'color: {{VALUE}}',
@@ -482,10 +476,6 @@ class Business_Hours extends Module_Base {
             [
                 'label'     => esc_html__( 'Time Color', 'bdthemes-element-pack' ),
                 'type'      => Controls_Manager::COLOR,
-                //'scheme'    => [
-                    //'type'  => Schemes\Color::get_type(),
-                    //'value' => Schemes\Color::COLOR_4,
-                //],
                 'default'   => '#db6159',
                 'selectors' => [
                     '{{WRAPPER}} {{CURRENT_ITEM}} .bdt-business-time-off' => 'color: {{VALUE}}',
@@ -588,7 +578,7 @@ class Business_Hours extends Module_Base {
             [
                 'label'       => esc_html__( 'Open Status', 'bdthemes-element-pack' ),
                 'type'        => Controls_Manager::WYSIWYG,
-                'default'     => 'Office Open. Right now we are available for service.',
+                'default'     => __( 'Office Open. Right now we are available for service.', 'bdthemes-element-pack' ),
                 'dynamic'     => [ 'active' => true, ],
                 'condition'	  => [
                     'business_hour_style' => 'dynamic',
@@ -601,7 +591,7 @@ class Business_Hours extends Module_Base {
             [
                 'label'       => esc_html__( 'Close Status', 'bdthemes-element-pack' ),
                 'type'        => Controls_Manager::WYSIWYG,
-                'default'     => 'Office Closed. Right now we are not available.',
+                'default'     => esc_html__( 'Office Closed. Right now we are not available.', 'bdthemes-element-pack' ),
                 'dynamic'     => [ 'active' => true, ],
                 'condition'	  => [
                     'business_hour_style' => 'dynamic',
@@ -1103,7 +1093,6 @@ class Business_Hours extends Module_Base {
             [
                 'label'    => esc_html__( 'Typography', 'bdthemes-element-pack' ),
                 'name'     => 'business_dynamic_msg_typography',
-                //'scheme'   => Schemes\Typography::TYPOGRAPHY_3,
                 'selector' => '{{WRAPPER}} .bdt-business-hours .bdt-live-status',
             ]
         );
@@ -1125,9 +1114,6 @@ class Business_Hours extends Module_Base {
         );
 
         $this->end_controls_section();
-
-
-
 
     }
 

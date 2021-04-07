@@ -121,11 +121,11 @@
         if (!$accrContainer.length) {
             return;
         }
-        var $settings = $accordion.data('settings');
-        var activeHash = $settings.activeHash;
-        var hashTopOffset = $settings.hashTopOffset;
+        var $settings         = $accordion.data('settings');
+        var activeHash        = $settings.activeHash;
+        var hashTopOffset     = $settings.hashTopOffset;
         var hashScrollspyTime = $settings.hashScrollspyTime;
-        var activeScrollspy = $settings.activeScrollspy;
+        var activeScrollspy   = $settings.activeScrollspy;
 
         if (activeScrollspy === null || typeof activeScrollspy === 'undefined'){
             activeScrollspy = 'no';
@@ -134,25 +134,25 @@
         function hashHandler($accordion, hashScrollspyTime, hashTopOffset) {
             if (window.location.hash) {
                 if ($($accordion).find('[data-title="' + window.location.hash.substring(1) + '"]').length) {
-                    var hashTarget = $('[data-title="' + window.location.hash.substring(1) + '"]')
-                    .closest($accordion)
-                    .attr('id');
-                    
-                    if(activeScrollspy == 'yes'){
-                        $('html, body').animate({
-                            easing: 'slow',
-                            scrollTop: $('#'+hashTarget).offset().top - hashTopOffset
-                        }, hashScrollspyTime, function() {
-                    }).promise().then(function() {
-                        bdtUIkit.accordion($accordion).toggle($('[data-title="' + window.location.hash.substring(1) + '"]').data('accordion-index'), false);
-                    });
-                }else{
-                    bdtUIkit.accordion($accordion).toggle($('[data-title="' + window.location.hash.substring(1) + '"]').data('accordion-index'), true);
-                }
+                        var hashTarget = $('[data-title="' + window.location.hash.substring(1) + '"]')
+                        .closest($accordion)
+                        .attr('id');
+                        
+                        if(activeScrollspy == 'yes'){
+                            $('html, body').animate({
+                                easing    : 'slow',
+                                scrollTop : $('#'+hashTarget).offset().top - hashTopOffset
+                            }, hashScrollspyTime, function() {
+                                }).promise().then(function() {
+                                    bdtUIkit.accordion($accordion).toggle($('[data-title="' + window.location.hash.substring(1) + '"]').data('accordion-index'), false);
+                                });
+                        } else {
+                            bdtUIkit.accordion($accordion).toggle($('[data-title="' + window.location.hash.substring(1) + '"]').data('accordion-index'), true);
+                        }
 
+                }
             }
-        }
-    } 
+        } 
     if (activeHash == 'yes') {
         $(window).on('load', function() {
             if(activeScrollspy == 'yes'){
@@ -170,17 +170,17 @@
         });
     } 
 
-};
-jQuery(window).on('elementor/frontend/init', function() {
-    elementorFrontend.hooks.addAction('frontend/element_ready/bdt-accordion.default', widgetAccordion);
-});
+    };
+
+    jQuery(window).on('elementor/frontend/init', function() {
+        elementorFrontend.hooks.addAction('frontend/element_ready/bdt-accordion.default', widgetAccordion);
+    });
+
 }(jQuery, window.elementorFrontend));
 
 /**
  * End accordion widget script
  */
-
-
 /**
  * Start animated heading widget script
  */
@@ -470,6 +470,7 @@ jQuery(window).on('elementor/frontend/init', function() {
     };
     jQuery(window).on('elementor/frontend/init', function() {
         elementorFrontend.hooks.addAction('frontend/element_ready/bdt-advanced-counter.default', widgetAdvancedCounter);
+        elementorFrontend.hooks.addAction('frontend/element_ready/bdt-total-count.default', widgetAdvancedCounter);
     });
 }(jQuery, window.elementorFrontend));
 
@@ -531,25 +532,33 @@ jQuery(window).on('elementor/frontend/init', function() {
  * Start chart widget script
  */
 
-( function( $, elementor ) {
+ ( function( $, elementor ) {
 
-	'use strict';
+   'use strict';
 
-	var widgetChart = function( $scope, $ ) {
+   var widgetChart = function( $scope, $ ) {
 
-		var	$chart    	  = $scope.find( '.bdt-chart' ),
-        $chart_canvas = $chart.find( '> canvas' ),
-        settings      = $chart.data('settings'),
-        suffixprefix  = $chart.data('suffixprefix');
+    var $chart        = $scope.find( '.bdt-chart' ),
+    $chart_canvas = $chart.find( '> canvas' ),
+    settings      = $chart.data('settings'),
+    suffixprefix  = $chart.data('suffixprefix');
 
-        if ( ! $chart.length ) {
-            return;
-        }
+    if ( ! $chart.length ) {
+      return;
+    }
 
-        elementorFrontend.waypoint( $chart_canvas, function() {
-            var $this   = $( this ),
-            ctx     = $this[0].getContext('2d'),
-            myChart = new Chart(ctx, settings);
+    elementorFrontend.waypoint( $chart_canvas, function() {
+      var $this   = $( this ),
+      ctx     = $this[0].getContext('2d'),
+      myChart = new Chart(ctx, settings);
+
+      var thouSeparator = settings.valueSeparator,
+      sepratorSymbol = settings.sepratorSymbol,
+      xAxesSeparator = settings.xAxesSeparator,
+      yAxesSeparator = settings.yAxesSeparator;
+      var _k_formatter   = (settings.kFormatter == 'yes') ? true : false; 
+
+      
                 // start update
                  // s_p_status = s=suffix, p = prefix 
                  var 
@@ -561,52 +570,102 @@ jQuery(window).on('elementor/frontend/init', function() {
                  y_suffix = (typeof suffixprefix.y_custom_suffix !== 'undefined') ? suffixprefix.y_custom_suffix : '',
                  y_prefix = (typeof suffixprefix.y_custom_prefix !== 'undefined') ? suffixprefix.y_custom_prefix : '';
 
-                 function updateChartSetting(chart) {
-                    chart.options = {
-                        scales: { 
-                            xAxes: [{
-                                ticks: {
-                                    callback: function(value, index, values) {
+                // toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") 
+
+                function addCommas(nStr, sepratorSymbol, _k_formatter) {
+                  nStr += '';
+                  var x = nStr.split('.');
+                  var x1 = x[0];
+                  var x2 = x.length > 1 ? '.' + x[1] : '';
+                  var rgx = /(\d+)(\d{3})/;
+                  while (rgx.test(x1)) {
+                    x1 = x1.replace(rgx, '$1' + sepratorSymbol + '$2');
+                  }
+                  
+
+                  if( _k_formatter == true ){
+                    if (nStr >= 1000000000) {
+                      return (nStr / 1000000000).toFixed(1).replace(/\.0$/, '') + 'G';
+                    }
+                    if (nStr >= 1000000) {
+                      return (nStr / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+                    }
+                    if (nStr >= 1000) {
+                      return (nStr / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+                    }
+                    return nStr;
+                  }else{
+                    return x1 + x2;
+                  }
+
+                }
+
+
+                function updateChartSetting(chart, thouSeparator = 'no', sepratorSymbol = ',') {
+                  chart.options = {
+                    scales: { 
+                      xAxes: [{
+                        ticks: {
+                          callback: function(value, index, values) {
                                         // return '$' + value + '%';
-                                        return x_prefix + value + x_suffix;
+                                        // return x_prefix + value + x_suffix;
+                                        if(s_p_status == 'yes' && thouSeparator == 'yes' && xAxesSeparator == 'yes'){
+                                          return x_prefix + addCommas(value, sepratorSymbol, _k_formatter)  + x_suffix;
+                                        }else if(s_p_status == 'no' && thouSeparator == 'yes' && xAxesSeparator == 'yes'){
+                                          return addCommas(value, sepratorSymbol, _k_formatter);
+                                        }else{
+                                          return x_prefix + value + x_suffix;
+                                        }
+                                      }
                                     }
-                                }
-                            }],
-                            yAxes: [{
-                                ticks: {
-                                    callback: function(value, index, values) {
-                                        return y_prefix + value + y_suffix;
+                                  }],
+                                  yAxes: [{
+                                    ticks: {
+                                      callback: function(value, index, values) {
+                                        // return y_prefix + value + y_suffix;
+                                        if(s_p_status == 'yes' && thouSeparator == 'yes' && yAxesSeparator == 'yes'){
+                                          return y_prefix + addCommas(value, sepratorSymbol, _k_formatter) + y_suffix;
+                                        }else if(s_p_status == 'no' && thouSeparator == 'yes' && yAxesSeparator == 'yes'){
+                                          return addCommas(value, sepratorSymbol, _k_formatter);
+                                        }else{
+                                          return y_prefix + value + y_suffix;
+                                        }
+                                      }
                                     }
+                                  }],
+
                                 }
-                            }],
 
-                        }
+                              };
+                              chart.update();
+                            }
+                            if(s_p_status == 'yes' && thouSeparator == 'no'){
+                              updateChartSetting(myChart);
+                            }else if(s_p_status == 'yes' && thouSeparator == 'yes'){
+                              updateChartSetting(myChart, thouSeparator, sepratorSymbol);
+                            }else if(s_p_status == 'no' && thouSeparator == 'yes'){
+                              updateChartSetting(myChart, thouSeparator, sepratorSymbol);
+                            }else{
 
-                    };
-                    chart.update();
-                }
-                if(s_p_status == 'yes'){
-                    updateChartSetting(myChart)
-                }
+                            }
                 // end update
 
-            }, {
+              }, {
                 offset: 'bottom-in-view'
-            } );
+              } );
 
-    };
+};
 
 
-    jQuery(window).on('elementor/frontend/init', function() {
-      elementorFrontend.hooks.addAction( 'frontend/element_ready/bdt-chart.default', widgetChart );
-  });
+jQuery(window).on('elementor/frontend/init', function() {
+  elementorFrontend.hooks.addAction( 'frontend/element_ready/bdt-chart.default', widgetChart );
+});
 
 }( jQuery, window.elementorFrontend ) );
 
 /**
  * End chart widget script
  */
-
 
 (function($, elementor) {
 
@@ -644,6 +703,71 @@ jQuery(window).on('elementor/frontend/init', function() {
     });
 
 }(jQuery, window.elementorFrontend));
+
+
+/**
+ * Start countdown widget script
+ */
+
+ (function($, elementor) {
+    'use strict'; 
+    var widgetCountdown = function($scope, $) {
+        var $countdown = $scope.find('.bdt-countdown-wrapper');
+        if (!$countdown.length) {
+            return;
+        }
+        var $settings = $countdown.data('settings'); 
+        var endTime = $settings.endTime; 
+
+        function showPost( endTime ){
+            jQuery.ajax({
+                url: $settings.adminAjaxUrl,
+                type:'post',
+                data : {
+                    action : 'element_pack_countdown_end', 
+                    endTime: endTime
+                },
+                success : function(html){
+                    if(html == 'ended'){
+                        if($settings.endActionType == 'message'){
+                            jQuery($settings.id + '-msg').css({'display':'block'});
+                            jQuery($settings.id + '-timer').css({'display':'none'});
+                        }
+                        if($settings.endActionType == 'url'){
+                                setInterval(function(){
+                                    jQuery(location).attr('href', $settings.redirectUrl);
+                                }, $settings.redirectDelay);
+                        } 
+                    }
+                },
+                error: function(){
+                        //error handling
+                        console.log("Error");
+                    }
+                });
+        }
+
+        jQuery(document).ready(function(){
+
+            if(!jQuery('body').hasClass('elementor-editor-active')) { 
+                jQuery($settings.id + '-msg').css({'display':'none'});
+                setInterval(function(){
+                    showPost( endTime );
+                }, 1000);
+            }
+
+        });
+
+    };
+    jQuery(window).on('elementor/frontend/init', function() {
+        elementorFrontend.hooks.addAction('frontend/element_ready/bdt-countdown.default', widgetCountdown);
+    });
+}(jQuery, window.elementorFrontend));
+
+/**
+ * End countdown widget script
+ */
+
 /**
  * Start custom carousel widget script
  */
@@ -1571,9 +1695,10 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
 
         // Auto height only works when cross origin properly set
         if ( $autoHeight ) {
-            $($iframe).load(function () {
-                $(this).height($(this).contents().find('html').height());
-            });
+              // $($iframe).load(function(){
+                var height = jQuery($iframe).contents().find('html').height();
+                jQuery($iframe).height(height);
+            // });
         }
 
         $($iframe).recliner({
@@ -3730,11 +3855,10 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
 
 /**
  * Start time zone widget script
- */
+ */ 
 
 (function($, elementor) {
     'use strict';
-    // TimeZone
     var widgetTimeZone = function($scope, $) {
         var $TimeZone = $scope.find('.bdt-time-zone');
         var $TimeZoneTimer = $scope.find('.bdt-time-zone-timer');
@@ -3798,7 +3922,7 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
 /**
  * Start video gallery widget script
  */
-
+ 
 ( function( $, elementor ) {
 
 	'use strict';
@@ -3881,15 +4005,20 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
         }
     };
     var widgetWCProductTable = function($scope, $) { 
+
         var $productTable = $scope.find('.bdt-wc-products-skin-table'),
         $settings = $productTable.data('settings'),
-        $table = $productTable.find('> table');
+        $table = $productTable.find('> table'),
+        $quantity = $productTable.find('.bdt-wc-quantity .quantity input');
+
         if (!$productTable.length) {
             return;
         }
+
         $settings.language = window.ElementPackConfig.data_table.language;
 
         if( $settings.hideHeader == 'yes'){
+
            $($table).DataTable({
             cache          : false,
             order          : [],
@@ -3903,10 +4032,13 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
                 $( $table).find("thead").remove(); } , 
             });
            return;
-       }
-       if( $settings.orderColumn != 'default' && $('.bdt-wc-product').find('.bdt-'+$settings.orderColumn).length > 0 && $settings.hideHeader != 'yes'){
+        }
+
+        if( $settings.orderColumn != 'default' && $('.bdt-wc-product').find('.bdt-'+$settings.orderColumn).length > 0 && $settings.hideHeader != 'yes') {
+
         var orderColumn = $('.bdt-wc-product .bdt-'+$settings.orderColumn);
         orderColumn = $(orderColumn).index(this);
+
         $($table).DataTable({
             cache          : false,
             paging         : $settings.paging,
@@ -3917,23 +4049,28 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
             pageLength     : $settings.pageLength,
             order          : [[ orderColumn, $settings.orderColumnQry ]],
         });
-    }else{
-       $($table).DataTable({
-        cache         : false,
-        order         : [],
-        paging        : $settings.paging,
-        info          : $settings.info,
-        bLengthChange : $settings.bLengthChange,
-        searching     : $settings.searching,
-        ordering      : $settings.ordering,
-        pageLength    : $settings.pageLength,
-        
-    });
-   }
 
+        } else {
+            $($table).DataTable({
+                cache         : false,
+                order         : [],
+                paging        : $settings.paging,
+                info          : $settings.info,
+                bLengthChange : $settings.bLengthChange,
+                searching     : $settings.searching,
+                ordering      : $settings.ordering,
+                pageLength    : $settings.pageLength,
+                
+            });
+        }
 
+        jQuery($quantity).on('change',function(){
+            var qtyNum = jQuery(this).val();
+            jQuery(this).closest('tr').find('.bdt-wc-add-to-cart a').attr('data-quantity', qtyNum);
+        });
 
-};
+    };
+
     // Quickviews
     var widgetProductQuickView = {
         loadQuickViewHtml: function(_this, $scope) {
@@ -4144,19 +4281,31 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
 
 	var widgetScrollButton = function( $scope, $ ) {
 	    
-	    var $scrollButton = $scope.find('.bdt-scroll-button'),
-	    	$selector = $scrollButton.data('selector'),
-	    	$settings =  $scrollButton.data('settings');
+			var $scrollButton = $scope.find('.bdt-scroll-button'),
+			$selector         = $scrollButton.data('selector'),
+			$settings         =  $scrollButton.data('settings');
 
 	    if ( ! $scrollButton.length ) {
 	    	return;
 	    }
 
 	    //$($scrollButton).find('.bdt-scroll-button').unbind();
+	    
+	    if ($settings.HideOnBeforeScrolling) {
+
+			$(window).scroll(function() {
+			  if ($(window).scrollTop() > 300) {
+			    $scrollButton.css("opacity", "1");
+			  } else {
+			    $scrollButton.css("opacity", "0");
+			  }
+			});
+	    }
 
 	    $($scrollButton).on('click', function(event){
 	    	event.preventDefault();
 	    	bdtUIkit.scroll($scrollButton, $settings ).scrollTo($($selector));
+
 	    });
 
 	};
@@ -4265,8 +4414,23 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
 	var sectionSwitcher = function( $scope, $ ) {
 	    var $switcher = $scope.find('.bdt-switchers'),
 		    $settings = $switcher.data('settings'),
+		    $activatorSettings = $switcher.data('activator'),
 		    editMode  = Boolean( elementor.isEditMode() );
 
+
+		     if ( $activatorSettings !== undefined ){
+		     	// for A
+		     	bdtUIkit.util.on($activatorSettings.switchA, "click", function(){
+					  bdtUIkit.switcher('#bdt-switcher-activator-' + $activatorSettings.id).show(0);
+					  bdtUIkit.switcher('#bdt-switcher-' + $activatorSettings.id).show(0);
+				});	
+		     	// for B
+				bdtUIkit.util.on($activatorSettings.switchB, "click", function(){
+					  bdtUIkit.switcher('#bdt-switcher-activator-' + $activatorSettings.id).show(1);
+					  bdtUIkit.switcher('#bdt-switcher-' + $activatorSettings.id).show(1);
+				});
+
+		     }
 
 		if ( $settings === undefined || editMode ) {
 			return;
@@ -4352,7 +4516,7 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
  * Start reading progress widget script
  */
 
-(function($, elementor) {
+ (function($, elementor) {
 
     'use strict';
 
@@ -4365,9 +4529,77 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
         }
         var $settings = $readingProgress.data('settings');
 
-        $(document).ready(function(){
-            $($readingProgress).progressScroll([$settings.progress_bg, $settings.scroll_bg]); 
-        });
+        jQuery(document).ready(function(){
+            // jQuery($readingProgress).progressScroll([$settings.progress_bg, $settings.scroll_bg]); 
+            var settings = {
+                borderSize: 10,
+                mainBgColor: '#E6F4F7',
+                lightBorderColor: '#A2ECFB',
+                darkBorderColor: '#39B4CC'
+            };
+
+            var colorBg = $settings.progress_bg;  //'red'
+            var progressColor = $settings.scroll_bg; //'green';
+            var innerHeight, offsetHeight, netHeight,
+            self = this,
+            container = $($readingProgress),
+            borderContainer = 'bdt-reading-progress-border',
+            circleContainer = 'bdt-reading-progress-circle',
+            textContainer = 'bdt-reading-progress-text';
+
+            var getHeight = function () {
+                innerHeight = window.innerHeight;
+                offsetHeight = document.body.offsetHeight;
+                netHeight = offsetHeight - innerHeight;
+            };
+
+            var addEvent = function () {
+                var e = document.createEvent('Event');
+                e.initEvent('scroll', false, false);
+                window.dispatchEvent(e);
+            };
+            var updateProgress = function (percnt) {
+                var per = Math.round(100 * percnt);
+                var deg = per * 360 / 100;
+                if (deg <= 180) {
+                    $('.' + borderContainer, container).css('background-image', 'linear-gradient(' + (90 + deg) + 'deg, transparent 50%, ' + colorBg + ' 50%),linear-gradient(90deg, ' + colorBg + ' 50%, transparent 50%)');
+                } else {
+                    $('.' + borderContainer, container).css('background-image', 'linear-gradient(' + (deg - 90) + 'deg, transparent 50%, ' + progressColor + ' 50%),linear-gradient(90deg, ' + colorBg + ' 50%, transparent 50%)');
+                }
+                $('.' + textContainer, container).text(per + '%');
+            };
+            var prepare = function () {
+                    //$(container).addClass("bdt-reading-progress");
+                    $(container).html("<div class='" + borderContainer + "'><div class='" + circleContainer + "'><span class='" + textContainer + "'></span></div></div>");
+
+                    $('.' + borderContainer, container).css({
+                        'background-color': progressColor,
+                        'background-image': 'linear-gradient(91deg, transparent 50%,' + settings.lightBorderColor + '50%), linear-gradient(90deg,' + settings.lightBorderColor + '50%, transparent 50%'
+                    });
+                    $('.' + circleContainer, container).css({
+                        'width': settings.width - settings.borderSize,
+                        'height': settings.height - settings.borderSize
+                    });
+
+                };
+            var init = function () {
+                    prepare();
+                    $(window).on('scroll', function () {
+                        var getOffset = window.pageYOffset || document.documentElement.scrollTop,
+                        per = Math.max(0, Math.min(1, getOffset / netHeight));
+                        updateProgress(per);
+                    });
+                    $(window).on('resize', function () {
+                        getHeight();
+                        addEvent();
+                    });
+                    $(window).on('load', function () {
+                        getHeight();
+                        addEvent();
+                    });
+                };
+                 init();
+            });
 
     };
     //	start progress with cursor
@@ -4388,8 +4620,8 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
             i.style.top = n.clientY + 'px';
         });
         var t = document.querySelector('.bdt-cursor'),
-            e = document.querySelector('.bdt-cursor2'),
-            i = document.querySelector('.bdt-cursor3');
+        e = document.querySelector('.bdt-cursor2'),
+        i = document.querySelector('.bdt-cursor3');
 
         function n(t) {
             e.classList.add('hover'), i.classList.add('hover');
@@ -4426,7 +4658,7 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
                 progressPath.style.strokeDashoffset = progress;
             };
             updateProgress();
-            $(window).scroll(updateProgress);
+            jQuery(window).on('scroll', updateProgress);
 
 
         });
@@ -4476,7 +4708,7 @@ function circleJs(id, circleMoving, movingTime , mouseEvent ) {
             progressPath.style.strokeDashoffset = progress;
         };
         updateProgress();
-        jQuery(window).scroll(updateProgress);
+        jQuery(window).on('scroll', updateProgress);
         var offset = 50;
         var duration = 550;
         jQuery(window).on('scroll', function() {
@@ -5679,7 +5911,7 @@ jQuery(window).on('elementor/frontend/init', function() {
 
 (function($, elementor) {
     'use strict';
-    // hoverVideo
+    // hoverVideo 
 
 
        // check video buffer
@@ -5749,7 +5981,7 @@ lastPlayPos = currentPlayPos
             videoProgress = $('.bdt-hover-progress.active');
         }, 100);
 
-        $(video).on('mouseenter', function (e) {
+        $(video).on('mouseenter click', function (e) {
             $(this).trigger('play');
 
             videoBufferChecker($(this).attr('id'));
@@ -5845,7 +6077,7 @@ lastPlayPos = currentPlayPos
 
 
 
-        $('.bdt-hover-btn').on('mouseenter', function () {
+        $('.bdt-hover-btn').on('mouseenter click', function () {
             var videoId = $(this).attr('data-id');
             $('#' + videoId).trigger('play');
 
@@ -5940,7 +6172,7 @@ lastPlayPos = currentPlayPos
         }
         // end autoplay 
 
-        $('.bdt-hover-mask-list .bdt-hover-mask').on('mouseenter', function () {
+        $('.bdt-hover-mask-list .bdt-hover-mask').on('mouseenter click', function () {
             var videoId = $(this).attr('data-id');
             $('#' + videoId).siblings().css("display", 'none').removeClass('active');
             $('#' + videoId).css("display", 'block').addClass('active');
@@ -5980,6 +6212,7 @@ lastPlayPos = currentPlayPos
     jQuery(window).on('elementor/frontend/init', function() {
         elementorFrontend.hooks.addAction('frontend/element_ready/bdt-hover-video.default', widgetInstaVideo);
         elementorFrontend.hooks.addAction('frontend/element_ready/bdt-hover-video.accordion', widgetInstaVideoAccordion);
+        elementorFrontend.hooks.addAction('frontend/element_ready/bdt-hover-video.vertical', widgetInstaVideoAccordion);
     });
 }(jQuery, window.elementorFrontend)); 
 

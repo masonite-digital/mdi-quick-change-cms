@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Group_Control_Posts extends Group_Control_Base {
 
-	const INLINE_MAX_RESULTS = 50;
+	const INLINE_MAX_RESULTS = 60;
 
 	protected static $fields;
 

@@ -1,5 +1,6 @@
 <?php
 namespace ElementPack\Modules\ImageAccordion\Widgets;
+
 use ElementPack\Base\Module_Base;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
@@ -7,9 +8,8 @@ use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Background;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Image_Size;
-use Elementor\Group_Control_Css_Filter;
-use Elementor\Icons_Manager;
 use Elementor\Repeater;
+use ElementPack\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -57,6 +57,27 @@ class Image_Accordion extends Module_Base {
 			'section_accordion_item',
 			[
 				'label' => __( 'Image Accordion', 'bdthemes-element-pack' ),
+			]
+		);
+
+		$this->add_control(
+			'skin_type',
+			[
+				'label'	   => __( 'Skin', 'bdthemes-element-pack' ),
+				'type' 	   => Controls_Manager::SELECT,
+				'options'  => [
+					'default' 	=> __( 'Default', 'bdthemes-element-pack' ),
+					'vertical' 	=> __( 'Vertical', 'bdthemes-element-pack' ),
+				],
+				'default'  => 'default',
+				'prefix_class' => 'bdt-image-accordion--skin-',
+			]
+		);
+
+		$this->add_control(
+			'hr_divider',
+			[
+				'type' 	   => Controls_Manager::DIVIDER,
 			]
 		);
 
@@ -473,12 +494,21 @@ class Image_Accordion extends Module_Base {
 		);
 
 		$this->add_control(
+			'show_text_stroke',
+			[
+				'label'   => esc_html__('Text Stroke', 'bdthemes-prime-slider') . BDTEP_NC,
+				'type'    => Controls_Manager::SWITCHER,
+				'prefix_class' => 'bdt-text-stroke--',
+			]
+		);
+
+		$this->add_control(
 			'title_color',
 			[
 				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .bdt-image-accordion .bdt-image-accordion-content .bdt-image-accordion-title' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .bdt-image-accordion .bdt-image-accordion-content .bdt-image-accordion-title' => 'color: {{VALUE}}; -webkit-text-stroke-color: {{VALUE}};',
 				],
 			]
 		);
@@ -832,9 +862,9 @@ class Image_Accordion extends Module_Base {
 							<?php if ( '' !== $item['title_link']['url'] ) : ?>
 								<a href="<?php echo esc_url( $item['title_link']['url'] ); ?>">
 							<?php endif; ?>
-								<<?php echo esc_html($settings['title_tags']); ?> <?php echo $this->get_render_attribute_string('bdt-image-accordion-title'); ?>>
+								<<?php echo Utils::get_valid_html_tag($settings['title_tags']); ?> <?php echo $this->get_render_attribute_string('bdt-image-accordion-title'); ?>>
 									<?php echo wp_kses( $item['image_accordion_title'], element_pack_allow_tags('title') ); ?>
-								</<?php echo esc_html($settings['title_tags']); ?>>
+								</<?php echo Utils::get_valid_html_tag($settings['title_tags']); ?>>
 							<?php if ( '' !== $item['title_link']['url'] ) : ?>
 								</a>
 							<?php endif; ?>

@@ -11,7 +11,8 @@ use Elementor\Group_Control_Background;
 use Elementor\Group_Control_Css_Filter;
 use Elementor\Group_Control_Text_Shadow;
 use Elementor\Icons_Manager;
-use Elementor\Utils;
+use ElementPack\Utils;
+ 
 
 use ElementPack\Modules\FeaturedBox\Skins;
 
@@ -83,6 +84,215 @@ class Featured_Box extends Module_Base {
 				'default'      => 'full',
 			]
 		);
+
+		$this->add_control(
+            'image_mask_popover',
+            [
+                'label'        => esc_html__('Image Mask', 'bdthemes-element-pack') . BDTEP_NC,
+                'type'         => Controls_Manager::POPOVER_TOGGLE,
+                'render_type'  => 'ui',
+                'return_value' => 'yes',
+            ]
+        );
+
+        $this->start_popover();
+
+        $this->add_control(
+            'image_mask_shape',
+            [
+                'label'     => esc_html__('Masking Shape', 'bdthemes-element-pack'),
+                'title'     => esc_html__('Masking Shape', 'bdthemes-element-pack'),
+                'type'      => Controls_Manager::CHOOSE,
+                'default'   => 'default',
+                'options'   => [
+                    'default' => [
+                        'title' => esc_html__('Default Shapes', 'bdthemes-element-pack'),
+                        'icon'  => 'eicon-star',
+                    ],
+                    'custom'  => [
+                        'title' => esc_html__('Custom Shape', 'bdthemes-element-pack'),
+                        'icon'  => 'eicon-image-bold',
+                    ],
+                ],
+                'toggle'    => false,
+                'condition' => [
+                    'image_mask_popover' => 'yes',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'image_mask_shape_default',
+            [
+                'label'          => _x('Default', 'Mask Image', 'bdthemes-element-pack'),
+                'label_block'    => true,
+                'show_label'     => false,
+                'type'           => Controls_Manager::SELECT,
+                'default'        => 0,
+                'options'        => element_pack_mask_shapes(),
+                'selectors'      => [
+                    '{{WRAPPER}} .bdt-image-mask' => '-webkit-mask-image: url({{VALUE}}); mask-image: url({{VALUE}});',
+                ],
+                'condition'      => [
+                    'image_mask_popover' => 'yes',
+                    'image_mask_shape'   => 'default',
+                ],
+                'style_transfer' => true,
+            ]
+        );
+
+        $this->add_control(
+            'image_mask_shape_custom',
+            [
+                'label'      => _x('Custom Shape', 'Mask Image', 'bdthemes-element-pack'),
+                'type'       => Controls_Manager::MEDIA,
+                'show_label' => false,
+                'selectors'  => [
+                    '{{WRAPPER}} .bdt-image-mask' => '-webkit-mask-image: url({{URL}}); mask-image: url({{URL}});',
+                ],
+                'condition'  => [
+                    'image_mask_popover' => 'yes',
+                    'image_mask_shape'   => 'custom',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'image_mask_shape_position',
+            [
+                'label'                => esc_html__('Position', 'bdthemes-element-pack'),
+                'type'                 => Controls_Manager::SELECT,
+                'default'              => 'center-center',
+                'options'              => [
+                    'center-center' => esc_html__('Center Center', 'bdthemes-element-pack'),
+                    'center-left'   => esc_html__('Center Left', 'bdthemes-element-pack'),
+                    'center-right'  => esc_html__('Center Right', 'bdthemes-element-pack'),
+                    'top-center'    => esc_html__('Top Center', 'bdthemes-element-pack'),
+                    'top-left'      => esc_html__('Top Left', 'bdthemes-element-pack'),
+                    'top-right'     => esc_html__('Top Right', 'bdthemes-element-pack'),
+                    'bottom-center' => esc_html__('Bottom Center', 'bdthemes-element-pack'),
+                    'bottom-left'   => esc_html__('Bottom Left', 'bdthemes-element-pack'),
+                    'bottom-right'  => esc_html__('Bottom Right', 'bdthemes-element-pack'),
+                ],
+                'selectors_dictionary' => [
+                    'center-center' => 'center center',
+                    'center-left'   => 'center left',
+                    'center-right'  => 'center right',
+                    'top-center'    => 'top center',
+                    'top-left'      => 'top left',
+                    'top-right'     => 'top right',
+                    'bottom-center' => 'bottom center',
+                    'bottom-left'   => 'bottom left',
+                    'bottom-right'  => 'bottom right',
+                ],
+                'selectors'            => [
+                    '{{WRAPPER}} .bdt-image-mask' => '-webkit-mask-position: {{VALUE}}; mask-position: {{VALUE}};',
+                ],
+                'condition'            => [
+                    'image_mask_popover' => 'yes',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'image_mask_shape_size',
+            [
+                'label'     => esc_html__('Size', 'bdthemes-element-pack'),
+                'type'      => Controls_Manager::SELECT,
+                'default'   => 'contain',
+                'options'   => [
+                    'auto'    => esc_html__('Auto', 'bdthemes-element-pack'),
+                    'cover'   => esc_html__('Cover', 'bdthemes-element-pack'),
+                    'contain' => esc_html__('Contain', 'bdthemes-element-pack'),
+                    'initial' => esc_html__('Custom', 'bdthemes-element-pack'),
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .bdt-image-mask' => '-webkit-mask-size: {{VALUE}}; mask-size: {{VALUE}};',
+                ],
+                'condition' => [
+                    'image_mask_popover' => 'yes',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'image_mask_shape_custom_size',
+            [
+                'label'      => _x('Custom Size', 'Mask Image', 'bdthemes-element-pack'),
+                'type'       => Controls_Manager::SLIDER,
+                'responsive' => true,
+                'size_units' => ['px', 'em', '%', 'vw'],
+                'range'      => [
+                    'px' => [
+                        'min' => 0,
+                        'max' => 1000,
+                    ],
+                    'em' => [
+                        'min' => 0,
+                        'max' => 100,
+                    ],
+                    '%'  => [
+                        'min' => 0,
+                        'max' => 100,
+                    ],
+                    'vw' => [
+                        'min' => 0,
+                        'max' => 100,
+                    ],
+                ],
+                'default'    => [
+                    'size' => 100,
+                    'unit' => '%',
+                ],
+                'required'   => true,
+                'selectors'  => [
+                    '{{WRAPPER}} .bdt-image-mask' => '-webkit-mask-size: {{SIZE}}{{UNIT}}; mask-size: {{SIZE}}{{UNIT}};',
+                ],
+                'condition'  => [
+                    'image_mask_popover'    => 'yes',
+                    'image_mask_shape_size' => 'initial',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'image_mask_shape_repeat',
+            [
+                'label'                => esc_html__('Repeat', 'bdthemes-element-pack'),
+                'type'                 => Controls_Manager::SELECT,
+                'default'              => 'no-repeat',
+                'options'              => [
+                    'repeat'          => esc_html__('Repeat', 'bdthemes-element-pack'),
+                    'repeat-x'        => esc_html__('Repeat-x', 'bdthemes-element-pack'),
+                    'repeat-y'        => esc_html__('Repeat-y', 'bdthemes-element-pack'),
+                    'space'           => esc_html__('Space', 'bdthemes-element-pack'),
+                    'round'           => esc_html__('Round', 'bdthemes-element-pack'),
+                    'no-repeat'       => esc_html__('No-repeat', 'bdthemes-element-pack'),
+                    'repeat-space'    => esc_html__('Repeat Space', 'bdthemes-element-pack'),
+                    'round-space'     => esc_html__('Round Space', 'bdthemes-element-pack'),
+                    'no-repeat-round' => esc_html__('No-repeat Round', 'bdthemes-element-pack'),
+                ],
+                'selectors_dictionary' => [
+                    'repeat'          => 'repeat',
+                    'repeat-x'        => 'repeat-x',
+                    'repeat-y'        => 'repeat-y',
+                    'space'           => 'space',
+                    'round'           => 'round',
+                    'no-repeat'       => 'no-repeat',
+                    'repeat-space'    => 'repeat space',
+                    'round-space'     => 'round space',
+                    'no-repeat-round' => 'no-repeat round',
+                ],
+                'selectors'            => [
+                    '{{WRAPPER}} .bdt-image-mask' => '-webkit-mask-repeat: {{VALUE}}; mask-repeat: {{VALUE}};',
+                ],
+                'condition'            => [
+                    'image_mask_popover' => 'yes',
+                ],
+            ]
+        );
+
+        $this->end_popover();
 
 		$this->add_control(
 			'title_text',
@@ -367,8 +577,8 @@ class Featured_Box extends Module_Base {
 					'readmore_text!' => '',
 				],
 				'selectors' => [
-					'{{WRAPPER}} .bdt-feature-readmore .bdt-button-icon-align-right' => 'margin-left: {{SIZE}}{{UNIT}};',
-					'{{WRAPPER}} .bdt-feature-readmore .bdt-button-icon-align-left'  => 'margin-right: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-feature-readmore .bdt-button-icon-align-right' => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-feature-readmore .bdt-button-icon-align-left'  => is_rtl() ? 'margin-left: {{SIZE}}{{UNIT}};' : 'margin-right: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);
@@ -575,7 +785,7 @@ class Featured_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'iamge_radius',
 			[
 				'label'      => esc_html__('Radius', 'bdthemes-element-pack'),
@@ -664,10 +874,10 @@ class Featured_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'icon_hover_radius',
 			[
-				'label'      => esc_html__('Radius', 'bdthemes-element-pack'),
+				'label'      => esc_html__('Border Radius', 'bdthemes-element-pack'),
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => [ 'px', '%' ],
 				'selectors'  => [
@@ -735,12 +945,21 @@ class Featured_Box extends Module_Base {
 		);
 
 		$this->add_control(
+			'show_text_stroke',
+			[
+				'label'   => esc_html__('Text Stroke', 'bdthemes-prime-slider') . BDTEP_NC,
+				'type'    => Controls_Manager::SWITCHER,
+				'prefix_class' => 'bdt-text-stroke--',
+			]
+		);
+
+		$this->add_control(
 			'title_color',
 			[
 				'label'     => __( 'Color', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .bdt-featured-box .bdt-feature-content .bdt-feature-title' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .bdt-featured-box .bdt-feature-content .bdt-feature-title' => 'color: {{VALUE}}; -webkit-text-stroke-color: {{VALUE}};',
 				],
 			]
 		);
@@ -1306,6 +1525,40 @@ class Featured_Box extends Module_Base {
 			]
 		);
 
+		$this->add_control(
+            'glassmorphism_effect',
+            [
+                'label' => esc_html__('Glassmorphism', 'bdthemes-element-pack') . BDTEP_NC,
+				'type'  => Controls_Manager::SWITCHER,
+				'description' => sprintf( __( 'This feature will not work in the Firefox browser untill you enable browser compatibility so please %1s look here %2s', 'bdthemes-element-pack' ), '<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter#Browser_compatibility" target="_blank">', '</a>' ),
+            
+            ]
+		);
+		
+		$this->add_control(
+            'glassmorphism_blur_level',
+            [
+                'label'       => __('Blur Level', 'bdthemes-element-pack'),
+                'type'        => Controls_Manager::SLIDER,
+                'range'       => [
+                    'px' => [
+                        'min'  => 0,
+                        'step' => 1,
+                        'max'  => 50,
+                    ]
+                ],
+                'default'     => [
+                    'size' => 5
+                ],
+                'selectors'   => [
+                    '{{WRAPPER}} .bdt-featured-box .bdt-feature-content' => 'backdrop-filter: blur({{SIZE}}px); -webkit-backdrop-filter: blur({{SIZE}}px);'
+				],
+				'condition' => [
+					'glassmorphism_effect' => 'yes',
+				]
+            ]
+		);
+
 		$this->add_group_control(
 			Group_Control_Background::get_type(),
 			[
@@ -1322,10 +1575,10 @@ class Featured_Box extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'content_radius',
 			[
-				'label'      => esc_html__('Radius', 'bdthemes-element-pack'),
+				'label'      => esc_html__('Border Radius', 'bdthemes-element-pack'),
 				'type'       => Controls_Manager::DIMENSIONS,
 				'size_units' => [ 'px', '%' ],
 				'selectors'  => [
@@ -1411,7 +1664,7 @@ class Featured_Box extends Module_Base {
 		}
 		?>
 		<div class="bdt-feature-image">
-			<div class="bdt-position-relative">
+			<div class="bdt-position-relative bdt-image-mask">
 				<img src="<?php echo esc_url( $thumb_url); ?>" alt="<?php echo esc_html( $settings['title_text'] ); ?>">
 				<?php $this->render_featured_badge(); ?>
 			</div>
@@ -1473,11 +1726,11 @@ class Featured_Box extends Module_Base {
 		<?php endif; ?>
 
 		<?php if ( $settings['title_text'] ) : ?>
-			<<?php echo esc_html($settings['title_size']); ?> <?php echo $this->get_render_attribute_string( 'feature-title' ); ?>>
+			<<?php echo Utils::get_valid_html_tag($settings['title_size']); ?> <?php echo $this->get_render_attribute_string( 'feature-title' ); ?>>
 				<span <?php echo $this->get_render_attribute_string( 'title_text' ); ?>>
 					<?php echo wp_kses_post( $settings['title_text'], element_pack_allow_tags('title') ); ?>
 				</span>
-			</<?php echo esc_html($settings['title_size']); ?>>
+			</<?php echo Utils::get_valid_html_tag($settings['title_size']); ?>>
 		<?php endif; ?>
 
 		<?php if ( $settings['description_text'] ) : ?>

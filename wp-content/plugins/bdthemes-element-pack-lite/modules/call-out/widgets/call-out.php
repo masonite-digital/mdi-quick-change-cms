@@ -5,10 +5,11 @@ use ElementPack\Base\Module_Base;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
 use Elementor\Group_Control_Background;
-use Elementor\Core\Schemes;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
+use Elementor\Group_Control_Text_Shadow;
 use Elementor\Icons_Manager;
+use ElementPack\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -147,7 +148,7 @@ class Call_Out extends Module_Base {
 		$this->add_control(
 			'button_align',
 			[
-				'label'   => esc_html__( 'Align', 'bdthemes-element-pack' ),
+				'label'   => esc_html__( 'Alignment', 'bdthemes-element-pack' ),
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'right',
 				'options' => [
@@ -164,6 +165,8 @@ class Call_Out extends Module_Base {
 				'label'       => esc_html__( 'Icon', 'bdthemes-element-pack' ),
 				'type'        => Controls_Manager::ICONS,
 				'fa4compatibility' => 'icon',
+				'label_block' => false,
+				'skin' => 'inline'
 			]
 		);
 
@@ -174,8 +177,8 @@ class Call_Out extends Module_Base {
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'right',
 				'options' => [
-					'left'  => esc_html__( 'Before', 'bdthemes-element-pack' ),
-					'right' => esc_html__( 'After', 'bdthemes-element-pack' ),
+					'left'  => esc_html__( 'Left', 'bdthemes-element-pack' ),
+					'right' => esc_html__( 'Right', 'bdthemes-element-pack' ),
 				],
 				'condition' => [
 					'callout_icon[value]!' => '',
@@ -183,7 +186,7 @@ class Call_Out extends Module_Base {
 			]
 		);
 
-		$this->add_control(
+		$this->add_responsive_control(
 			'icon_indent',
 			[
 				'label' => esc_html__( 'Icon Spacing', 'bdthemes-element-pack' ),
@@ -200,8 +203,8 @@ class Call_Out extends Module_Base {
 					'callout_icon[value]!' => '',
 				],
 				'selectors' => [
-					'{{WRAPPER}} .bdt-callout .bdt-flex-align-right' => 'margin-left: {{SIZE}}{{UNIT}};',
-					'{{WRAPPER}} .bdt-callout .bdt-flex-align-left'  => 'margin-right: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-callout .bdt-flex-align-right' => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-callout .bdt-flex-align-left'  => is_rtl() ? 'margin-left: {{SIZE}}{{UNIT}};' : 'margin-right: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);
@@ -217,9 +220,20 @@ class Call_Out extends Module_Base {
 		);
 
 		$this->add_control(
+			'title_heading',
+			[
+				'label'     => esc_html__( 'Title', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::HEADING,
+				'condition' => [
+					'title!' => '',
+				],
+			]
+		);
+
+		$this->add_control(
 			'title_color',
 			[
-				'label'     => esc_html__( 'Title Color', 'bdthemes-element-pack' ),
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-callout .bdt-callout-title' => 'color: {{VALUE}};',
@@ -231,11 +245,22 @@ class Call_Out extends Module_Base {
 		);
 
 		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			[
+				'name' => 'text_shadow',
+				'label' => __( 'Text Shadow', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'selector' => '{{WRAPPER}} .bdt-callout .bdt-callout-title',
+				'condition' => [
+					'title!' => '',
+				],
+			]
+		);
+
+		$this->add_group_control(
 			Group_Control_Typography::get_type(),
 			[
 				'name'      => 'title_typography',
 				'selector'  => '{{WRAPPER}} .bdt-callout .bdt-callout-title',
-				//'scheme'    => Schemes\Typography::TYPOGRAPHY_2,
 				'condition' => [
 					'title!' => '',
 				],
@@ -243,9 +268,21 @@ class Call_Out extends Module_Base {
 		);
 
 		$this->add_control(
+			'description_heading',
+			[
+				'label'     => esc_html__( 'Description', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::HEADING,
+				'condition' => [
+					'description!' => '',
+				],
+				'separator' => 'before'
+			]
+		);
+
+		$this->add_control(
 			'description_color',
 			[
-				'label'     => esc_html__( 'Description Color', 'bdthemes-element-pack' ),
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-callout .bdt-callout-description' => 'color: {{VALUE}};',
@@ -253,17 +290,28 @@ class Call_Out extends Module_Base {
 				'condition' => [
 					'description!' => '',
 				],
-				'separator' => 'before',
 			]
 		);
-
 
 		$this->add_group_control(
 			Group_Control_Typography::get_type(),
 			[
 				'name'      => 'description_typography',
 				'selector'  => '{{WRAPPER}} .bdt-callout .bdt-callout-description',
-				//'scheme'    => Schemes\Typography::TYPOGRAPHY_2,
+				'condition' => [
+					'description!' => '',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'description_spacing',
+			[
+				'label'     => __( 'Spacing', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'type'      => Controls_Manager::SLIDER,
+				'selectors' => [
+					'{{WRAPPER}} .bdt-callout .bdt-callout-description' => 'margin-top: {{SIZE}}{{UNIT}};',
+				],
 				'condition' => [
 					'description!' => '',
 				],
@@ -277,27 +325,6 @@ class Call_Out extends Module_Base {
 			[
 				'label' => esc_html__( 'Button', 'bdthemes-element-pack' ),
 				'tab'   => Controls_Manager::TAB_STYLE,
-			]
-		);
-
-		$this->add_control(
-			'heading_footer_button',
-			[
-				'label'     => esc_html__( 'Button', 'bdthemes-element-pack' ),
-				'type'      => Controls_Manager::HEADING,
-				'separator' => 'before',
-				'condition' => [
-					'button_text!' => '',
-				],
-			]
-		);
-
-		$this->start_controls_tabs( 'tabs_button_style' );
-
-		$this->start_controls_tab(
-			'tab_button_normal',
-			[
-				'label'     => esc_html__( 'Normal', 'bdthemes-element-pack' ),
 				'condition' => [
 					'button_text!' => '',
 				],
@@ -312,16 +339,22 @@ class Call_Out extends Module_Base {
 			]
 		);
 
+		$this->start_controls_tabs( 'tabs_button_style' );
+
+		$this->start_controls_tab(
+			'tab_button_normal',
+			[
+				'label'     => esc_html__( 'Normal', 'bdthemes-element-pack' ),
+			]
+		);
+
 		$this->add_control(
 			'button_text_color',
 			[
-				'label'     => esc_html__( 'Text Color', 'bdthemes-element-pack' ),
+				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-callout a.bdt-callout-button' => 'color: {{VALUE}};',
-				],
-				'condition' => [
-					'button_text!' => '',
 				],
 			]
 		);
@@ -329,13 +362,44 @@ class Call_Out extends Module_Base {
 		$this->add_control(
 			'button_background_color',
 			[
-				'label'     => esc_html__( 'Background Color', 'bdthemes-element-pack' ),
+				'label'     => esc_html__( 'Background', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-callout a.bdt-callout-button' => 'background-color: {{VALUE}};',
 				],
-				'condition' => [
-					'button_text!' => '',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(), [
+				'name'        => 'button_border',
+				'label'       => esc_html__( 'Border', 'bdthemes-element-pack' ),
+				'placeholder' => '1px',
+				'default'     => '1px',
+				'selector'    => '{{WRAPPER}} .bdt-callout a.bdt-callout-button',
+			]
+		);
+
+		$this->add_responsive_control(
+			'button_border_radius',
+			[
+				'label'      => esc_html__( 'Border Radius', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-callout a.bdt-callout-button' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'button_text_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', 'em', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-callout a.bdt-callout-button' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
 			]
 		);
@@ -349,58 +413,11 @@ class Call_Out extends Module_Base {
 		);
 
 		$this->add_group_control(
-			Group_Control_Border::get_type(), [
-				'name'        => 'button_border',
-				'label'       => esc_html__( 'Border', 'bdthemes-element-pack' ),
-				'placeholder' => '1px',
-				'default'     => '1px',
-				'selector'    => '{{WRAPPER}} .bdt-callout a.bdt-callout-button',
-				'condition'   => [
-					'button_text!' => '',
-				],
-			]
-		);
-
-		$this->add_responsive_control(
-			'button_border_radius',
-			[
-				'label'      => esc_html__( 'Border Radius', 'bdthemes-element-pack' ),
-				'type'       => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', '%' ],
-				'selectors'  => [
-					'{{WRAPPER}} .bdt-callout a.bdt-callout-button' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-				],
-				'condition' => [
-					'button_text!' => '',
-				],
-			]
-		);
-
-		$this->add_responsive_control(
-			'button_text_padding',
-			[
-				'label'      => esc_html__( 'Text Padding', 'bdthemes-element-pack' ),
-				'type'       => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', 'em', '%' ],
-				'selectors'  => [
-					'{{WRAPPER}} .bdt-callout a.bdt-callout-button' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-				],
-				'condition' => [
-					'button_text!' => '',
-				],
-			]
-		);
-
-		$this->add_group_control(
 			Group_Control_Typography::get_type(),
 			[
 				'name'      => 'button_typography',
 				'label'     => esc_html__( 'Typography', 'bdthemes-element-pack' ),
-				//'scheme'    => Schemes\Typography::TYPOGRAPHY_4,
 				'selector'  => '{{WRAPPER}} .bdt-callout a.bdt-callout-button',
-				'condition' => [
-					'button_text!' => '',
-				],
 			]
 		);
 
@@ -410,9 +427,6 @@ class Call_Out extends Module_Base {
 			'tab_button_hover',
 			[
 				'label'     => esc_html__( 'Hover', 'bdthemes-element-pack' ),
-				'condition' => [
-					'button_text!' => '',
-				],
 			]
 		);
 
@@ -424,22 +438,30 @@ class Call_Out extends Module_Base {
 				'selectors' => [
 					'{{WRAPPER}} .bdt-callout a.bdt-callout-button:hover' => 'color: {{VALUE}};',
 				],
-				'condition' => [
-					'button_text!' => '',
-				],
 			]
 		);
 
 		$this->add_control(
 			'button_background_hover_color',
 			[
-				'label'     => esc_html__( 'Background Color', 'bdthemes-element-pack' ),
+				'label'     => esc_html__( 'Background', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-callout a.bdt-callout-button:hover' => 'background-color: {{VALUE}};',
 				],
+			]
+		);
+
+		$this->add_control(
+			'button_hover_border_color',
+			[
+				'label'     => esc_html__( 'Border Color', 'bdthemes-element-pack' ),
+				'type'      => Controls_Manager::COLOR,
 				'condition' => [
-					'button_text!' => '',
+					'button_border_border!' => ''
+				],
+				'selectors' => [
+					'{{WRAPPER}} .bdt-callout a.bdt-callout-button:hover' => 'border-color: {{VALUE}};',
 				],
 			]
 		);
@@ -449,20 +471,6 @@ class Call_Out extends Module_Base {
 			[
 				'name'     => 'button_hover_box_shadow',
 				'selector' => '{{WRAPPER}} .bdt-callout a.bdt-callout-button:hover',
-			]
-		);
-
-		$this->add_control(
-			'button_hover_border_color',
-			[
-				'label'     => esc_html__( 'Border Color', 'bdthemes-element-pack' ),
-				'type'      => Controls_Manager::COLOR,
-				'selectors' => [
-					'{{WRAPPER}} .bdt-callout a.bdt-callout-button:hover' => 'border-color: {{VALUE}};',
-				],
-				'condition' => [
-					'button_text!' => '',
-				],
 			]
 		);
 
@@ -507,7 +515,7 @@ class Call_Out extends Module_Base {
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-callout .bdt-callout-button .bdt-callout-button-icon i' => 'color: {{VALUE}};',
-					'{{WRAPPER}} .bdt-callout .bdt-callout-button .bdt-callout-button-icon svg' => 'fill: {{VALUE}};',
+					'{{WRAPPER}} .bdt-callout .bdt-callout-button .bdt-callout-button-icon svg *' => 'fill: {{VALUE}};',
 				],
 			]
 		);
@@ -516,7 +524,6 @@ class Call_Out extends Module_Base {
 			Group_Control_Background::get_type(),
 			[
 				'name'      => 'callout_icon_background',
-				'types'     => [ 'classic', 'gradient' ],
 				'selector'  => '{{WRAPPER}} .bdt-callout .bdt-callout-button .bdt-callout-button-icon',
 			]
 		);
@@ -532,18 +539,6 @@ class Call_Out extends Module_Base {
 		);
 
 		$this->add_responsive_control(
-			'callout_icon_padding',
-			[
-				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
-				'type'       => Controls_Manager::DIMENSIONS,
-				'size_units' => [ 'px', 'em', '%' ],
-				'selectors'  => [
-					'{{WRAPPER}} .bdt-callout .bdt-callout-button .bdt-callout-button-icon' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-				],
-			]
-		);
-
-		$this->add_responsive_control(
 			'callout_icon_radius',
 			[
 				'label'      => esc_html__( 'Border Radius', 'bdthemes-element-pack' ),
@@ -551,6 +546,18 @@ class Call_Out extends Module_Base {
 				'size_units' => [ 'px', '%' ],
 				'selectors'  => [
 					'{{WRAPPER}} .bdt-callout .bdt-callout-button .bdt-callout-button-icon' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
+			]
+		);
+
+		$this->add_responsive_control(
+			'callout_icon_padding',
+			[
+				'label'      => esc_html__( 'Padding', 'bdthemes-element-pack' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', 'em', '%' ],
+				'selectors'  => [
+					'{{WRAPPER}} .bdt-callout .bdt-callout-button .bdt-callout-button-icon' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
 				],
 			]
 		);
@@ -597,9 +604,7 @@ class Call_Out extends Module_Base {
 			Group_Control_Background::get_type(),
 			[
 				'name'      => 'callout_icon_hover_background',
-				'types'     => [ 'classic', 'gradient' ],
 				'selector'  => '{{WRAPPER}} .bdt-callout .bdt-callout-button:hover .bdt-callout-button-icon',
-				'separator' => 'after',
 			]
 		);
 
@@ -680,9 +685,9 @@ class Call_Out extends Module_Base {
         <div <?php echo $this->get_render_attribute_string( 'callout' ); ?>>
             <div class="bdt-width-expand bdt-first-column">
             	<?php if ($settings['title']) : ?>
-					<<?php echo esc_html($settings['title_size']); ?> <?php echo $this->get_render_attribute_string( 'callout_title' ); ?>>
+					<<?php echo Utils::get_valid_html_tag($settings['title_size']); ?> <?php echo $this->get_render_attribute_string( 'callout_title' ); ?>>
 						<?php echo esc_html($settings['title']); ?>
-					</<?php echo esc_html($settings['title_size']); ?>>
+					</<?php echo Utils::get_valid_html_tag($settings['title_size']); ?>>
             	<?php endif; ?>
 				<?php if ($settings['description']) : ?>
                 	<div class="bdt-callout-description"><?php echo strip_tags($settings['description']); ?></div>
@@ -737,7 +742,7 @@ class Call_Out extends Module_Base {
             <div class="bdt-width-expand bdt-first-column">
             	<# 
 	            	if ('' !== settings.title) { 
-	                	print('<' + settings.title_size + ' class="bdt-callout-title">' + settings.title +'</'+settings.title_size+'>');
+	                	print('<' + elementor.helpers.validateHTMLTag(settings.title_size) + ' class="bdt-callout-title">' + settings.title +'</'+ elementor.helpers.validateHTMLTag(settings.title_size) +'>');
 	            	}
 					if ('' !== settings.description) {
 	                	print('<div class="bdt-callout-description">' + settings.description + '</div>');

@@ -280,6 +280,8 @@ class DualButton extends Module_Base {
 				'label'       => __( 'Icon', 'bdthemes-element-pack' ),
 				'type'        => Controls_Manager::ICONS,
 				'fa4compatibility' => 'button_a_icon',
+				'label_block' => false,
+				'skin' => 'inline'
 			]
 		);
 
@@ -318,8 +320,8 @@ class DualButton extends Module_Base {
 					'button_a_select_icon[value]!' => '',
 				],
 				'selectors' => [
-					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a .bdt-flex-align-right'  => 'margin-left: {{SIZE}}{{UNIT}};',
-					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a .bdt-flex-align-left'   => 'margin-right: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a .bdt-flex-align-right'  => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a .bdt-flex-align-left'   => is_rtl() ? 'margin-left: {{SIZE}}{{UNIT}};' : 'margin-right: {{SIZE}}{{UNIT}};',
 					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a .bdt-flex-align-top'    => 'margin-bottom: {{SIZE}}{{UNIT}};',
 					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a .bdt-flex-align-bottom' => 'margin-top: {{SIZE}}{{UNIT}};',
 				],
@@ -447,6 +449,8 @@ class DualButton extends Module_Base {
 				'label'       => __( 'Icon', 'bdthemes-element-pack' ),
 				'type'        => Controls_Manager::ICONS,
 				'fa4compatibility' => 'button_b_icon',
+				'label_block' => false,
+				'skin' => 'inline'
 			]
 		);
 
@@ -485,8 +489,8 @@ class DualButton extends Module_Base {
 					'button_b_select_icon[value]!' => '',
 				],
 				'selectors' => [
-					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b .bdt-flex-align-right'  => 'margin-left: {{SIZE}}{{UNIT}};',
-					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b .bdt-flex-align-left'   => 'margin-right: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b .bdt-flex-align-right'  => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b .bdt-flex-align-left'   => is_rtl() ? 'margin-left: {{SIZE}}{{UNIT}};' : 'margin-right: {{SIZE}}{{UNIT}};',
 					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b .bdt-flex-align-top'    => 'margin-bottom: {{SIZE}}{{UNIT}};',
 					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b .bdt-flex-align-bottom' => 'margin-top: {{SIZE}}{{UNIT}};',
 				],
@@ -992,7 +996,7 @@ class DualButton extends Module_Base {
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a .bdt-dual-button-a-icon i' => 'color: {{VALUE}};',
-					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a .bdt-dual-button-a-icon svg' => 'fill: {{VALUE}};',
+					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a .bdt-dual-button-a-icon svg *' => 'fill: {{VALUE}};',
 				],
 			]
 		);
@@ -1081,7 +1085,7 @@ class DualButton extends Module_Base {
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a:hover .bdt-dual-button-a-icon i' => 'color: {{VALUE}};',
-					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a:hover .bdt-dual-button-a-icon svg' => 'fill: {{VALUE}};',
+					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-a:hover .bdt-dual-button-a-icon svg *' => 'fill: {{VALUE}};',
 				],
 			]
 		);
@@ -1143,7 +1147,7 @@ class DualButton extends Module_Base {
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b .bdt-dual-button-b-icon i' => 'color: {{VALUE}};',
-					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b .bdt-dual-button-b-icon svg' => 'fill: {{VALUE}};',
+					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b .bdt-dual-button-b-icon svg *' => 'fill: {{VALUE}};',
 				],
 			]
 		);
@@ -1232,7 +1236,7 @@ class DualButton extends Module_Base {
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b:hover .bdt-dual-button-b-icon i' => 'color: {{VALUE}};',
-					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b:hover .bdt-dual-button-b-icon svg' => 'fill: {{VALUE}};',
+					'{{WRAPPER}} .bdt-ep-button-wrapper .bdt-dual-button-b:hover .bdt-dual-button-b-icon svg *' => 'fill: {{VALUE}};',
 				],
 			]
 		);

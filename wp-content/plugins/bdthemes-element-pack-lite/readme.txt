@@ -3,20 +3,20 @@ Contributors: bdthemes, selimmw, mohammaadfarid, wpboffinstech
 Donate link: http://bdthemes.com/
 Tags: elementor, elementor addon, pack, addons, widget, ultimate, essential, element, bdthemes, addons for elementor, live copy, template library
 Requires at least: 4.7.0
-Tested up to: 5.6
+Tested up to: 5.7
 Requires PHP: 5.6.0
-Stable tag: 2.6.0
+Stable tag: 2.10.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Best Addon for Elementor WordPress Plugin with 33 Most Popular Elements that need your everyday website page building.
+Best Addon for Elementor WordPress Plugin with 35 Most Popular Elements that need your everyday website page building.
 
 
 == Description ==
 
 Ultimate essential addon for [Elementor](https://wordpress.org/plugins/elementor/) Page Builder with 30 of the most popular and essential elements that you need for everyday use in the website page building.
 
-Development of the [Element Pack](https://elementpack.pro) addon for Elementor has the world’s best practices in code standard and meets proper validation using the latest CSS, HTML5 and PHP 7.x (Tested up to 7.3) technology to bring you a professional addon for the Elementor Page Builder Plugin that is WordPress 5.3.x ready and compliant.
+Development of the [Element Pack](https://elementpack.pro) addon for Elementor has the world’s best practices in code standard and meets proper validation using the latest CSS, HTML5 and PHP 7.x (Tested up to 8.1) technology to bring you a professional addon for the Elementor Page Builder Plugin that is WordPress 5.3.x ready and compliant.
 
 Element Pack for Elementor includes the most commonly used elements (called widgets) that help you easily manage your website content by simply using the drag and drop ability. There is absolutely no programming knowledge required, seriously!
 
@@ -28,6 +28,7 @@ Check, how to use the template library?
 
 
 0. [Accordion](https://elementpack.pro/demo/element/accordion/) - Element Pack Lite plugin provides advanced accordion design for the elementor page builder. This page demonstrates the accordion addon from element pack Lite.
+0. Backdrop Filter (GlassMorphism) - Glassmorphism is a new trend which is getting more popular on website design service. Now you can easily design glassmorphism effect for any widgets and column.
 0. [Business Hours](https://elementpack.pro/demo/element/business-hours/) - Business hours show your company or business hours as a beautiful list of working hours.
 0. [Call Out](https://elementpack.pro/demo/element/call-out/) - Call out addon is the ultimate call out design for elementor from element pack. You can highlight your content using this element. Check the demo now.
 0. [Contact Form 7](https://elementpack.pro/demo/element/contact-form-7/) - You can easily integrate contact form 7 plugin using Element Pack Plugin for Elementor. There are dozens of different design to choose from to design a form
@@ -49,6 +50,7 @@ Check, how to use the template library?
 0. [Logo Grid](https://elementpack.pro/demo/element/logo-grid) - Logo grid gives you easily manage your client or partner's business logo show beautifully.
 0. [Member](https://elementpack.pro/demo/element/member/) - To show member profile - default, Alternative Photo Example, Phaedra skin Example, Calm skin Example, Parfait skin Example, Text Alignment Example and other
 0. [Ninja Forms](https://elementpack.pro/demo/element/ninja-forms/) - To collect more subscribers &  to make sure your visitors more return on your site-Ninja Forms is a must-have plugin. Modify its looks and feel.
+0. [Open Street Map](https://elementpack.pro/demo/element/open-street-map/) - Open Street Map  with Default Example, Map Height Example​, Tooltip Background Color Example, Tooltip Radius Example, Tooltip Box Shadow Example  
 0. [Panel Slider](https://elementpack.pro/demo/element/panel-slider/) - Panel Slider examples with Infinite No Example, Button Background Example, Title, Text, And Button Color Example Shadow Mode Example & other options
 0. [Progress Pie](https://elementpack.pro/demo/element/progress-pie/) - After Before Middle Text Example, Line Width Example, Delay Example, Duration Example, Background Example with element pack pro plugin. 
 0. [Pricing List](https://elementpack.pro/demo/element/price-list/) - Pricing list with some different examples like Item With Image Example, Pricing Background Color Example, Border Radius Example, List Style Different Color
@@ -57,11 +59,14 @@ Check, how to use the template library?
 0. [Slider](https://elementpack.pro/demo/element/slider/) - Slider to make your website more versatile, sometimes you need a slider, with basic functions, modification, and customization
 0. [Scroll Button](https://elementpack.pro/demo/element/scroll-button/) - With examples like -Scroll Down Example,Scroll Up Example,Duration Example,Offset Example (50px),Before Icon Position Example and others 
 0. [Step Flow](https://elementpack.pro/demo/element/step-flow/) - Element pack brings the Step Flow widget for designing flow charts with a new style and interface. Now, re-build your instruction manual with bright colors. 
+0. [Search](https://elementpack.pro/demo/element/search/) - Search is a simple search widget for for elementor widget. You can get a simple search, modal options also.
 0. [Toggle](https://elementpack.pro/demo/element/toggle/) - Toggle Default Example, Icon Change Example, Toggle With Icon List Example, Toggle With Image Gallery Example with element pack pro plugin
 0. [Trailer Box](https://elementpack.pro/demo/element/trailer-box/) - Product With Trailer Box, Salon Product With Trailer Box, Fashion With Trailer Box Element pack pro widget WordPress plugin
+0. [Total Count](https://elementpack.pro/demo/element/total-count/) - Display page stat with post counts, user counts, or comment counts using the Total Count widget. Show any icon or image along with an initial count number & display the stat brilliantly anywhere on your page.
 0. [Tutor LMS Course Grid](https://elementpack.pro/demo/element/tutor-lms-course-grid) - a new way to match your designs. Now you can show Widget Equal Height on elementor page builder, helps you to match the design.
 0. [Tutor LMS Course Carousel](https://elementpack.pro/demo/element/tutor-lms-course-carousel) - a new way to match your designs. Now you can show Widget Equal Height on elementor page builder, helps you to match the design.
 0. [Twitter Grid](https://elementpack.pro/demo/element/twitter-grid/ ) - Twitter Grid examples page Default Twitter grid, row, Columns, and other examples.
+0. [User Register](https://elementpack.pro/demo/element/user-register/) - WordPress default User register system brings in frontend and you can modify the design and give a fine touch to match your design.
 0. [WeForms](https://elementpack.pro/demo/element/weform/) - weForm an amazing 3rd party tool that now supports the element pack. you can change the style and customize its design.
 
 More widgets are coming soon...
@@ -85,7 +90,7 @@ More widgets are coming soon...
 0. [BuddyPress Group](https://elementpack.pro/demo/element/buddypress-group/) - Element Pack pro supports BuddyPress integration for elementor page builder. You can show the group of your forum using this plugin. Watch the demo now.
 0. [Carousel](https://elementpack.pro/demo/element/carousel) - Touch Custom Carousel with modern looks and fell with customization options according to your needs. You'll get an awesome experience with it. 
 0. [Circle Menu](https://elementpack.pro/demo/element/circle-menu/) - You can now add a cool circle menu with animation using the Element Pack plugin. This menu will help you to make the ultimate cool menu for Elementor Page Builder
-0. [Circle Info](https://elementpack.pro/demo/element/circle-info/) - 
+0. [Circle Info](https://elementpack.pro/demo/element/circle-info/) - For your users, presentation is everything. And present your content more daynamacally and out of the box, Circle Info can move it to next level.
 0. [Custom Carousel](https://elementpack.pro/demo/element/custom-carousel/)  - Touch Custom Carousel with modern looks and fell with customization options according to your needs. You'll get an awesome experience with it. 
 0. [Charts](https://elementpack.pro/demo/element/charts) - Element Pack Plugin is the ultimate solution to make charts in the Elementor Page builder. You can easily make animated charts on your site using this.
 0. [Crypto Currency Card](https://elementpack.pro/demo/element/crypto-currency-card/) - Element pack brings the Crypto Currency Card widget that displays individual smart profiles for every supported cryptocurrency on your website.
@@ -119,6 +124,7 @@ More widgets are coming soon...
 0. [Fancy Icons](https://elementpack.pro/demo/element/fancy-icons/) - Element pack brings the Fancy Icon widget for creating beautiful shaded icons for social media promotions. Do a lot more than just an icon.
 0. [Fancy Slider](https://elementpack.pro/demo/element/fancy-slider/) - Element pack brings the Fancy Slider widget for creating stunning sliders, unique and beautiful, as well as fancy.
 0. [Fancy Tabs](https://elementpack.pro/demo/element/fancy-tabs/) - Fancy Tabs is an amazing tab that can display your content more dynamically. You can showcase your content with more modern design styles.
+0. [Forminator Forms](https://elementpack.pro/demo/element/forminator-forms/) - Element pack has integrated with the Forminator Forms widget which is one of the most popular form making tool over the internet.
 0. [Gravity Forms](https://elementpack.pro/demo/element/gravity-forms/) - Gravity Forms and elementor pro pack integrated service with modification options can blow you mind because of its flexibility.
 0. [Google Reviews](https://elementpack.pro/demo/element/google-reviews/) - Now you can show your Google reviews on your site dynamically, TO establish your authority, Google reviews will help you on the way.
 0. [Give Donation History](https://elementpack.pro/demo/element/give-donation-history/) - Element pack brings the Give Donation history widget that displays all the donations that happened on your page, including every campaign. It is your simplified memo pad, reminding you about all donation activities.
@@ -133,7 +139,7 @@ More widgets are coming soon...
 0. [Give Totals](https://elementpack.pro/demo/element/give-totals/) - Element pack brings the Give totals widget that shows current campaign progress in percentage stat and custom goal numbers alongside a quick donation button.
 0. [HoneyCombs](https://elementpack.pro/demo/element/honeycombs/) - Element pack brings the Honeycombs widget that allows you to create infographic honeycomb-style blocks showing stats, info, icons, and logos on both sides. 
 0. [Hover Video](https://elementpack.pro/demo/element/hover-video/) - Element pack brings the Hover Video widget that creates slider panels for videos stacked together in an accordion formation. Each one folds into a full section content hiding non-active ones.
-0. [Hover Box](https://elementpack.pro/demo/element/hover-box/) - 
+0. [Hover Box](https://elementpack.pro/demo/element/hover-box/) - Display multiple number of full-size images with hover style using small info boxes. Perfect for creating multi-background interfaces.
 0. [Instagram Feed](https://elementpack.pro/demo/element/instagram-feed/) - Example of Instagram feed widget showing on the websites and it comes with a lightbox effect image gallery.  
 0. [Interactive Card](https://elementpack.pro/demo/element/interactive-card/) - Element pack brings the Interactive Card widget for featuring highlights and posts with a smooth graphical flow.
 0. [Image Expand](https://elementpack.pro/demo/element/image-expand/) - Element pack brings the Image Expand widget that creates a unique image accordion where clicking on any image will expand it into a slider while popping back other pictures.
@@ -143,7 +149,7 @@ More widgets are coming soon...
 0. [Instagram](https://elementpack.pro/demo/element/instagram/) - You can easily display your Instagram images on your website with options like Default Instagram, Carousel Example, Masonry Example, and others
 0. [Layer Slider](https://elementpack.pro/demo/element/layer-slider/) - One of the best  WordPress slider in the market with lots of options and features. Its shortcode supports the elementor page builder.
 0. [Lottie Image](https://elementpack.pro/demo/element/lottie-image) - Even more options with your animated Lottie images makes your site more interactive and powerful. This presentation style will
-0. [Lottie Icon Box](https://elementpack.pro/demo/element/lottie-icon-box) - 
+0. [Lottie Icon Box](https://elementpack.pro/demo/element/lottie-icon-box) - Now you can show Animated icons using the Lottie Icon Box widget. Supports up to infinity J-SON animations with Custom Field
 0. [Logo Carousel](https://elementpack.pro/demo/element/logo-carousel/) - Moving content can attract more visitors. Logo Carousel can do that in a user-friendly way with an elementor.
 0. [Modal](https://elementpack.pro/demo/element/modal/) - Modal Default Example, Modal Layout, Custom Link With Heading, Modal Optional Example, Modal Button Style Example customization, and many more options.
 0. [Marker](https://elementpack.pro/demo/element/marker/) - Marker can make your sites more enjoyable with marker and tooltip. You can modify the basic - color, background color, typography with this widget.
@@ -153,13 +159,12 @@ More widgets are coming soon...
 0. [News Ticker](https://elementpack.pro/demo/element/news-ticker/) - News Ticker Default Example, Label Hide With Animation  Example, News Content Excerpt With Animation  Example, Without Navigation Animation & many more options.
 0. [Notification](https://elementpack.pro/demo/element/notification/) - Element pack brings the Notification widget for creating attractive popup & fixed-positioned notification messages on the user's site.
 0. [Offcanvas](https://elementpack.pro/demo/element/offcanvas/) - Default Example, Custom Menu Example, Offcanvas Overlay Example, Offcanvas Flip Example Choose Sidebar Example, and many other examples.
-0. [Open Street Map](https://elementpack.pro/demo/element/open-street-map/) - Open Street Map  with Default Example, Map Height Example​, Tooltip Background Color Example, Tooltip Radius Example, Tooltip Box Shadow Example  
 0. [Pricing Table](https://elementpack.pro/demo/element/pricing-table/) - Default Example, Tooltip Example, Skin Parfait Example, Badge Example, pricing table with background options, and many other variations.
 0. [Protected Content](https://elementpack.pro/demo/element/protected-content/ ) - Password protected WordPress form and style changer from your dashboard with the help of element pro plugin. A fancy way to style and protect content.
 0. [Profile Card](https://elementpack.pro/demo/element/profile-card) - The best way to show your profile card, social media links on your site. Cards variation can match your design easily because you can customize the looks and feel.
 0. [Post Slider](https://elementpack.pro/demo/element/post-slider/) -Post Slider widget allows you to display your blog posts in a very beautiful slider that will be present your content more dynamically. 
 0. [Post Card](https://elementpack.pro/demo/element/post-card/) -Without Image Example, Without Tag Example, Without Excerpt Example, Read More With Icon Color Example for your blog and websites.
-0. [Post Grid](https://elementpack.pro/demo/element/post%20grid/) -Skin (Alter) Example,Skin (Paddle) Example,Skin (Trosia) Example, Skin Elanza Example,Skin Modern,Skin Carmie post grid widget - elementor page builder
+0. [Post Grid](https://elementpack.pro/demo/element/post-grid/) -Skin (Alter) Example,Skin (Paddle) Example,Skin (Trosia) Example, Skin Elanza Example,Skin Modern,Skin Carmie post grid widget - elementor page builder
 0. [Post Grid Tab](https://elementpack.pro/demo/element/post-grid-tab/) -Post Grid  Pagination Example with modification options and basic color, background, gradient background color changes
 0. [Post Gallery](https://elementpack.pro/demo/element/post-gallery/) - Post Gallery widgets with Filter Example, Skin (Trosia) Example, Skin Fedara Example, Skin Abetis Example, Masonry Example to show post more dynamic way.
 0. [Post List](https://elementpack.pro/demo/element/post-list/) - Post list for your next elementor page builder to show it more dynamically with title, date excerpt, thumbnail style modifier.
@@ -176,7 +181,6 @@ More widgets are coming soon...
 0. [Slideshow](https://elementpack.pro/demo/element/slideshow/) - Variations, easy positioning, customizations gives element pack pro plugins slider gives a ninja way to make your website classic.
 0. [Social Proof](https://elementpack.pro/demo/element/social-proof/) - Element pack brings the Social Proof widget for displaying proofs of positive vibe using social media channels. Works great with Facebook, Google, Yelp, etc.
 0. [Switcher](https://elementpack.pro/demo/element/switcher/) - Switcher to showcase your content more interactively. You can add two different content to show with element pack pro switcher.
-0. [Search](https://elementpack.pro/demo/element/search/) -      Search is a simple search widget for for elementor widget. You can get a simple search, modal options also.
 0. [Social share](https://elementpack.pro/demo/element/social-share/) - Social share widget gives element pack pro plugin a diverse way to make their clients comfort. Also, it helps the visitor to share their feelings about the site.
 0. [SVG Image](https://elementpack.pro/demo/element/svg-image) - a new way to match your designs. Now you can show Widget Equal Height on elementor page builder, helps you to match the design.
 0. [Source Code](https://elementpack.pro/demo/element/source-code/) - Source Code allows you to copy your source code copy and paste within a single click. GIven source code now on your finger.
@@ -193,8 +197,7 @@ More widgets are coming soon...
 0. [Thumb Gallery](https://elementpack.pro/demo/element/thumb-gallery/) - Default, Skin Custom Content, Content Style, Thumb Position Top Left, Thumb Position Top Right and other examples for you elementor plugin websites
 0. [Timeline](https://elementpack.pro/demo/element/timeline/) - Timeline with different styles like default, Skin Olivier Example, Without Background Example, Skin Olivier Without Image Example and others.
 0. [Timezone](https://elementpack.pro/demo/element/timezone/) - Element pack brings the Timezone widget that colorfully displays timezones of enlisted countries.
-0. [The Newsletter](https://elementpack.pro/demo/element/the-newsletter/) - 
-0. [User Register](https://elementpack.pro/demo/element/user-register/) - WordPress default User register system brings in frontend and you can modify the design and give a fine touch to match your design.
+0. [The Newsletter](https://elementpack.pro/demo/element/the-newsletter/) - The Newsletter widget makes it easy to on-board users in your mail lists. This is an advanced tool that increases mail caching efficiency.
 0. [User Login](https://elementpack.pro/demo/element/user-login/) - Fancy User Login widgets for your WordPress website with element pack pro plugin. you can change and customize also your ready blocks.
 0. [Video Player](https://elementpack.pro/demo/element/video-player/) - When it comes to watching a video, you will always prefer to watch it on YouTube or other popular streaming websites. Our video player plugin is easy to use and ready to go.
 0. [Video Gallery](https://elementpack.pro/demo/element/video-gallery/) - Default Example, Thumb Layout (Horizontal) Example, Video Title & Description Hide Example and many other examples with element pack pro WordPress plugin
@@ -218,8 +221,8 @@ More widgets are coming soon...
 0. [Schedule Content](https://elementpack.pro/demo/element/schedule-content/) - Learn how to create schedule content with element pack pro, makes your job easier, and maintain your routine perfectly.  
 0. [Section Particles](https://elementpack.pro/demo/element/section-particles/) -Section With Particles Effects with different design effect and particles with element pack pro 
 0. [Sticky Section](https://elementpack.pro/demo/sticky-section/) - An element with position: sticky; is positioned based on the user's scroll position. Our sticky section widget will do that for you without any hassle. 
-0. [Transform](https://elementpack.pro/demo/element/transform-example/) - 
-0. [Custom Js](https://elementpack.pro/demo/element/custom-js/) - 
+0. [Transform](https://elementpack.pro/demo/element/transform-example/) - Use our Transform widget to transform any content by X, Y & Z axis. You love Block-puzzle? Make one with the Transform widget.
+0. [Custom Js](https://elementpack.pro/demo/element/custom-js/) - You can load js Script in the header and footer section.
 0. [Equal Height](https://elementpack.pro/demo/element/widget-equal-height) - a new way to match your designs. Now you can show Widget Equal Height on elementor page builder, helps you to match the design.
 0. [Widget Tooltip](https://elementpack.pro/demo/element/widget-tooltip/) - Very useful tools to describe the content or give a short note as a tooltip in element pack pro plugin to make your content more user friendly.
 
@@ -252,6 +255,54 @@ e.g.
 14. Step Flow Example
 
 == Changelog ==
+
+= 2.10.0 =
+
+* Added: Open Street Map Widget unlock from pro
+
+= 2.9.2 =
+
+* Fixed: Utils issue fixed in Plugin system (Thanks to Alex Criswell & Enrico Diedrich)
+
+= 2.9.1 =
+
+* Fixed: Active and deactivation error fixed
+* Fixed: Panel Slider title color fixed (Thanks to Greg Allman)
+* Fixed: Accordion, Custom Gallery etc widgets tag size security issue fixed
+
+= 2.9.0 =
+
+* Added: User Register Widget unlock from pro
+* Added: Glassmorphism option added in Featured Box Widget for some special cases
+* Added: Text Stroke option added in Featured Box, Image Accordion, Slider, Panel Slider Widget
+* Added: All field Inline (horizontal), Show Subject, Show message, Alignment option added in Simple Contact Form Widget
+* Fixed: Button Icon RTL issue fixed in Call Out, Dual Button, Featured box, Panel Slider, Slider, Step Flow Widget (Thanks to Ahmad Almousa)
+
+= 2.8.0 =
+
+* Added: Backdrop Filter (Glassmorphism) Extended Features added in column and all widgets
+* Added: Some Control Option added in Trailer Box Widget
+* Added: Some Control Option added in Twitter Grid Widget
+* Added: Some Control Option added in Call Out Widget
+* Fixed: Some PHP 8.1 issue fixed
+* Fixed: Some jQuery deprecated function issue fixed
+
+= 2.7.0 =
+
+* Added: Search widget unlock from pro
+* Added: Title Icon and title hover border color option added in Accordion Widget
+* Fixed: WPML compatibility issue fixed in Custom Gallery Widget
+
+= 2.6.1 =
+
+* Added: Vertical skin added in Image Accordion Widget
+* Added: Active Overlay Color option added in Panel Slider Skin Middle Widget
+* Added: End Action, Separator, individual style options added in Countdown Widget
+* Added: Overlay Blur Effect option added in Custom Gallery Widget
+* Added: Image Mask option added in Custom Gallery, Featured Box, Logo Grid Widgets
+* Added: WPML compatibility added in Business Hours, Fancy List, Image Accordion, Logo Grid, Featured Box, Step Flow Widgets
+* Fixed: Border radius issue fixed in Custom Gallery Widget
+* Fixed: Skin Horizontal Progress issue fixed in Reading Progress Widget (Thanks Jonathan White)
 
 = 2.6.0 =
 

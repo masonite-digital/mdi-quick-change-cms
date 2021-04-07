@@ -1,9 +1,31 @@
 <?php
-namespace ElementPack\Classes;
+namespace ElementPack;
 
 if ( ! defined( 'ABSPATH' ) )  exit; // Exit if accessed directly
 
 class Utils {
+	
+	/**
+	 * A list of safe tage for `get_valid_html_tag` method.
+	 */
+	const ALLOWED_HTML_WRAPPER_TAGS = [
+		'article',
+		'aside',
+		'div',
+		'footer',
+		'h1',
+		'h2',
+		'h3',
+		'h4',
+		'h5',
+		'h6',
+		'header',
+		'main',
+		'nav',
+		'p',
+		'section',
+		'span',
+	];
 
 	public static function get_client_ip() {
 		$server_ip_keys = [
@@ -33,21 +55,47 @@ class Utils {
 	public static function readable_num( $size ) {
 		$l    = substr( $size, -1 );
 		$ret  = substr( $size, 0, -1 );
-		$byte = 1024;
 
 		switch ( strtoupper( $l ) ) {
 			case 'P':
 				$ret *= 1024;
+				break;
 			case 'T':
 				$ret *= 1024;
+				break;
 			case 'G':
 				$ret *= 1024;
+				break;
 			case 'M':
 				$ret *= 1024;
+				break;
 			case 'K':
 				$ret *= 1024;
 		}
 		return $ret;
+	}
+	
+	/**
+	 * Validate an HTML tag against a safe allowed list.
+	 * @param string $tag
+	 * @return string
+	 */
+	public static function get_valid_html_tag( $tag ) {
+		return in_array( strtolower( $tag ), self::ALLOWED_HTML_WRAPPER_TAGS ) ? $tag : 'div';
+	}
+	
+	/**
+	 * Get placeholder image source.
+	 * Retrieve the source of the placeholder image.
+	 * @since 5.7.6
+	 * @access public
+	 * @static
+	 * @return string The source of the default placeholder image used by Elementor.
+	 */
+	public static function get_placeholder_image_src() {
+		$placeholder_image = ELEMENTOR_ASSETS_URL . 'images/placeholder.png';
+		
+		return $placeholder_image;
 	}
 
 	/**
@@ -99,4 +147,32 @@ class Utils {
 		);
 
 	}
+
+	/**
+	 * Get timezone string.
+	 *
+	 * Retrieve timezone string from the WordPress database.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @static
+	 *
+	 * @return string Timezone string.
+	 */
+	public static function get_timezone_string() {
+		$current_offset = (float) get_option( 'gmt_offset' );
+		$timezone_string = get_option( 'timezone_string' );
+
+		// Create a UTC+- zone if no timezone string exists.
+		if ( empty( $timezone_string ) ) {
+			if ( $current_offset < 0 ) {
+				$timezone_string = 'UTC' . $current_offset;
+			} else {
+				$timezone_string = 'UTC+' . $current_offset;
+			}
+		}
+
+		return $timezone_string;
+	}
+	
 }

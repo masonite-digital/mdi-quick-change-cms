@@ -36,8 +36,15 @@ class Element_Pack_WPML {
 	 * @return void
 	 */
 	public function load_wpml_modules() {
+		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-accordion.php' );
+		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-business-hours.php' );
+		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-custom-gallery.php' );
+		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-fancy-list.php' );
+		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-image-accordion.php' );
+		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-logo-grid.php' );
 		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-member.php' );
 		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-panel-slider.php' );
+		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-price-list.php' );
 		require_once( BDTEP_INC_PATH . 'compatiblity/wpml/class-wpml-element-pack-slider.php' );
 	}
 
@@ -48,67 +55,111 @@ class Element_Pack_WPML {
 	 */
 	public function add_translatable_nodes( $nodes_to_translate ) {
 
+		$nodes_to_translate[ 'bdt-accordion' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-accordion' ],
+			'fields'     => [],
+			'integration-class' => 'WPML_ElementPack_Accordion',
+		];
+
+		$nodes_to_translate[ 'bdt-business-hours' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-business-hours' ],
+			'fields'     => [
+				[
+					'field'       => 'dynamic_open_day',
+					'type'        => esc_html__( 'Open Status', 'bdthemes-element-pack' ),
+					'editor_type' => 'AREA',
+				],
+				[
+					'field'       => 'dynamic_close_day',
+					'type'        => esc_html__( 'Close Status', 'bdthemes-element-pack' ),
+					'editor_type' => 'AREA',
+				],
+			],
+			'integration-class' => 'WPML_ElementPack_Business_Hours',
+		];
+
+		$nodes_to_translate[ 'bdt-call-out' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-call-out' ],
+			'fields'     => [
+				[
+					'field'       => 'title',
+					'type'        => esc_html__( 'Title', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'description',
+					'type'        => esc_html__( 'Description', 'bdthemes-element-pack' ),
+					'editor_type' => 'AREA',
+				],
+				[
+					'field'       => 'button_text',
+					'type'        => esc_html__( 'Text', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+			],
+		];
+
 		$nodes_to_translate[ 'bdt-contact-form' ] = [
 			'conditions' => [ 'widgetType' => 'bdt-contact-form' ],
 			'fields'     => [
 				[
 					'field'       => 'button_text',
-					'type'        => esc_html__( 'Text', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Text', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'user_name_label',
-					'type'        => esc_html__( 'Label', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Label', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'user_name_placeholder',
-					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'contact_label',
-					'type'        => esc_html__( 'Label', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Label', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'contact_placeholder',
-					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'subject_label',
-					'type'        => esc_html__( 'Label', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Label', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'subject_placeholder',
-					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'email_address_label',
-					'type'        => esc_html__( 'Label', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Label', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'email_placeholder',
-					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'message_label',
-					'type'        => esc_html__( 'Label', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Label', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'message_placeholder',
-					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'additional_message',
-					'type'        => esc_html__( 'Message', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Message', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 			],
@@ -119,17 +170,17 @@ class Element_Pack_WPML {
 			'fields'     => [
 				[
 					'field'       => 'message',
-					'type'        => esc_html__( 'Message', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Message', 'bdthemes-element-pack' ),
 					'editor_type' => 'AREA',
 				],
 				[
 					'field'       => 'button_text',
-					'type'        => esc_html__( 'Button Text', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Button Text', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'learn_more_text',
-					'type'        => esc_html__( 'Learn More Text', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Learn More Text', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 			],
@@ -140,22 +191,22 @@ class Element_Pack_WPML {
 			'fields'     => [
 				[
 					'field'       => 'label_days',
-					'type'        => esc_html__( 'Days', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Days', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'label_hours',
-					'type'        => esc_html__( 'Hours', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Hours', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'label_minutes',
-					'type'        => esc_html__( 'Minutes', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Minutes', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 				[
 					'field'       => 'label_seconds',
-					'type'        => esc_html__( 'Seconds', 'bdthemes-element-pack-lite' ),
+					'type'        => esc_html__( 'Seconds', 'bdthemes-element-pack' ),
 					'editor_type' => 'LINE',
 				],
 			],
@@ -165,6 +216,86 @@ class Element_Pack_WPML {
 			'conditions' => [ 'widgetType' => 'bdt-custom-gallery' ],
 			'fields'     => [],
 			'integration-class' => 'WPML_ElementPack_Custom_Gallery',
+		];
+
+		$nodes_to_translate[ 'bdt-dual-button' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-dual-button' ],
+			'fields'     => [
+				[
+					'field'       => 'middle_text',
+					'type'        => esc_html__( 'Text', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'button_a_text',
+					'type'        => esc_html__( 'Text', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'button_a_onclick_event',
+					'type'        => esc_html__( 'OnClick Event', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'button_b_text',
+					'type'        => esc_html__( 'Text', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'button_b_onclick_event',
+					'type'        => esc_html__( 'OnClick Event', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+			],
+		];
+
+		$nodes_to_translate[ 'bdt-fancy-list' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-fancy-list' ],
+			'fields'     => [],
+			'integration-class' => 'WPML_ElementPack_Fancy_List',
+		];
+
+		$nodes_to_translate[ 'bdt-featured-box' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-featured-box' ],
+			'fields'     => [
+				[
+					'field'       => 'title_text',
+					'type'        => esc_html__( 'Title', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'sub_title_text',
+					'type'        => esc_html__( 'Sub Title', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'description_text',
+					'type'        => esc_html__( 'Content', 'bdthemes-element-pack' ),
+					'editor_type' => 'AREA',
+				],
+				[
+					'field'       => 'readmore_text',
+					'type'        => esc_html__( 'Read More Text', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'badge_text',
+					'type'        => esc_html__( 'Badge Text', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+			],
+		];
+
+		$nodes_to_translate[ 'bdt-image-accordion' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-image-accordion' ],
+			'fields'     => [],
+			'integration-class' => 'WPML_ElementPack_Image_Accordion',
+		];
+
+		$nodes_to_translate[ 'bdt-logo-grid' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-logo-grid' ],
+			'fields'     => [],
+			'integration-class' => 'WPML_ElementPack_Logo_Grid',
 		];
 
 		$nodes_to_translate[ 'bdt-flip-box' ] = [
@@ -214,8 +345,6 @@ class Element_Pack_WPML {
 			],
 		];
 
-		
-
 		$nodes_to_translate[ 'lightbox' ] = [
 			'conditions' => [ 'widgetType' => 'lightbox' ],
 			'fields'     => [
@@ -231,8 +360,6 @@ class Element_Pack_WPML {
 				],
 			],
 		];
-
-		
 
 		$nodes_to_translate[ 'bdt-member' ] = [
 			'conditions' => [ 'widgetType' => 'bdt-member' ],
@@ -256,8 +383,6 @@ class Element_Pack_WPML {
 			],
 			'integration-class' => 'WPML_ElementPack_Team_Member',
 		];
-
-		
 
 		$nodes_to_translate[ 'bdt-progress-pie' ] = [
 			'conditions' => [ 'widgetType' => 'bdt-progress-pie' ],
@@ -290,8 +415,6 @@ class Element_Pack_WPML {
 			],
 		];
 
-		
-
 		$nodes_to_translate[ 'bdt-scroll-button' ] = [
 			'conditions' => [ 'widgetType' => 'bdt-scroll-button' ],
 			'fields'     => [
@@ -308,8 +431,6 @@ class Element_Pack_WPML {
 			],
 		];
 
-		
-
 		$nodes_to_translate[ 'bdt-slider' ] = [
 			'conditions' => [ 'widgetType' => 'bdt-slider' ],
 			'fields'     => [
@@ -320,6 +441,55 @@ class Element_Pack_WPML {
 				],
 			],
 			'integration-class' => 'WPML_ElementPack_Slider',
+		];
+
+		$nodes_to_translate[ 'bdt-search' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-search' ],
+			'fields'     => [
+				[
+					'field'       => 'placeholder',
+					'type'        => esc_html__( 'Placeholder', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+			],
+		];
+
+		$nodes_to_translate[ 'bdt-panel-slider' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-panel-slider' ],
+			'fields'     => [],
+			'integration-class' => 'WPML_ElementPack_Panel_Slider',
+		];
+
+		$nodes_to_translate[ 'bdt-price-list' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-price-list' ],
+			'fields'     => [],
+			'integration-class' => 'WPML_ElementPack_Price_List',
+		];
+
+		$nodes_to_translate[ 'bdt-step-flow' ] = [
+			'conditions' => [ 'widgetType' => 'bdt-step-flow' ],
+			'fields'     => [
+				[
+					'field'       => 'title_text',
+					'type'        => esc_html__( 'Title', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'description_text',
+					'type'        => esc_html__( 'Content', 'bdthemes-element-pack' ),
+					'editor_type' => 'AREA',
+				],
+				[
+					'field'       => 'readmore_text',
+					'type'        => esc_html__( 'Read More Text', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+				[
+					'field'       => 'badge_text',
+					'type'        => esc_html__( 'Badge Text', 'bdthemes-element-pack' ),
+					'editor_type' => 'LINE',
+				],
+			],
 		];
 
 		$nodes_to_translate[ 'bdt-toggle' ] = [
