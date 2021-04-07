@@ -76,6 +76,8 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 		'zapier_integration_active'                => false,
 		'zapier_subscription'                      => [],
 		'zapier_api_key'                           => '',
+		'enable_metabox_insights'                  => true,
+		'enable_link_suggestions'                  => true,
 	];
 
 	/**
@@ -400,7 +402,11 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 			'enable_cornerstone_content'     => false,
 			'enable_xml_sitemap'             => false,
 			'enable_text_link_counter'       => false,
+			'enable_metabox_insights'        => false,
+			'enable_link_suggestions'        => false,
 			'enable_headless_rest_endpoints' => false,
+			'tracking'                       => false,
+			'enable_enhanced_slack_sharing'  => false,
 			'semrush_integration_active'     => false,
 			'zapier_integration_active'      => false,
 		];
