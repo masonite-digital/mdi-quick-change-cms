@@ -2142,7 +2142,30 @@
             );
             
             $this->end_controls_section();
-            
+
+            $this->start_controls_section(
+                'section_style_additional',
+                [
+                    'label' => __( 'Additional', 'bdthemes-element-pack' ),
+                    'tab'   => Controls_Manager::TAB_STYLE,
+                ]
+            );
+
+            $this->add_responsive_control(
+                'content_padding',
+                [
+                    'label'      => esc_html__('Content Inner Padding', 'bdthemes-element-pack'),
+                    'type'       => Controls_Manager::DIMENSIONS,
+                    'size_units' => [ 'px', 'em', '%' ],
+                    'selectors'  => [
+                        '{{WRAPPER}} .bdt-step-flow' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};'
+                    ]
+                ]
+            );
+
+
+            $this->end_controls_section();
+
         }
         
         protected function render_icon() {

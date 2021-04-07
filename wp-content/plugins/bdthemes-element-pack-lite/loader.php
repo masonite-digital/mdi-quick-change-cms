@@ -187,6 +187,9 @@ class Element_Pack_Loader {
 
 		wp_register_script( 'tilt', BDTEP_URL . 'assets/vendor/js/tilt.jquery' . $suffix . '.js', ['jquery'], null, true );
 		wp_register_script( 'bdt-justified-gallery', BDTEP_URL . 'assets/vendor/js/jquery.justifiedGallery' . $suffix . '.js', ['jquery'], '1.0.0', true );
+		
+		wp_register_script( 'progressHorizontal', BDTEP_ASSETS_URL . 'vendor/js/jquery.progressHorizontal' . $suffix . '.js', ['jquery'], '2.0.2', true );
+        wp_register_script( 'progressScroll', BDTEP_ASSETS_URL . 'vendor/js/jquery.progressScroll' . $suffix . '.js', ['jquery'], '2.0.2', true );
 	}
 
 	public function register_site_styles() {

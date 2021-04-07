@@ -1,42 +1,47 @@
-var $ = jQuery;
+let $ = jQuery;
 $(window).load(function() {
-    var $ = jQuery;
+    let $ = jQuery;
 
-    var cartNumber = window.sessionStorage.getItem('numberOfItemsInCart');
+    let loggedIn = $('#loggedIn');
+    let loggedOut = $('#loggedOut');
+    let isAuthenticated = window.sessionStorage.getItem('isAuthenticated');
+    let cartNumber = window.sessionStorage.getItem('numberOfItemsInCart');
 
-    if (cartNumber != '0') {
+    const isTrueAuth = (isAuthenticated === 'true');
+    const intCartNum = parseInt(cartNumber);
+
+    // append the cart number from the session storage numberOfItemsInCart to cart icon
+    if (intCartNum != 0) {
         $('#cartNumber .cn').append(cartNumber);
-    } 
+    } else {
+        $('#cartNumber .cn').css('display','none');
+    }
 
-    // User Login Authentication
-    const loggedIn = $('#loggedIn');
-    const loggedOut = $('#loggedOut');
-    // const setAuthenticated = window.sessionStorage.setItem('isAuthenticated',false);
-    const isAuthenticated = window.sessionStorage.getItem('isAuthenticated');
-    // console.log( isAuthenticated );
-
-    if (isAuthenticated != 'true') {
-        // show login btn
+    // show login btn if session storage isAuthenticated is true
+    if (isTrueAuth != true) {
         loggedIn.hide();
         loggedOut.show();
-        console.log('not authenticated');
+        $('.log-out-interior-door-tab').attr('data-test', 'logged-out-interior-doors-tab');
+        $('.log-out-how-to-tab').attr('data-test', 'logged-out-how-to-tab');
+        $('.log-out-support-tab').attr('data-test', 'logged-out-support-tab');
     } else {
+        $('.login-interior-door-tab').attr('data-test', 'logged-in-interior-door-tab');
+        $('.login-how-to-tab').attr('data-test', 'logged-in-how-to-tab');
+        $('.login-support-tab').attr('data-test', 'logged-in-support-tab');
+        $('.cart-icon').attr('data-test', 'logged-in-shopping-cart-icon');
+        $('.account-icon').attr('data-test', 'logged-in-account-icon');
         loggedOut.hide();
         loggedIn.show();
         loggedIn.css('position','inherit');
-        console.log('authenticated');
     }
-    // END User Login Authentication
 
     // Navigation Attributes
     $('.nav-account-link').attr('data-test','nav-account-link');
     $('.nav-cart-link').attr('data-test','nav-cart-link');
     $('.nav-login-link').attr('data-test','nav-login-link');
+    $('.logo-element-login').attr('data-test','logged-in-desktop-nav-logo');
     $('.logo-element').attr('data-test','desktop-nav-logo');
     $('.mobile-logo-element').attr('data-test','mobile-nav-logo');
-    $('.interior-door-tab').attr('data-test', 'interior-doors-tab');
-    $('.how-to-tab').attr('data-test', 'how-to-tab');
-    $('.support-tab').attr('data-test', 'support-tab');
     // Footer nav attributes
     $('.interior-door-footer-link').attr('data-test','interior-door-footer-link');
     $('.how-to-footer-link').attr('data-test','how-to-footer-link');
@@ -86,12 +91,12 @@ $(window).load(function() {
     // -----
     // Single Post page
         // post custom order buttons
-        $('.interior-door-custom-order-220').attr('data-test','two-panel-square-custom-order-button') // 2 panel square
-        $('.interior-door-custom-order-291').attr('data-test','six-panel-square-custom-order-button') // 6 panel square
-        $('.interior-door-custom-order-292').attr('data-test','livingston-custom-order-button') // livingston
-        $('.interior-door-custom-order-293').attr('data-test','lincoln-park-custom-order-button') // lincoln park
-        $('.interior-door-custom-order-927').attr('data-test','logan-custom-order-button') // logan
-        $('.interior-door-custom-order-928').attr('data-test','winslow-custom-order-button')// winslow
+        $('#custom-order-220-btn').attr('data-test','two-panel-square-custom-order-button') // 2 panel square
+        $('#custom-order-291-btn').attr('data-test','six-panel-square-custom-order-button') // 6 panel square
+        $('#custom-order-292-btn').attr('data-test','livingston-custom-order-button') // livingston
+        $('#custom-order-293-btn').attr('data-test','lincoln-park-custom-order-button') // lincoln park
+        $('#custom-order-927-btn').attr('data-test','logan-custom-order-button') // logan
+        $('#custom-order-928-btn').attr('data-test','winslow-custom-order-button')// winslow
         // other products section images
         $('.post-winslow-view-details-img').attr('data-test','winslow-view-details-image')
         $('.post-logan-view-details-img').attr('data-test','logan-view-details-image')

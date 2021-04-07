@@ -75,6 +75,7 @@ final class Manager {
 			'progress-pie',
 			'price-list',
 			'query-control',
+			'reading-progress',
 			'scroll-button',
 			'step-flow',
 			'slider',
