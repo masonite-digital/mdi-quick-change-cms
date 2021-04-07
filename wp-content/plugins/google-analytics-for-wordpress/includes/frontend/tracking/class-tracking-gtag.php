@@ -232,16 +232,14 @@ class MonsterInsights_Tracking_Gtag extends MonsterInsights_Tracking_Abstract {
 				<?php } ?>
 				window.dataLayer = window.dataLayer || [];
 				if ( mi_track_user ) {
-					function __gtagTracker() {
-						dataLayer.push( arguments );
-					}
+					function __gtagTracker() {dataLayer.push( arguments );}
 					__gtagTracker( 'js', new Date() );
 					__gtagTracker( 'set', {
 						'developer_id.dZGIzZG' : true,
 						<?php
 						if ( ! empty( $persistent ) ) {
 							foreach ( $persistent as $key => $value ) {
-								echo "'" . esc_js( $key ) . "' : '" . stripslashes( $value ) . "',";
+								echo "'" . esc_js( $key ) . "' : '" . esc_js( $value ) . "',";
 							}
 						}
 						?>
@@ -271,8 +269,8 @@ class MonsterInsights_Tracking_Gtag extends MonsterInsights_Tracking_Abstract {
 							var noopfn = function () {
 								return null;
 							};
-							var noopnullfn = function () {
-								return null;
+							var newtracker = function () {
+								return new Tracker();
 							};
 							var Tracker = function () {
 								return null;
@@ -280,7 +278,11 @@ class MonsterInsights_Tracking_Gtag extends MonsterInsights_Tracking_Abstract {
 							var p = Tracker.prototype;
 							p.get = noopfn;
 							p.set = noopfn;
-							p.send = noopfn;
+							p.send = function (){
+								var args = Array.prototype.slice.call(arguments);
+								args.unshift( 'send' );
+								__gaTracker.apply(null, args);
+							};
 							var __gaTracker = function () {
 								var len = arguments.length;
 								if ( len === 0 ) {
@@ -302,6 +304,9 @@ class MonsterInsights_Tracking_Gtag extends MonsterInsights_Tracking_Abstract {
 										}
 										if ( typeof arguments[2] === 'object' ) {
 											hitObject = arguments[2];
+										}
+										if ( typeof arguments[5] === 'object' ) {
+											Object.assign( hitObject, arguments[5] );
 										}
 										if ( 'undefined' !== typeof (
 											arguments[1].hitType
@@ -343,10 +348,8 @@ class MonsterInsights_Tracking_Gtag extends MonsterInsights_Tracking_Abstract {
 								} catch ( ex ) {
 								}
 							};
-							__gaTracker.create = function () {
-								return new Tracker();
-							};
-							__gaTracker.getByName = noopnullfn;
+							__gaTracker.create = newtracker;
+							__gaTracker.getByName = newtracker;
 							__gaTracker.getAll = function () {
 								return [];
 							};
