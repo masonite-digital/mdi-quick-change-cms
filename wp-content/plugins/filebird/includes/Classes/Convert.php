@@ -9,11 +9,22 @@ defined('ABSPATH') || exit;
 class Convert {
 
     protected static $instance = null;
-
-    public function __construct() {
-        add_action( 'admin_notices', array($this, 'adminNotice') );
-        add_action('rest_api_init', array($this, 'registerRestFields'));
+    public static function getInstance() {
+      if (null == self::$instance) {
+        self::$instance = new self;
+        self::$instance->doHooks();
+      }
+      return self::$instance;
     }
+    
+    public function __construct() {
+    }
+
+    private function doHooks(){
+      add_action('admin_notices', array($this, 'adminNotice') );
+      add_action('rest_api_init', array($this, 'registerRestFields'));
+    }
+    
     public function registerRestFields() {
       register_rest_route(NJFB_REST_URL,
           'fb-import',
@@ -89,27 +100,52 @@ class Convert {
     }
     public function adminNotice() {
         global $pagenow;
-        $oldEnhancedFolders = $this->getOldFolders('enhanced', true);
-        $oldWpmlfFolders = $this->getOldFolders('wpmlf', true);
-        $oldWpmfFolders = $this->getOldFolders('wpmf', true);
-        $oldRealMediaFolders = $this->getOldFolders('realmedia', true);
-        $newFolders = [];
         
         $sites = array();
-        if($pagenow !== 'upload.php' || count($newFolders) > 10) {
+
+        if($pagenow !== 'upload.php') {
           return;
         }
-        if(!$this->isUpdated('enhanced') && !$this->isNoThanks('enhanced') && count($oldEnhancedFolders) > 3) {
+
+        $oldEnhancedFolders = array();
+        if(!$this->isUpdated('enhanced') && !$this->isNoThanks('enhanced')) {
+          $oldEnhancedFolders = $this->getOldFolders('enhanced', true);
+        }
+        
+        $oldWpmlfFolders = array();
+        if(!$this->isUpdated('wpmlf') && !$this->isNoThanks('wpmlf')) {
+          $oldWpmlfFolders = $this->getOldFolders('wpmlf', true);
+        }
+        
+        $oldWpmfFolders = array();
+        if(!$this->isUpdated('wpmf') && !$this->isNoThanks('wpmf')) {
+          $oldWpmfFolders = $this->getOldFolders('wpmf', true);
+        }
+        
+        $oldRealMediaFolders = array();
+        if(!$this->isUpdated('realmedia') && !$this->isNoThanks('realmedia')) {
+          $oldRealMediaFolders = $this->getOldFolders('realmedia', true);
+        }
+
+        $oldHappyFilesFolders = array();
+        if(!$this->isUpdated('happyfiles') && !$this->isNoThanks('happyfiles')) {
+          $oldHappyFilesFolders = $this->getOldFolders('happyfiles', true);
+        }
+
+        if(count($oldEnhancedFolders) > 3) {
           $sites[] = array('site' => 'enhanced', 'title' => 'Enhanced Media Library');
         }
-        if(!$this->isUpdated('wpmlf') && !$this->isNoThanks('wpmlf') && count($oldWpmlfFolders) > 3) {
+        if(count($oldWpmlfFolders) > 3) {
           $sites[] = array('site' => 'wpmlf', 'title' => 'Media Library Folders');
         }
-        if(!$this->isUpdated('wpmf') && !$this->isNoThanks('wpmf') && count($oldWpmfFolders) > 3) {
+        if(count($oldWpmfFolders) > 3) {
           $sites[] = array('site' => 'wpmf', 'title' => 'WP Media folder');
         }
-        if(!$this->isUpdated('realmedia') && !$this->isNoThanks('realmedia') && count($oldRealMediaFolders) > 3) {
+        if(count($oldRealMediaFolders) > 3) {
           $sites[] = array('site' => 'realmedia', 'title' => 'WP Real Media Library');
+        }
+        if(count($oldHappyFilesFolders) > 3) {
+          $sites[] = array('site' => 'happyfiles', 'title' => 'HappyFiles');
         }
         foreach($sites as $k => $site) :
           $c = 0;
@@ -121,6 +157,8 @@ class Convert {
             $c = count($oldWpmfFolders);
           } else if($site['site'] == 'realmedia') {
             $c = count($oldRealMediaFolders);
+          } else if($site['site'] == 'happyfiles') {
+            $c = count($oldHappyFilesFolders);
           }
           ?>
           <div class="njt notice notice-warning <?php echo esc_attr($site['site']); ?> is-dismissible">
@@ -171,6 +209,8 @@ class Convert {
           update_option('njt_fb_wpmf_no_thanks', '1');
         } else if($site == 'realmedia') {
           update_option('njt_fb_realmedia_no_thanks', '1');
+        } else if($site == 'happyfiles') {
+          update_option('njt_fb_happyfiles_no_thanks', '1');
         }
         
         wp_send_json_success(array(
@@ -221,6 +261,8 @@ class Convert {
           update_option('njt_fb_updated_from_wpmlf', '0');
           update_option('njt_fb_updated_from_wpmf', '0');
           update_option('njt_fb_updated_from_realmedia', '0');
+          update_option('njt_fb_updated_from_happyfiles', '0');
+          
           wp_send_json_success(array(
             'mess' => __('Successfully cleared.', 'filebird')
           ));
@@ -242,12 +284,13 @@ class Convert {
             $is = get_option('njt_fb_updated_from_wpmf', '0') === '1';
           } else if($site == 'realmedia') {
             $is = get_option('njt_fb_updated_from_realmedia', '0') === '1';
+          } else if($site == 'happyfiles') {
+            $is = get_option('njt_fb_updated_from_happyfiles', '0') === '1';
           }
 
           return $is;
       }
       public function isNoThanks($site) {
-        global $wpdb;
         if($site == 'enhanced') {
           return get_option('njt_fb_enhanced_no_thanks', '0') === '1';
         } else if($site == 'wpmlf') {
@@ -256,6 +299,8 @@ class Convert {
           return get_option('njt_fb_wpmf_no_thanks', '0') === '1';
         } else if($site == 'realmedia') {
           return get_option('njt_fb_realmedia_no_thanks', '0') === '1';
+        } else if($site == 'happyfiles') {
+          return get_option('njt_fb_happyfiles_no_thanks', '0') === '1';
         }
       }
     // public function ajaxImport() {
@@ -345,6 +390,13 @@ class Convert {
             ));
             exit();
           }
+        } else if($site == 'happyfiles') {
+          if(get_option('njt_fb_updated_from_happyfiles', '0') == '1') {
+            wp_send_json_success(array(
+                'mess' => __('Already Updated', 'filebird')
+            ));
+            exit();
+          }
         }
     }
     public function getOldFolders($site, $flat = false) {
@@ -361,6 +413,8 @@ class Convert {
           foreach($folders as $k => $folder) {
             $folders[$k]->parent = $folder->parent == '-1' ? 0 : $folder->parent;
           }
+        } else if($site == 'happyfiles') {
+          $folders = Helpers::foldersFromHappyFiles(0, $flat);
         }
         return $folders;
     }
@@ -370,15 +424,14 @@ class Convert {
           if(\is_array($folder)) {
             $folder = json_decode(json_encode($folder));
           }
-            //insert folder first
-            $inserted = FolderModel::newOrGet($folder->title, $folder->parent);
-            update_option('njt_new_term_id_' . $folder->id, $inserted);
-            if($folder->parent > 0) {
-                $new_parent = get_option('njt_new_term_id_' . $folder->parent);
-                FolderModel::updateParent($inserted, $new_parent);
-            }
-            $atts = $this->getAttOfFolder($site, $folder);
-            FolderModel::setFoldersForPosts($atts, $inserted);
+          $new_parent = $folder->parent;
+          if($new_parent > 0) {
+            $new_parent = get_option('njt_new_term_id_' . $new_parent);
+          }
+          $inserted = FolderModel::newOrGet($folder->title, $new_parent);
+          update_option('njt_new_term_id_' . $folder->id, $inserted);
+          $atts = $this->getAttOfFolder($site, $folder);
+          FolderModel::setFoldersForPosts($atts, $inserted);
         }
     }
     public function getAttOfFolder($site, $folder) {
@@ -405,6 +458,8 @@ class Convert {
         } else if($site == 'realmedia') {
           $folder_table = $wpdb->prefix . 'realmedialibrary_posts';
           $att = $wpdb->get_col($wpdb->prepare('SELECT attachment FROM %1$s WHERE fid = %2$d', $folder_table, $folder->id));
+        } else if($site == 'happyfiles') {
+          $att = $wpdb->get_col($wpdb->prepare('SELECT object_id FROM %1$s WHERE term_taxonomy_id = %2$d', $wpdb->term_relationships, $folder->term_taxonomy_id));
         }
         return $att;
     }
@@ -421,14 +476,11 @@ class Convert {
             update_option('njt_fb_updated_from_wpmf', '1');
         } else if($site == 'realmedia') {
             update_option('njt_fb_updated_from_realmedia', '1');
+        } else if($site == 'happyfiles') {
+            update_option('njt_fb_updated_from_happyfiles', '1');
         }
     }
-    public static function getInstance() {
-        if (null == self::$instance) {
-          self::$instance = new self;
-        }
-        return self::$instance;
-    }
+  
     private function sanitize_arr($arr) {
       if(is_array($arr)) {
         return array_map(array($this, 'sanitize_arr'), $arr);
