@@ -5,7 +5,6 @@ use ElementPack\Base\Module_Base;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Typography;
-use Elementor\Core\Schemes;
 use Elementor\Group_Control_Box_Shadow;
 use Elementor\Group_Control_Background;
 use ElementPack\Element_Pack_Loader;
@@ -88,6 +87,24 @@ class Contact_Form extends Module_Base {
 		);
 
 		$this->add_control(
+			'show_subject',
+			[
+				'label'   => esc_html__( 'Subject Field', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+		
+		$this->add_control(
+			'show_message',
+			[
+				'label'   => esc_html__( 'Message Field', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'type'    => Controls_Manager::SWITCHER,
+				'default' => 'yes',
+			]
+		);
+
+		$this->add_control(
 			'input_size',
 			[
 				'label'   => esc_html__( 'Input Size', 'bdthemes-element-pack' ),
@@ -106,6 +123,46 @@ class Contact_Form extends Module_Base {
 			[
 				'label' => esc_html__( 'Name/Email Field Inline', 'bdthemes-element-pack' ),
 				'type'  => Controls_Manager::SWITCHER,
+				'condition' => [
+					'all_field_inline' => ''
+				]
+			]
+		);
+		
+		$this->add_control(
+			'all_field_inline',
+			[
+				'label' => esc_html__( 'All Field Inline', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'type'  => Controls_Manager::SWITCHER,
+				'prefix_class' => 'bdt-all-field-inline--',
+			]
+		);
+
+		$this->add_responsive_control(
+			'alignment',
+			[
+				'label'   => esc_html__( 'Alignment', 'bdthemes-element-pack' ) . BDTEP_NC,
+				'type'    => Controls_Manager::CHOOSE,
+				'options' => [
+					'left' => [
+						'title' => esc_html__( 'Left', 'bdthemes-element-pack' ),
+						'icon'  => 'eicon-h-align-left',
+					],
+					'center' => [
+						'title' => esc_html__( 'Center', 'bdthemes-element-pack' ),
+						'icon'  => 'eicon-h-align-center',
+					],
+					'flex-end' => [
+						'title' => esc_html__( 'Right', 'bdthemes-element-pack' ),
+						'icon'  => 'eicon-h-align-right',
+					],
+				],
+				'selectors'  => [
+					'{{WRAPPER}}.bdt-all-field-inline--yes .bdt-contact-form-form' => 'justify-content: {{VALUE}};',
+				],
+				'condition' => [
+					'all_field_inline' => 'yes'
+				]
 			]
 		);
 
@@ -130,9 +187,7 @@ class Contact_Form extends Module_Base {
 					],
 				],
 				'selectors'  => [
-					'{{WRAPPER}} .bdt-contact-form-form'                      => 'text-align: {{VALUE}};',
-					'{{WRAPPER}} .bdt-contact-form-form input'    => 'text-align: {{VALUE}};',
-					'{{WRAPPER}} .bdt-contact-form-form textarea' => 'text-align: {{VALUE}};',
+					'{{WRAPPER}} .bdt-contact-form-form, {{WRAPPER}} .bdt-contact-form-form input, {{WRAPPER}} .bdt-contact-form-form textarea' => 'text-align: {{VALUE}};',
 				],
 			]
 		);
@@ -1051,6 +1106,7 @@ class Contact_Form extends Module_Base {
 		?>
 		<div class="bdt-contact-form-wrapper">
 			<form <?php echo $this->get_render_attribute_string( 'contact-form' ); ?>>
+
 				<div <?php echo $this->get_render_attribute_string( 'name-email-field-group' ); ?>>
 					<?php
 					if ( $settings['show_labels'] ) {
@@ -1086,24 +1142,25 @@ class Contact_Form extends Module_Base {
 				</div>
 
 				<?php if ( $settings['contact_number'] ) : ?>
-					<div <?php echo $this->get_render_attribute_string( 'field-group' ); ?>>
-						<?php
+				<div <?php echo $this->get_render_attribute_string( 'field-group' ); ?>>
+					<?php
 
-						if ( $settings['show_labels'] ) {
-							if ( 'yes' == $settings['custom_text'] ) {
-								echo '<label ' . $this->get_render_attribute_string( 'contact_label' ) . '>' . $settings['contact_label'] . '</label>';
-							} else {
-								echo '<label ' . $this->get_render_attribute_string( 'contact_label' ) . '>' . esc_html__( 'Contact Number', 'bdthemes-element-pack' ) . '</label>';
-							}
+					if ( $settings['show_labels'] ) {
+						if ( 'yes' == $settings['custom_text'] ) {
+							echo '<label ' . $this->get_render_attribute_string( 'contact_label' ) . '>' . $settings['contact_label'] . '</label>';
+						} else {
+							echo '<label ' . $this->get_render_attribute_string( 'contact_label' ) . '>' . esc_html__( 'Contact Number', 'bdthemes-element-pack' ) . '</label>';
 						}
-						echo '<div class="bdt-form-controls">';
-						echo '<input ' . $this->get_render_attribute_string( 'contact_input' ) . '>';
-						echo '</div>';
+					}
+					echo '<div class="bdt-form-controls">';
+					echo '<input ' . $this->get_render_attribute_string( 'contact_input' ) . '>';
+					echo '</div>';
 
-						?>
-					</div>
+					?>
+				</div>
 				<?php endif; ?>
 
+				<?php if ( $settings['show_subject'] ) : ?>
 				<div <?php echo $this->get_render_attribute_string( 'field-group' ); ?>>
 					<?php
 					if ( $settings['show_labels'] ) {
@@ -1119,7 +1176,9 @@ class Contact_Form extends Module_Base {
 
 					?>
 				</div>
+				<?php endif; ?>
 
+				<?php if ( $settings['show_message'] ) : ?>
 				<div <?php echo $this->get_render_attribute_string( 'field-group' ); ?>>
 					<?php
 					if ( $settings['show_labels'] ) {
@@ -1134,6 +1193,7 @@ class Contact_Form extends Module_Base {
 					echo '</div>';
 					?>
 				</div>
+				<?php endif; ?>
 				
 				<?php if ( 'yes' === $settings['show_additional_message'] ) : ?>
 					<div <?php echo $this->get_render_attribute_string( 'field-group' ); ?>>

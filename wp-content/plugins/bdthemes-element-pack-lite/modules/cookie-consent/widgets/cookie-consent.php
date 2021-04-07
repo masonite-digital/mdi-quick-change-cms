@@ -6,7 +6,7 @@ use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
 use Elementor\Core\Schemes;
 use ElementPack\Element_Pack_Loader;
-use ElementPack\Classes\Utils;
+use ElementPack\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 

@@ -2,10 +2,21 @@
 use ElementPack\Element_Pack_Loader;
 
 
-
+if ( !defined('BDTEP') ) {
+    define('BDTEP', '');
+} //Add prefix for all widgets <span class="bdt-widget-badge"></span>
+if ( !defined('BDTEP_CP') ) {
+    define('BDTEP_CP', '<span class="bdt-ep-widget-badge"></span>');
+}//Add prefix for all widgets <span class="bdt-widget-badge"></span>
 if ( !defined('BDTEP_NC') ) {
     define('BDTEP_NC', '<span class="bdt-ep-new-control"></span>');
 } // if you have any custom style
+if ( !defined('BDTEP_SLUG') ) {
+    define('BDTEP_SLUG', 'element-pack');
+} // set your own alias
+if ( !defined('BDTEP_TITLE') ) {
+    define('BDTEP_TITLE', 'Element Pack');
+} // Set your own name for plugin
 
 /**
  * Show any alert by this function
@@ -23,6 +34,27 @@ function element_pack_alert($message, $type = 'warning', $close = true) {
         <?php echo wp_kses_post( $message ); ?>
     </div>
     <?php
+}
+
+function element_pack_get_post_types($args = []) {
+
+    $post_type_args = [
+        'show_in_nav_menus' => true,
+    ];
+
+    if ( !empty($args['post_type']) ) {
+        $post_type_args['name'] = $args['post_type'];
+    }
+
+    $_post_types = get_post_types($post_type_args, 'objects');
+
+    $post_types = ['0' => esc_html__('Select Type', 'bdthemes-element-pack')];
+
+    foreach ( $_post_types as $post_type => $object ) {
+        $post_types[$post_type] = $object->label;
+    }
+
+    return $post_types;
 }
 
 /**

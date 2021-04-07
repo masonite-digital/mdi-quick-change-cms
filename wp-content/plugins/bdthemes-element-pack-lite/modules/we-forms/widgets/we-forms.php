@@ -25,7 +25,7 @@ class We_Forms extends Module_Base {
 	}
 
 	public function get_icon() {
-		return 'bdt-wi-we-forms bdt-new';
+		return 'bdt-wi-we-forms';
 	}
 
 	public function get_categories() {

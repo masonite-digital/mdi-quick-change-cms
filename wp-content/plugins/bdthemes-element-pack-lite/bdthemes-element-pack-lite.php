@@ -3,17 +3,16 @@
  * Plugin Name: Element Pack Lite - Addon for Elementor
  * Plugin URI: http://elementpack.pro/
  * Description: Element Pack is a packed of elementor widget. This plugin gives you extra widgets features for elementor page builder plugin.
- * Version: 2.6.0
+ * Version: 2.10.0
  * Author: BdThemes
  * Author URI: https://bdthemes.com/
  * Text Domain: bdthemes-element-pack-lite
  * Domain Path: /languages
  * License: GPL3
- * Elementor requires at least: 2.9.0
- * Elementor tested up to: 3.0.15
+ * Elementor requires at least: 3.0.0
+ * Elementor tested up to: 3.1.4
  */
-    
-use ElementPack\Notices;
+
 
 if ( ! function_exists( 'element_pack_pro_installed' ) ) {
 
@@ -33,7 +32,7 @@ if ( ! function_exists( 'element_pack_pro_installed' ) ) {
 
 if ( ! element_pack_pro_installed() ) {
 	// Some pre define value for easy use
-	define( 'BDTEP_VER', '2.6.0' );
+	define( 'BDTEP_VER', '2.10.0' );
 	define( 'BDTEP__FILE__', __FILE__ );
 	define( 'BDTEP_PNAME', basename( dirname(BDTEP__FILE__) ) );
 	define( 'BDTEP_PBNAME', plugin_basename(BDTEP__FILE__) );
@@ -44,10 +43,7 @@ if ( ! element_pack_pro_installed() ) {
 	define( 'BDTEP_ASSETS_URL', BDTEP_URL . 'assets/' );
 	define( 'BDTEP_ASSETS_PATH', BDTEP_PATH . 'assets/' );
 	define( 'BDTEP_MODULES_URL', BDTEP_URL . 'modules/' );
-	define( 'BDTEP', '' ); //Add prefix for all widgets <span class="bdt-widget-badge"></span>
-	define( 'BDTEP_CP', '<span class="bdt-widget-badge"></span>' ); // if you have any custom style
-	define( 'BDTEP_SLUG', 'element-pack' );// set your own alias 
-	define( 'BDTEP_TITLE', 'Element Pack Lite' ); // Set your own name for plugin
+	
 
 
 	// Helper function here
@@ -76,9 +72,7 @@ if ( ! element_pack_pro_installed() ) {
 	    require( BDTEP_PATH . '/includes/admin-notice.php' );
 	}
 	add_action( 'plugins_loaded', 'bdthemes_element_pack_load_plugin', 9 );
-    
-    add_action('admin_notices', 'rate_the_element_pack');
-
+	
 }
 
 /**
@@ -105,19 +99,6 @@ function element_pack_lite_need_elementor() {
 	}
 
 	echo '<div class="error">' . $admin_message . '</div>';
-}
-
-function rate_the_element_pack() {
-    
-    Notices::add_notice(
-        [
-            'id'               => 'rate-the-element-pack',
-            'type'             => 'success',
-            'dismissible'      => true,
-            'dismissible-time' => 1209600,
-            'message'          => __('<b>Win Element Pack Pro Lifetime License</b> by give us an honest review. Please go to <a href="https://wordpress.org/plugins/bdthemes-element-pack-lite/">Element Pack</a> WordPress repository and submit your review.  We will select one random user from the review page every month. When you complete your review just fill-up <a href="https://bdthemes.com/giveaway-form/">this form</a> to join our giveaway program.', 'bdthemes-element-pack'),
-        ]
-    );
 }
 
 /**

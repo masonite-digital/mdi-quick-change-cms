@@ -181,6 +181,7 @@ class Element_Pack_Loader {
 		wp_register_script( 'imagezoom', BDTEP_ASSETS_URL . 'vendor/js/jquery.imagezoom' . $suffix . '.js', ['jquery'], null, true );
 		wp_register_script( 'popper', BDTEP_ASSETS_URL . 'vendor/js/popper' . $suffix . '.js', ['jquery'], null, true );
 		wp_register_script( 'tippyjs', BDTEP_ASSETS_URL . 'vendor/js/tippy.all' . $suffix . '.js', ['jquery'], null, true );
+		wp_register_script( 'leaflet', BDTEP_ASSETS_URL . 'vendor/js/leaflet' . $suffix . '.js', ['jquery'], '', true );
 		
 		
 		wp_register_script( 'recaptcha', 'https://www.google.com/recaptcha/api.js', ['jquery'], null, true );
@@ -307,6 +308,38 @@ class Element_Pack_Loader {
 
 	}
 
+	public function element_pack_ajax_search() {
+		global $wp_query;
+		
+		$result = array('results' => array());
+		$query = isset( $_REQUEST['s'] ) ? $_REQUEST['s'] : '';
+		
+		if ( strlen( $query ) >= 3 ) {
+			
+			$wp_query->query_vars['posts_per_page'] = 5;
+			$wp_query->query_vars['post_status'] = 'publish';
+			$wp_query->query_vars['s'] = $query;
+			$wp_query->is_search = true;
+			
+			foreach ( $wp_query->get_posts() as $post ) {
+				
+				$content = !empty( $post->post_excerpt ) ? strip_tags( strip_shortcodes( $post->post_excerpt ) ) : strip_tags( strip_shortcodes( $post->post_content ) );
+				
+				if ( strlen( $content ) > 180 ) {
+					$content = substr( $content, 0, 179 ) . '...';
+				}
+				
+				$result['results'][] = array(
+					'title' => $post->post_title,
+					'text'  => $content,
+					'url'   => get_permalink( $post->ID )
+				);
+			}
+		}
+		
+		die( json_encode( $result ) );
+	}
+
 
 	// Load WPML compatibility instance
 	public function wpml_compatiblity() {
@@ -342,6 +375,10 @@ class Element_Pack_Loader {
 		add_action( 'elementor/frontend/before_enqueue_scripts', [ $this, 'enqueue_site_scripts' ] );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
+
+		// TODO AJAX SEARCH
+		add_action( 'wp_ajax_element_pack_search', [$this, 'element_pack_ajax_search'] );
+		add_action( 'wp_ajax_nopriv_element_pack_search', [$this, 'element_pack_ajax_search'] );
 		
 		add_shortcode( 'rooten_custom_template', array( $this, 'shortcode_template' ) );
 		

@@ -10,6 +10,7 @@ use Elementor\Group_Control_Box_Shadow;
 use Elementor\Icons_Manager;
 use ElementPack\Element_Pack_Loader;
 use ElementPack\Modules\QueryControl\Controls\Group_Control_Posts;
+use ElementPack\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -599,12 +600,23 @@ class Slider extends Module_Base {
 					'size' => 500,
 				],
 				'range' => [
-					'min'  => 100,
-					'max'  => 5000,
-					'step' => 50,
+					'px' => [
+						'min'  => 100,
+						'max'  => 5000,
+						'step' => 50,
+					],
 				],
 			]
 		);
+
+		$this->add_control(
+            'observer',
+            [
+                'label'       => __( 'Observer', 'bdthemes-element-pack' ) . BDTEP_NC,
+                'description' => __( 'When you use carousel in any hidden place (in tabs, accordion etc) keep it yes.', 'bdthemes-element-pack' ),
+                'type'        => Controls_Manager::SWITCHER,
+            ]
+        );
 
 		$this->end_controls_section();
 
@@ -634,6 +646,8 @@ class Slider extends Module_Base {
 				'label'       => esc_html__( 'Icon', 'bdthemes-element-pack' ),
 				'type'        => Controls_Manager::ICONS,
 				'fa4compatibility' => 'icon',
+				'label_block' => false,
+				'skin' => 'inline'
 			]
 		);
 
@@ -644,8 +658,8 @@ class Slider extends Module_Base {
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'right',
 				'options' => [
-					'left'  => esc_html__( 'Before', 'bdthemes-element-pack' ),
-					'right' => esc_html__( 'After', 'bdthemes-element-pack' ),
+					'left'  => esc_html__( 'Left', 'bdthemes-element-pack' ),
+					'right' => esc_html__( 'Right', 'bdthemes-element-pack' ),
 				],
 				'condition' => [
 					'slider_icon[value]!' => '',
@@ -670,8 +684,8 @@ class Slider extends Module_Base {
 					'slider_icon[value]!' => '',
 				],
 				'selectors' => [
-					'{{WRAPPER}} .bdt-slider .bdt-button-icon-align-right' => 'margin-left: {{SIZE}}{{UNIT}};',
-					'{{WRAPPER}} .bdt-slider .bdt-button-icon-align-left'  => 'margin-right: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-slider .bdt-button-icon-align-right' => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .bdt-slider .bdt-button-icon-align-left'  => is_rtl() ? 'margin-left: {{SIZE}}{{UNIT}};' : 'margin-right: {{SIZE}}{{UNIT}};',
 				],
 			]
 		);
@@ -729,12 +743,21 @@ class Slider extends Module_Base {
 		);
 
 		$this->add_control(
+			'show_text_stroke',
+			[
+				'label'   => esc_html__('Text Stroke', 'bdthemes-prime-slider') . BDTEP_NC,
+				'type'    => Controls_Manager::SWITCHER,
+				'prefix_class' => 'bdt-text-stroke--',
+			]
+		);
+
+		$this->add_control(
 			'title_color',
 			[
 				'label'     => esc_html__( 'Color', 'bdthemes-element-pack' ),
 				'type'      => Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .bdt-slider .bdt-slide-item .bdt-slide-title' => 'color: {{VALUE}};',
+					'{{WRAPPER}} .bdt-slider .bdt-slide-item .bdt-slide-title' => 'color: {{VALUE}}; -webkit-text-stroke-color: {{VALUE}};',
 				],
 			]
 		);
@@ -2281,12 +2304,14 @@ class Slider extends Module_Base {
 				'slider' => [
 					'data-settings' => [
 						wp_json_encode(array_filter([
-							"autoplay" => ("yes" == $settings["autoplay"]) ? ["delay" => $settings["autoplay_speed"]] : false,
-							"loop" => ($settings["loop"] == "yes") ? true : false,
-                            "speed" => $settings["speed"]["size"],
-							"pauseOnHover" => ("yes" == $settings["pauseonhover"]) ? true : false,
-							"effect"       => $settings["transition"],
-					        "navigation" => [
+							"autoplay"       => ("yes" == $settings["autoplay"]) ? ["delay"          => $settings["autoplay_speed"]] : false,
+							"loop"           => ($settings["loop"] == "yes") ? true : false,
+							"speed"          => $settings["speed"]["size"],
+							"pauseOnHover"   => ("yes" == $settings["pauseonhover"]) ? true : false,
+							"observer"       => ( $settings["observer"] ) ? true : false,
+							"observeParents" => ( $settings["observer"] ) ? true : false,
+							"effect"         => $settings["transition"],
+							"navigation"     => [
 								"nextEl" => "#" . $id . " .bdt-navigation-next",
 								"prevEl" => "#" . $id . " .bdt-navigation-prev",
 							],
@@ -2474,7 +2499,7 @@ class Slider extends Module_Base {
 			<?php foreach ( $settings['tabs'] as $item ) : ?>
 
 				<?php 
-				$image_src = wp_get_attachment_image_src( $item['tab_image']['id'], 'full' );
+				$image_src = isset($item['tab_image']['id']) ? wp_get_attachment_image_src( $item['tab_image']['id'], 'full' ) : '';
 				$image     =  $image_src ? $image_src[0] : '';
 
 				$this->add_render_attribute(
@@ -2496,8 +2521,8 @@ class Slider extends Module_Base {
 								'bdt-slide-link',
 								$settings['button_hover_animation'] ? 'elementor-animation-' . $settings['button_hover_animation'] : '',
 							],
-							'href'   => $item['tab_link']['url'] ? esc_url($item['tab_link']['url']) : '#',
-							'target' => $item['tab_link']['is_external'] ? '_blank' : '_self'
+							'href'   => isset($item['tab_link']['url']) ? esc_url($item['tab_link']['url']) : '#',
+							'target' => isset($item['tab_link']['is_external']) ? '_blank' : '_self'
 						]
 					], '', '', true
 				);
@@ -2528,9 +2553,9 @@ class Slider extends Module_Base {
 							<div class="bdt-slide-desc bdt-position-large bdt-position-<?php echo ($settings['origin']); ?> bdt-position-z-index">
 
 								<?php if (( '' !== $item['tab_title'] ) && ( $settings['show_title'] )) : ?>
-									<<?php echo esc_html($settings['title_tags']); ?> <?php echo $this->get_render_attribute_string('bdt-slide-title'); ?>>
+									<<?php echo Utils::get_valid_html_tag($settings['title_tags']); ?> <?php echo $this->get_render_attribute_string('bdt-slide-title'); ?>>
 										<?php echo wp_kses_post($item['tab_title']); ?>
-									</<?php echo esc_html($settings['title_tags']); ?>>
+									</<?php echo Utils::get_valid_html_tag($settings['title_tags']); ?>>
 								<?php endif; ?>
 
 								<?php if ( '' !== $item['tab_content'] ) : ?>

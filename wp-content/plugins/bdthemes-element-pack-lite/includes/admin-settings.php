@@ -3,7 +3,7 @@
 use ElementPack\Base\Element_Pack_Base;
 use ElementPack\Notices;
 use Elementor\Settings;
-use ElementPack\Classes\Utils;
+use ElementPack\Utils;
 
 
 /**
@@ -272,7 +272,7 @@ class ElementPack_Admin_Settings {
                     'widget_type'  => 'pro',
                     'content_type' => 'others new',
                     'demo_url'     => 'https://elementpack.pro/demo/element/breadcrumbs',
-                    'video_url'    => '',
+                    'video_url'    => 'https://youtu.be/32yrjPHq-AA',
                 ],
                 [
                     'name'         => 'dual-button',
@@ -801,7 +801,7 @@ class ElementPack_Admin_Settings {
                     'label'        => esc_html__('Open Street Map', 'bdthemes-element-pack'),
                     'type'         => 'checkbox',
                     'default'      => "on",
-                    'widget_type'  => 'pro',
+                    'widget_type'  => 'free',
                     'content_type' => 'others',
                     'demo_url'     => 'https://elementpack.pro/demo/element/open-street-map',
                     'video_url'    => 'https://youtu.be/DCQ5g7yleyk',
@@ -1000,7 +1000,7 @@ class ElementPack_Admin_Settings {
                     'label'        => esc_html__('Search', 'bdthemes-element-pack'),
                     'type'         => 'checkbox',
                     'default'      => "on",
-                    'widget_type'  => 'pro',
+                    'widget_type'  => 'free',
                     'content_type' => 'others',
                     'demo_url'     => 'https://elementpack.pro/demo/element/search/',
                     'video_url'    => 'https://youtu.be/H3F1LHc97Gk',
@@ -1133,7 +1133,7 @@ class ElementPack_Admin_Settings {
                     'widget_type'  => 'pro',
                     'content_type' => 'custom new',
                     'demo_url'     => 'https://elementpack.pro/demo/element/tags-cloud/',
-                    'video_url'    => '#',
+                    'video_url'    => '',
                 ],
                 [
                     'name'         => 'timeline',
@@ -1154,6 +1154,16 @@ class ElementPack_Admin_Settings {
                     'content_type' => 'others',
                     'demo_url'     => 'https://elementpack.pro/demo/element/time-zone/',
                     'video_url'    => 'https://youtu.be/WOMIk_FVRz4',
+                ],
+                [
+                    'name'         => 'total-count',
+                    'label'        => esc_html__('Total Count', 'bdthemes-element-pack'),
+                    'type'         => 'checkbox',
+                    'default'      => "off",
+                    'widget_type'  => 'pro',
+                    'content_type' => 'others new',
+                    'demo_url'     => 'https://elementpack.pro/demo/element/total-count/',
+                    'video_url'    => '',
                 ],
                 [
                     'name'         => 'trailer-box',
@@ -1240,7 +1250,7 @@ class ElementPack_Admin_Settings {
                     'label'        => esc_html__('User Register', 'bdthemes-element-pack'),
                     'type'         => 'checkbox',
                     'default'      => "on",
-                    'widget_type'  => 'pro',
+                    'widget_type'  => 'free',
                     'content_type' => 'others',
                     'demo_url'     => 'https://elementpack.pro/demo/element/user-register/',
                     'video_url'    => 'https://youtu.be/hTjZ1meIXSY',
@@ -1253,7 +1263,7 @@ class ElementPack_Admin_Settings {
                     'widget_type'  => 'pro',
                     'content_type' => 'others new',
                     'demo_url'     => 'https://elementpack.pro/demo/element/vertical-menu/',
-                    'video_url'    => '',
+                    'video_url'    => 'https://youtu.be/ezZBOistuF4',
                 ],
                 [
                     'name'         => 'video-gallery',
@@ -1376,7 +1386,7 @@ class ElementPack_Admin_Settings {
                     'content_type' => 'new',
                     'widget_type'  => 'pro',
                     'demo_url'     => 'https://elementpack.pro/demo/element/visibility-control/',
-                    'video_url'    => '',
+                    'video_url'    => 'https://youtu.be/e-_qQl6dBbE?t=267',
                 ],
                 [
                     'name'         => 'custom_js',
@@ -1386,7 +1396,17 @@ class ElementPack_Admin_Settings {
                     'content_type' => 'new',
                     'widget_type'  => 'pro',
                     'demo_url'     => 'https://elementpack.pro/demo/element/custom-js/',
-                    'video_url'    => '',
+                    'video_url'    => 'https://youtu.be/e-_qQl6dBbE?t=312',
+                ],
+                [
+                    'name'         => 'backdrop_filter',
+                    'label'        => esc_html__('Backdrop Filter', 'bdthemes-element-pack'),
+                    'type'         => 'checkbox',
+                    'default'      => "off",
+                    'content_type' => 'new',
+                    'widget_type'  => 'free',
+                    'demo_url'     => 'https://elementpack.pro/demo/element/backdrop-filter/',
+                    'video_url'    => 'https://youtu.be/XuS3D-czTJc',
                 ],
 
             ],
@@ -1474,7 +1494,16 @@ class ElementPack_Admin_Settings {
                     'placeholder'       => 'example@email.com',
                     'type'              => 'text',
                     'sanitize_callback' => 'sanitize_text_field'
-                ],      
+                ],   
+                
+                [
+                    'name'              => 'open_street_map_access_token',
+                    'label'             => esc_html__('MapBox Access Token (for Open Street Map)', 'bdthemes-element-pack'),
+                    'desc'              => __('<a href="https://www.mapbox.com/account/access-tokens" target="_blank">Click Here</a> to get access token. This Access Token needs for show Open Street Map widget correctly.', 'bdthemes-element-pack'),
+                    'placeholder'       => '------------- -------------------------',
+                    'type'              => 'text',
+                    'sanitize_callback' => 'sanitize_text_field'
+                ],
             ],
             'element_pack_other_settings'   => [
 
@@ -1497,6 +1526,52 @@ class ElementPack_Admin_Settings {
 
                 [
                     'name' => 'live_copy_group_end',
+                    'type' => 'end_group',
+                ],
+
+                [
+                    'name'  => 'essential_shortcodes_group_start',
+                    'label' => esc_html__('Essential Shortcodes', 'bdthemes-element-pack'),
+                    'desc'  => __('If you need element pack essential shortcodes feature so you can do that from here.', 'bdthemes-element-pack'),
+                    'type'  => 'start_group',
+                ],
+
+                [
+                    'name'      => 'essential_shortcodes',
+                    'label'     => esc_html__('Essential Shortcodes', 'bdthemes-element-pack'),
+                    'type'      => 'checkbox',
+                    'default'   => "off",
+                    'widget_type' => 'pro',
+                    'demo_url'  => '',
+                    'video_url' => '',
+                ],
+
+                [
+                    'name' => 'essential_shortcodes_group_end',
+                    'type' => 'end_group',
+                ],
+                
+                [
+                    'name'  => 'template_library_group_start',
+                    'label' => esc_html__('Template Library (in Editor)', 'bdthemes-element-pack'),
+                    'desc'  => __('If you need to show element pack template library in your editor so please enable this option.', 'bdthemes-element-pack'),
+                    'type'  => 'start_group',
+                    'content_type' => 'new',
+                ],
+
+                [
+                    'name'      => 'template_library',
+                    'label'     => esc_html__('Template Library (in Editor)', 'bdthemes-element-pack'),
+                    'type'      => 'checkbox',
+                    'default'   => "off",
+                    'widget_type' => 'pro',
+                    'demo_url'  => '',
+                    'video_url' => '',
+                    
+                ],
+
+                [
+                    'name' => 'template_library_group_end',
                     'type' => 'end_group',
                 ],
             ]
@@ -1576,7 +1651,7 @@ class ElementPack_Admin_Settings {
             'widget_type'  => 'pro',
             'content_type' => 'others new',
             'demo_url'     => 'https: //elementpack.pro/demo/element/charitable-campaigns/',
-            'video_url'    => '',
+            'video_url'    => 'https://youtu.be/ugKfZyvSbGA',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1587,7 +1662,7 @@ class ElementPack_Admin_Settings {
             'widget_type'  => 'pro',
             'content_type' => 'others new',
             'demo_url'    => 'https://elementpack.pro/demo/element/charitable-donations/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/C38sbaKx9x0',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1598,7 +1673,7 @@ class ElementPack_Admin_Settings {
             'widget_type'  => 'pro',
             'content_type' => 'others new',
             'demo_url'    => 'https://elementpack.pro/demo/element/charitable-donors/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/ljnbE8JVg7w',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1609,7 +1684,7 @@ class ElementPack_Admin_Settings {
             'widget_type'  => 'pro',
             'content_type' => 'others new',
             'demo_url'    => 'https://elementpack.pro/demo/element/charitable-donation-form/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/aufVwEUZJhY',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1620,7 +1695,7 @@ class ElementPack_Admin_Settings {
             'widget_type'  => 'pro',
             'content_type' => 'others new',
             'demo_url'    => 'https://elementpack.pro/demo/element/charitable-stat/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/54cw85jmhtg',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1631,7 +1706,7 @@ class ElementPack_Admin_Settings {
             'widget_type'  => 'pro',
             'content_type' => 'others new',
             'demo_url'    => 'https://elementpack.pro/demo/element/charitable-login/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/c0A90DdfGGM',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1642,7 +1717,7 @@ class ElementPack_Admin_Settings {
             'widget_type'  => 'pro',
             'content_type' => 'others new',
             'demo_url'    => 'https://elementpack.pro/demo/element/charitable-registration/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/N-IMBmjGJsA',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1653,7 +1728,7 @@ class ElementPack_Admin_Settings {
             'widget_type'  => 'pro',
             'content_type' => 'others new',
             'demo_url'    => 'https://elementpack.pro/demo/element/charitable-profile/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/DD7ZiMpxK-w',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1703,6 +1778,19 @@ class ElementPack_Admin_Settings {
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
+            'name'         => 'forminator-forms',
+            'label'        => esc_html__('Forminator Forms', 'bdthemes-element-pack'),
+            'type'         => 'checkbox',
+            'default'      => "off",
+            'plugin_name'  => 'forminator',
+            'plugin_path'  => 'forminator/forminator.php',
+            'widget_type'  => 'pro',
+            'content_type' => 'forms new',
+            'demo_url'     => 'https://elementpack.pro/demo/element/forminator-forms/',
+            'video_url'    => '',
+        ];
+
+        $third_party_widget['element_pack_third_party_widget'][] = [
             'name'         => 'fluent-forms',
             'label'        => esc_html__( 'Fluent Forms', 'bdthemes-element-pack' ),
             'type'         => 'checkbox',
@@ -1735,7 +1823,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-donation-history/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/n2Cnlubi-E8',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1746,7 +1834,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-donor-wall/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/W_RRrE4cmEo',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1757,7 +1845,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-form-grid/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/hq4ElaX0nrE',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1768,7 +1856,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-form/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/k18Mgivy9Mw',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1779,7 +1867,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-goal/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/WdRBJL7fOvk',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1790,7 +1878,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-login/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/_mgg8ms12Gw',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1801,7 +1889,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-profile-editor/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/oaUUPA7eX2A',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1812,7 +1900,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-receipt/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/2xoXNi_Hx3k',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1823,7 +1911,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-register/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/4pO-fTXuW3Q',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -1834,7 +1922,7 @@ class ElementPack_Admin_Settings {
             'widget_type' => 'pro',
             'content_type' => 'forms new',
             'demo_url'    => 'https://elementpack.pro/demo/element/give-totals/',
-            'video_url'   => '',
+            'video_url'   => 'https://youtu.be/fZMljNFdvKs',
         ];
 
         $third_party_widget['element_pack_third_party_widget'][] = [
@@ -2225,11 +2313,12 @@ class ElementPack_Admin_Settings {
                         and lift it to the next level. Element Pack makes everything easy for you. Its drag and drop options can
                         create magic. If you feel any challenges visit our youtube channel, nock on our support system.
                         Stay tuned and see you at the top of success.</p>
+                        <p><a href="https://www.facebook.com/groups/elementpack/">Join our community</a> for get help or share your idea instantly</p>
 
                       <a class="bdt-button bdt-btn-red bdt-margin-small-top bdt-margin-small-right" target="_blank" rel=""
                          href="https://elementpack.pro/support/element-pack-knowledge-base/">Read Knowledge Base</a>
                       <a class="bdt-button bdt-btn-blue bdt-margin-small-top" target="_blank" rel=""
-                         href="https://www.facebook.com/groups/elementpack/">Join Facebook Group</a>
+                         href="https://bdthemes.com/giveaway/">Participate The Giveaway</a>
                     </div>
                   </div>
                 </div>
@@ -2241,22 +2330,23 @@ class ElementPack_Admin_Settings {
                       <h1 class="ep-feature-title">
                         Welcome <?php echo esc_html($current_user->user_firstname); ?> <?php echo esc_html($current_user->user_lastname); ?>
                         !</h1>
-                      <p>Thanks for joining the Element Pack Pro family. You are in the right place to build your amazing site
+                        <p>Thanks for joining the Element Pack Pro family. You are in the right place to build your amazing site
                         and lift it to the next level. Element Pack makes everything easy for you. Its drag and drop options can
                         create magic. If you feel any challenges visit our youtube channel, nock on our support system.
-                        Stay tuned and see you at the top of success.</p>
+                          Stay tuned and see you at the top of success.</p>
+                        <p><a href="https://www.facebook.com/groups/elementpack/">Join our community</a> for get help or share your idea instantly</p>
                     </div>
                   </div>
 
                   <div class="bdt-width-1-2@l">
                     <div class="bdt-card bdt-card-body bdt-card-blue ep-facebook-community">
 
-                      <h1 class="ep-feature-title">Join Facebook Community</h1>
+                      <h1 class="ep-feature-title">Join Our Giveaway Program</h1>
                       <p style="max-width: 690px;">
-                        Join our Element Pack Community to get instant help by our super active user and get exciting offer for our all of awesome product frequently.
+                          Win <b>Element Pack Pro Lifetime License</b> by joining our giveaway program. Please go to our giveaway program page and fill up some of your entries. We will select random 2 (two) users from the giveaway entry list end of the month.
                       </p>
                       <a class="bdt-button bdt-btn-blue bdt-margin-small-top" target="_blank" rel=""
-                         href="https://www.facebook.com/groups/elementpack/">Join The Community</a>
+                         href="https://bdthemes.com/giveaway/">Participate The Giveaway</a>
 
                     </div>
                   </div>
@@ -2307,12 +2397,12 @@ class ElementPack_Admin_Settings {
                             
                             <ul class="bdt-list bdt-list-divider" bdt-lightbox>
                                 <li>
-                                <a href="https://youtu.be/e-_qQl6dBbE">
-                                    <h4 class="ep-link-title">What's New in Version V5.5.0</h4>
+                                <a href="https://youtu.be/6wkKMB6m9Ts">
+                                    <h4 class="ep-link-title">What's New in Version V5.7.X</h4>
                                 </a>
                                 </li>
                                 <li>
-                                <a href="https://youtu.be/IZw_iRBWbC8">
+                                <a href="https://youtu.be/Z6XNSPSxtJw">
                                     <h4 class="ep-link-title">How to Use Template Library</h4>
                                 </a>
                                 </li>
@@ -2322,13 +2412,13 @@ class ElementPack_Admin_Settings {
                                 </a>
                                 </li>
                                 <li>
-                                <a href="https://youtu.be/Y2E0vfcUtBs">
-                                    <h4 class="ep-link-title">How to Use Mini Cart Widget</h4>
+                                <a href="https://youtu.be/RgoWlIm5KOo">
+                                    <h4 class="ep-link-title">How to Use Hover Video Widget</h4>
                                 </a>
                                 </li>
                                 <li>
-                                <a href="https://youtu.be/RgoWlIm5KOo">
-                                    <h4 class="ep-link-title">How to Use Hover Video Widget</h4>
+                                <a href="https://youtu.be/XuS3D-czTJc">
+                                    <h4 class="ep-link-title">How to Use Backdrop Filter with GlassMorphism</h4>
                                 </a>
                                 </li>
                             </ul>
@@ -2800,7 +2890,7 @@ class ElementPack_Admin_Settings {
                 $(window).on('load', function() {
                     hashHandler();
                 });
-
+ 
                 window.addEventListener("hashchange", hashHandler, true);
 
                 $('.toplevel_page_element_pack_options > ul > li > a ').on('click', function(event) {
@@ -2814,25 +2904,45 @@ class ElementPack_Admin_Settings {
 
 
                 jQuery("#element_pack_active_modules_page a.ep-active-all-widget").click(function(){
-                    jQuery('#element_pack_active_modules_page .ep-widget-free .checkbox').attr('checked', 'checked').prop("checked", true);
+                    // jQuery('#element_pack_active_modules_page .ep-widget-free .checkbox').attr('checked', 'checked').prop("checked", true);
+
+                    jQuery('#element_pack_active_modules_page .ep-widget-free .checkbox:visible').each(function() {
+                        jQuery(this).attr('checked', 'checked').prop("checked", true);
+                    });
+
                     jQuery(this).addClass('bdt-active');
                     jQuery("a.ep-deactive-all-widget").removeClass('bdt-active');
                 });
 
                 jQuery("#element_pack_active_modules_page a.ep-deactive-all-widget").click(function(){ 
-                    jQuery('#element_pack_active_modules_page .ep-widget-free .checkbox').removeAttr('checked');
+                    // jQuery('#element_pack_active_modules_page .ep-widget-free .checkbox').removeAttr('checked');
+                    
+                    jQuery('#element_pack_active_modules_page .ep-widget-free .checkbox:visible').each(function() {
+                        jQuery(this).removeAttr('checked');
+                    });
+
                     jQuery(this).addClass('bdt-active');
                     jQuery("a.ep-active-all-widget").removeClass('bdt-active');
                 });
 
                 jQuery("#element_pack_third_party_widget_page a.ep-active-all-widget").click(function(){
-                    jQuery('#element_pack_third_party_widget_page .ep-widget-free .checkbox').attr('checked', 'checked').prop("checked", true);
+                    // jQuery('#element_pack_third_party_widget_page .ep-widget-free .checkbox').attr('checked', 'checked').prop("checked", true);
+
+                    jQuery('#element_pack_third_party_widget_page .ep-widget-free .checkbox:visible').each(function() {
+                        jQuery(this).attr('checked', 'checked').prop("checked", true);
+                    });
+
                     jQuery(this).addClass('bdt-active');
                     jQuery("a.ep-deactive-all-widget").removeClass('bdt-active');
                 });
 
                 jQuery("#element_pack_third_party_widget_page a.ep-deactive-all-widget").click(function(){
-                    jQuery('#element_pack_third_party_widget_page .ep-widget-free .checkbox').removeAttr('checked');
+                    // jQuery('#element_pack_third_party_widget_page .ep-widget-free .checkbox').removeAttr('checked');
+
+                    jQuery('#element_pack_third_party_widget_page .ep-widget-free .checkbox:visible').each(function() { 
+                        jQuery(this).removeAttr('checked');
+                    });
+
                     jQuery(this).addClass('bdt-active');
                     jQuery("a.ep-active-all-widget").removeClass('bdt-active');
                         

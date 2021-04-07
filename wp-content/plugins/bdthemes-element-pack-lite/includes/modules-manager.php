@@ -71,12 +71,14 @@ final class Manager {
 			'lightbox',
 			'logo-grid',
 			'member',
+			'open-street-map',
 			'panel-slider',
 			'progress-pie',
 			'price-list',
 			'query-control',
 			'reading-progress',
 			'scroll-button',
+			'search',
 			'step-flow',
 			'slider',
 			'toggle',
@@ -84,6 +86,7 @@ final class Manager {
 			'twitter-grid',
 			'dual-button',
 			'fancy-list',
+			'user-register',
 		];
 
 		$tutor_lms     = element_pack_option( 'tutor-lms', 'element_pack_third_party_widget', 'on' );
@@ -126,6 +129,12 @@ final class Manager {
 		if ( is_plugin_active('formidable/formidable.php') and 'on' === $formidable_forms ) {
             $modules[] = 'formidable-forms';
         }
+
+		// elementor extend
+		$backdrop_filter = element_pack_option( 'backdrop_filter', 'element_pack_elementor_extend', 'off' );
+		if ( 'on' === $backdrop_filter ) {
+			$modules[] = 'backdrop-filter';
+		}
 
 		// Fetch all modules data
 		foreach ( $modules as $module ) {

@@ -233,7 +233,7 @@ class Skin_Abetis extends Elementor_Skin_Base {
 					<?php endif; ?>
 
 
-					<div class="bdt-custom-gallery-inner bdt-transition-toggle bdt-position-relative">
+					<div class="bdt-custom-gallery-inner bdt-image-mask bdt-transition-toggle bdt-position-relative">
 						<?php 
 						$this->parent->render_thumbnail($item, 'gallery-item-' . $index);
 						$this->render_overlay($item, 'gallery-item-' . $index );
