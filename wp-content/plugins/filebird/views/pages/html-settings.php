@@ -50,8 +50,8 @@ if(($countEnhancedFolder + $countWpmlfFolder + $countWpmfFolder + $countRealMedi
     ))
   );
 }
-?>
 $tabs = apply_filters('fbv_settings_tabs', $tabs);
+?>
 <div class="wrap">
   <h1><?php _e('FileBird Settings'); ?></h1>
   <form action="options.php" method="POST" id="post" autocomplete="off">

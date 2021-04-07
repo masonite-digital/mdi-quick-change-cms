@@ -162,8 +162,15 @@ Happy Organizing! 😍
 
 == Changelog ==
 
+Apr 07, 2021 - Version 4.7.2
+- Improved: Tooltip
+- Improved: UI
+- Optimized: FileBird zip size
+- Fixed: Can't set folder Uncategorized as default in folder load
+- Fixed: Update database make folders duplicated when "Each user folder mode" enabled
+
 Apr 01, 2021 - Version 4.7.1
-- Improved: Upload files
+- Added: Upload multiple images in multiple folders when upload processing
 - Fixed: Append wrong folders in right side
 
 Mar 30, 2021 - Version 4.7
